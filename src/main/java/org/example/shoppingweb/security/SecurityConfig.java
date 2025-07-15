@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 package org.example.shoppingweb.security;
 
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,8 @@ public class SecurityConfig {
     }
 }
 =======
+=======
+>>>>>>> Stashed changes
 package org.example.shoppingweb.security;
 
 import org.springframework.context.annotation.Bean;
@@ -49,4 +52,7 @@ public class SecurityConfig {
         return http.build();
     }
 }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
