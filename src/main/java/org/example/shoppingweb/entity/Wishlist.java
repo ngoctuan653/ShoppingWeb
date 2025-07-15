@@ -11,10 +11,10 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "cart")
-public class Cart {
+@Table(name = "wishlist")
+public class Wishlist {
     @Id
-    @Column(name = "cart_id", nullable = false)
+    @Column(name = "wishlist_id", nullable = false)
     private Integer id;
 
     @NotNull
@@ -26,10 +26,6 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
-    @ColumnDefault("1")
-    @Column(name = "quantity")
-    private Integer quantity;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")

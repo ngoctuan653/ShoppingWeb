@@ -4,35 +4,34 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.time.Instant;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "cart")
-public class Cart {
+@Table(name = "orderdetails")
+public class Orderdetail {
     @Id
-    @Column(name = "cart_id", nullable = false)
+    @Column(name = "order_detail_id", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ColumnDefault("1")
-    @Column(name = "quantity")
+    @NotNull
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
+    @NotNull
+    @Column(name = "unit_price", nullable = false, precision = 18, scale = 2)
+    private BigDecimal unitPrice;
 
 }

@@ -1,27 +1,59 @@
 package org.example.shoppingweb.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "Orders")
+@Table(name = "orders")
 public class Order {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id")
-    private int id;
+    @Column(name = "order_id", nullable = false)
+    private Integer id;
 
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "order_date")
-    private java.time.LocalDateTime orderDate;
+    private Instant orderDate;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "total_amount", precision = 18, scale = 2)
+    private BigDecimal totalAmount;
 
-    @Column(name = "total_cost")
-    private Double totalCost;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "status_id", nullable = false)
+    private Orderstatus status;
 
-    private Integer status;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 
-    // Getter - Setter
+    @Size(max = 255)
+    @Column(name = "shipping_address")
+    private String shippingAddress;
+
+    @Size(max = 10)
+    @Column(name = "phone_number", length = 10)
+    private String phoneNumber;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
 }
-

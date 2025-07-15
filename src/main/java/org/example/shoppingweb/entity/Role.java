@@ -1,6 +1,9 @@
 package org.example.shoppingweb.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -12,25 +15,20 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "categories")
-public class Category {
+@Table(name = "roles")
+public class Role {
     @Id
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "role_id", nullable = false)
     private Integer id;
 
-    @Size(max = 100)
+    @Size(max = 50)
     @NotNull
-    @Column(name = "category_name", nullable = false, length = 100)
-    private String categoryName;
+    @Column(name = "role_name", nullable = false, length = 50)
+    private String roleName;
 
     @Size(max = 255)
     @Column(name = "description")
     private String description;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "brand_id", nullable = false)
-    private Brand brand;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
