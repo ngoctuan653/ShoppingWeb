@@ -64,4 +64,6 @@ public class User {
     @Column(name = "status", length = 50)
     private String status;
 
+    
+    
 }
