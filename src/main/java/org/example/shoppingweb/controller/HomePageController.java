@@ -10,15 +10,15 @@ public class HomePageController {
 	    return "redirect:/index";
 	}
 	
-    @GetMapping("/index")
-    public String showIndex() {
-        return "index";
-    }
+//    @GetMapping("/index")
+//    public String showIndex() {
+//        return "index";
+//    }
     
-    @GetMapping("/login")
-    public String showLogin() {
-        return "login";
-    }
+//    @GetMapping("/login")
+//    public String showLogin() {
+//        return "login";
+//    }
     
     @GetMapping("/signup")
     public String showSignUp() {

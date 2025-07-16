@@ -17,10 +17,10 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping( "/products")
+    @GetMapping( "/index")
     public String showProduct(Model model){
         List<Product> products = productService.getAllProduct();
         model.addAttribute("products", products);
-        return "list";
+        return "index";
     }
 }

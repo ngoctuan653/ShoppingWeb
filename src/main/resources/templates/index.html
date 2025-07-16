@@ -10,7 +10,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -46,14 +46,20 @@
 
                 <!-- Right Side Actions -->
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-dark btn-sm d-none d-md-block">
+                    <!-- Sign In -->
+                    <a th:href="@{/login}" class="btn btn-outline-dark btn-sm d-none d-md-block">
                         <i class="bi bi-person me-1"></i>Sign In
-                    </button>
-                    <button class="btn btn-dark btn-sm d-none d-md-block">Sign Up</button>
-                    <button class="btn btn-outline-dark btn-sm">
+                    </a>
+
+                    <!-- Sign Up -->
+                    <a th:href="@{/signup}" class="btn btn-outline-dark btn-sm d-none d-md-block">
+                        Sign Up
+                    </a>
+
+                    <a th:href="@{/cart}" class="btn btn-outline-dark btn-sm">
                         <i class="bi bi-bag"></i>
-                        <span class="badge bg-danger ms-1">3</span>
-                    </button>
+                        <span class="badge bg-danger ms-1" >3</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -194,8 +200,18 @@
                     </button>
                 </div>
 
-                <div class="row" id="productsGrid">
-                    <!-- Products will be loaded here by JavaScript -->
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="product : ${products}">
+                        <div class="card h-100">
+                            <img th:src="@{'https://noithatbinhminh.com.vn/wp-content/uploads/2022/08/anh-dep-44.jpg.webp'}" class="card-img-top" alt="Product Image">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                                <p class="card-text text-muted" th:text="${product.description}">Product description</p>
+                                <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
+                                <a href="#" class="btn btn-dark btn-sm">Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="text-center mt-4">

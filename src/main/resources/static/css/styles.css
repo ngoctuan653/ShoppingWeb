@@ -231,3 +231,7 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-color);
 }
+
+img{
+  height: 350px;
+}
