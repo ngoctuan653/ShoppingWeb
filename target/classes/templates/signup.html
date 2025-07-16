@@ -17,10 +17,16 @@
             <h2 class="fw-bold">Create Account</h2>
             <p class="text-muted">Join the StyleLegacy community</p>
         </div>
-        <form action="/signup" method="post">
+        <div class="alert alert-danger text-center" th:if="${error}" th:text="${error}"></div>
+
+        <form action="/signup" method="post" th:object="${signUpForm}">
             <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+                <label for="fullName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
@@ -30,14 +36,18 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+            </div>
             <button type="submit" class="btn btn-dark w-100">Sign Up</button>
         </form>
+
         <div class="text-center mt-3">
             <span class="text-muted">Already have an account?</span>
             <a href="/login" class="fw-medium">Sign In</a>
         </div>
     </div>
 </div>
-
 </body>
 </html>
