@@ -1,5 +1,6 @@
 package org.example.shoppingweb.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +22,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/signup", "/forgot", "/doLogin", "/oauth2/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/index", "/signup", "/forgot",
+                                "/doLogin", "/oauth2/**", "/css/**", "/js/**",
+                                "/about", "/contact").permitAll()
                         .anyRequest().authenticated()
-                ).oauth2Login(oauth2 -> oauth2.loginPage("/login")
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.setContentType("text/plain;charset=UTF-8");
+                                response.getWriter().write("Please login");
+                            } else {
+                                response.sendRedirect("/login");
+                            }
+                        })
+                )
+                .oauth2Login(oauth2 -> oauth2.loginPage("/login")
                         .defaultSuccessUrl("/oauth2/success", true)
                         .permitAll())
                 .formLogin(form -> form

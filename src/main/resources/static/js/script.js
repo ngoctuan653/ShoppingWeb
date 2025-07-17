@@ -32,8 +32,9 @@ function showToast(message, type) {
     toastEl.classList.remove("bg-success", "bg-danger");
     toastEl.classList.add("bg-" + type);
 
+    const delayTime = (type === "danger") ? 4000 : 400;
     const toast = new bootstrap.Toast(toastEl, {
-        delay: 500,
+        delay: delayTime,
     });
     toast.show();
 }

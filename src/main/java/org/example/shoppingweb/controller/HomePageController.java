@@ -30,4 +30,14 @@ public class HomePageController {
     public String forgotPasswordPage(){
         return "forgot";
     }
+
+    @GetMapping("/about")
+    public String aboutPage(){
+        return "about";
+    }
+
+    @GetMapping("/contact")
+    public String contactPage(){
+        return "contact";
+    }
 }
