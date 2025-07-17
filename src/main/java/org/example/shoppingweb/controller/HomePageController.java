@@ -1,6 +1,5 @@
 package org.example.shoppingweb.controller;
 
-import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.DTO_Login;
 import org.example.shoppingweb.DTO.DTO_Signup;
 import org.springframework.stereotype.Controller;
@@ -27,9 +26,8 @@ public class HomePageController {
         return "signup";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/index";
+    @GetMapping("/forgot")
+    public String forgotPasswordPage(){
+        return "forgot";
     }
 }
