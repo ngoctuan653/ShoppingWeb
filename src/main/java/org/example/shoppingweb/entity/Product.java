@@ -47,8 +47,10 @@ public class Product {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @Column(name = "image")
+    @Lob
+    @Column(name = "image", columnDefinition = "LONGBLOB") // <- rất quan trọng
     private byte[] image;
+
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
