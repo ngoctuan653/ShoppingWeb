@@ -235,3 +235,10 @@ html {
 img{
     height: 350px;
 }
+#mainNavbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+    transition: transform 0.3s ease-in-out;
+}

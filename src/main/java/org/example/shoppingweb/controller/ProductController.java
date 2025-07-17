@@ -23,11 +23,18 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping( "/index")
-    public String showProduct(Model model){
-        List<Product> products = productService.getAllProduct();
+    @GetMapping("/index")
+    public String showProduct(Model model) {
+        List<Product> products = productService.getAllActiveProducts();
         model.addAttribute("products", products);
         return "index";
+    }
+
+    @GetMapping("/home")
+    public String showProductHome(Model model) {
+        List<Product> products = productService.getAllActiveProducts();
+        model.addAttribute("products", products);
+        return "Home";
     }
 
     @GetMapping("/products")
@@ -98,6 +105,25 @@ public class ProductController {
         headers.setContentType(MediaType.IMAGE_JPEG); // hoặc IMAGE_PNG nếu ảnh là PNG
         return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
     }
+
+    @PostMapping("/products/add")
+    public String addProduct(@ModelAttribute Product product,
+                             @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
+
+        if (!imageFile.isEmpty()) {
+            product.setImage(imageFile.getBytes());
+        }
+
+        productService.saveProduct(product);
+        return "redirect:/products";
+    }
+
+    @PostMapping("/products/delete/{id}")
+    public String softDeleteProduct(@PathVariable("id") Integer id) {
+        productService.updateStatus(id, "Inactive");
+        return "redirect:/products";
+    }
+
 
 
 }
