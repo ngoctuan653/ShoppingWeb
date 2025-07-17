@@ -34,6 +34,7 @@
                 <th>Price ($)</th>
                 <th>Category</th>
                 <th>Brand</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -51,6 +52,12 @@
                 <td th:text="${product.price}">0.00</td>
                 <td th:text="${product.category.getCategoryName()}">Category</td>
                 <td th:text="${product.brand.getBrandName()}">Brand</td>
+                <td>
+            <span th:text="${product.status}"
+                  th:classappend="${product.status == 'Active'} ? 'badge bg-success' : 'badge bg-danger'">
+            </span>
+                </td>
+
                 <td>
                     <button class="btn btn-sm btn-outline-primary"
                             th:attr="data-id=${product.id},
@@ -91,21 +98,39 @@
                     <label class="form-label">Price ($)</label>
                     <input type="number" name="price" class="form-control" required step="0.01">
                 </div>
+                <!-- Category -->
                 <div class="col-md-6">
                     <label class="form-label">Category</label>
-                    <input type="text" name="category" class="form-control" required>
+                    <select class="form-select" name="category.id" id="add-category" required>
+                        <option value="" disabled>-- Select Category --</option>
+                        <option th:each="c : ${categories}"
+                                th:value="${c.id}"
+                                th:text="${c.categoryName}">
+                        </option>
+                    </select>
                 </div>
+
+                <!-- Brand -->
                 <div class="col-md-6">
                     <label class="form-label">Brand</label>
-                    <input type="text" name="brand" class="form-control" required>
+                    <select class="form-select" name="brand.id" id="add-brand" required>
+                        <option value="" disabled>-- Select Brand --</option>
+                        <option th:each="b : ${brands}"
+                                th:value="${b.id}"
+                                th:text="${b.brandName}">
+                        </option>
+                    </select>
                 </div>
+
+
                 <div class="col-md-12">
                     <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control" rows="3"></textarea>
+                    <textarea name="description" id="add-description" class="form-control" rows="3"></textarea>
                 </div>
+
                 <div class="col-md-12">
-                    <label class="form-label">Image URL</label>
-                    <input type="text" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                    <label class="form-label">Upload Image</label>
+                    <input type="file" name="imageFile" id="add-image" class="form-control" accept="image/*">
                 </div>
             </div>
             <div class="modal-footer">

@@ -3,9 +3,23 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <style>
+
+
+        #mainNavbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+            transition: transform 0.3s ease-in-out;
+        }
+
+    </style>
+
 </head>
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom" th:fragment="navbar">
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom" th:fragment="navbar">
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="#">
@@ -22,10 +36,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
-                    <a class="nav-link active fw-medium" th:href="@{/index}">Home</a>
+                    <a class="nav-link fw-medium" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" href="#">Shop</a>
+                    <a class="nav-link  fw-medium" th:href="@{/index}">Shop</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link fw-medium" th:href="@{/about}">About Us</a>
@@ -70,5 +84,25 @@
         </div>
     </div>
 </nav>
+
 </body>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        let lastScroll = 0;
+        const navbar = document.getElementById('mainNavbar');
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                navbar.style.transform = 'translateY(0)';
+            }
+
+            lastScroll = currentScroll;
+        });
+    });
+</script>
+
 </html>

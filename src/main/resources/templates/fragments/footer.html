@@ -88,6 +88,24 @@
             </div>
         </div>
     </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            let lastScroll = 0;
+            const navbar = document.getElementById('mainNavbar');
+
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+
+                lastScroll = currentScroll;
+            });
+        });
+    </script>
 </footer>
 
 </body>

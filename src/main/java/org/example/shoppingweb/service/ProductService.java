@@ -12,7 +12,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -29,6 +31,10 @@ public class ProductService {
 
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    public List<Product> getAllActiveProducts() {
+        return productRepository.findByStatus("Active");
     }
 
     public List<Brand> getAllBrands() {
@@ -64,8 +70,14 @@ public class ProductService {
     }
 
     public void saveProduct(Product product) {
+        if (product.getStatus() == null || product.getStatus().isBlank()) {
+            product.setStatus("Active");
+        }
+        product.setCreatedAt(Instant.now());
+        product.setUpdatedAt(Instant.now());
         productRepository.save(product);
     }
+
 
     public void deleteProduct(Integer id) {
         productRepository.deleteById(id);
@@ -95,4 +107,16 @@ public class ProductService {
 
         productRepository.save(existing);
     }
+
+
+    public void updateStatus(Integer id, String status) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            product.setStatus(status);
+            product.setUpdatedAt(Instant.now());
+            productRepository.save(product);
+        }
+    }
+
 }
