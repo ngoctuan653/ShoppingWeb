@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -23,12 +24,21 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/index")
+    @GetMapping("/shop")
     public String showProduct(Model model) {
         List<Product> products = productService.getAllActiveProducts();
         model.addAttribute("products", products);
-        return "index";
+        return "shop";
     }
+
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Product> searchProducts(@RequestParam String keyword,
+                                        @RequestParam(required = false) BigDecimal minPrice,
+                                        @RequestParam(required = false) BigDecimal maxPrice) {
+        return productService.searchByKeywordAndPrice(keyword, minPrice, maxPrice);
+    }
+
 
     @GetMapping("/home")
     public String showProductHome(Model model) {

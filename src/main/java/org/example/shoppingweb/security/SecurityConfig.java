@@ -23,8 +23,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index", "/signup", "/forgot",
-                                "/doLogin", "/oauth2/**", "/css/**", "/js/**" , "/products/image/**",
-                                "/about", "/contact").permitAll()
+                                "/doLogin", "/oauth2/**", "/css/**", "/js/**",
+                                "/about", "/contact","/products/image/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
