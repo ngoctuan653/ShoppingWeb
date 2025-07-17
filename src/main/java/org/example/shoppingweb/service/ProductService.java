@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,25 +46,30 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> searchByKeywordAndPrice(String keyword, BigDecimal minPrice, BigDecimal maxPrice) {
-        return productRepository.findAll((Specification<Product>) (root, query, cb) -> {
-            List<Predicate> predicates = new java.util.ArrayList<>();
+    public List<Product> searchProducts(String keyword, Double minPrice, Double maxPrice, List<Long> categoryIds, List<Long> brandIds) {
+        return productRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-            if (keyword != null && !keyword.trim().isEmpty()) {
+            if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
-
             if (minPrice != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
             }
-
             if (maxPrice != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            }
+            if (categoryIds != null && !categoryIds.isEmpty()) {
+                predicates.add(root.get("category").get("id").in(categoryIds));
+            }
+            if (brandIds != null && !brandIds.isEmpty()) {
+                predicates.add(root.get("brand").get("id").in(brandIds));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         });
     }
+
 
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);

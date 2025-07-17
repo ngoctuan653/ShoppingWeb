@@ -27,16 +27,23 @@ public class ProductController {
     @GetMapping("/shop")
     public String showProduct(Model model) {
         List<Product> products = productService.getAllActiveProducts();
+        List<Category> categories = productService.getAllCategories();
+        List<Brand> brands = productService.getAllBrands();
+        model.addAttribute("categories", categories);
         model.addAttribute("products", products);
+        model.addAttribute("brands", brands);
         return "shop";
     }
 
     @GetMapping("/search")
     @ResponseBody
-    public List<Product> searchProducts(@RequestParam String keyword,
-                                        @RequestParam(required = false) BigDecimal minPrice,
-                                        @RequestParam(required = false) BigDecimal maxPrice) {
-        return productService.searchByKeywordAndPrice(keyword, minPrice, maxPrice);
+    public List<Product> searchProducts(@RequestParam(required = false) String keyword,
+                                        @RequestParam(required = false) Double minPrice,
+                                        @RequestParam(required = false) Double maxPrice,
+                                        @RequestParam(required = false) List<Long> categories,
+                                        @RequestParam(required = false) List<Long> brands) {
+
+        return productService.searchProducts(keyword, minPrice, maxPrice, categories, brands);
     }
 
 
@@ -69,7 +76,6 @@ public class ProductController {
         productService.saveProduct(product);
         return "redirect:/products";
     }
-
 
 
     @GetMapping("/products/edit/{id}")
@@ -133,7 +139,6 @@ public class ProductController {
         productService.updateStatus(id, "Inactive");
         return "redirect:/products";
     }
-
 
 
 }

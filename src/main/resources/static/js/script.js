@@ -114,7 +114,11 @@ const searchInput = document.getElementById("searchInput");
 const productGrid = document.getElementById("productGrid");
 const minPriceInput = document.getElementById("minPrice");
 const maxPriceInput = document.getElementById("maxPrice");
+const priceRangeInput = document.getElementById("priceRange");
+const priceValueSpan = document.getElementById("priceValue");
 let debounceTimeout = null;
+
+
 
 const showLoading = () => {
     productGrid.innerHTML = `
@@ -185,5 +189,45 @@ minPriceInput.addEventListener("input", () => {
 maxPriceInput.addEventListener("input", () => {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(handleSearch, 300);
+});
+
+// Khi kéo slider → cập nhật maxPriceInput và gọi handleSearch
+priceRangeInput.addEventListener("input", () => {
+    const value = priceRangeInput.value;
+    priceValueSpan.textContent = `$${value}`;
+    maxPriceInput.value = value;
+
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(handleSearch, 300);
+});
+
+// Khi sửa maxPriceInput → cập nhật slider
+maxPriceInput.addEventListener("input", () => {
+    const value = maxPriceInput.value;
+    if (value) {
+        priceRangeInput.value = value;
+        priceValueSpan.textContent = `$${value}`;
+    }
+
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(handleSearch, 300);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    priceValueSpan.textContent = `$${priceRangeInput.value}`;
+    maxPriceInput.value = priceRangeInput.value;
+});
+
+// Helper: Lấy danh sách ID từ checkbox
+const getCheckedValues = (selector) => {
+    return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
+};
+
+// Gọi lại handleSearch khi chọn category/brand
+document.querySelectorAll(".category-filter, .brand-filter").forEach(cb => {
+    cb.addEventListener("change", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 100);
+    });
 });
 

@@ -83,13 +83,14 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Price Range</h5>
-                    <div class="mb-3">
-                        <input type="range" class="form-range" min="0" max="500" value="200" id="priceRange">
-                        <div class="d-flex justify-content-between small text-muted">
-                            <span>$0</span>
-                            <span>$500</span>
-                        </div>
-                    </div>
+<!--                    <div class="mb-3">-->
+<!--                        <label for="priceRange" class="form-label">Max Price: <span id="priceValue">$200</span></label>-->
+<!--                        <input type="range" class="form-range" min="0" max="3000" value="200" id="priceRange">-->
+<!--                        <div class="d-flex justify-content-between small text-muted">-->
+<!--                            <span>$0</span>-->
+<!--                            <span>$3000</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div class="row g-2">
                         <div class="col">
                             <input type="number" class="form-control form-control-sm" placeholder="Min" id="minPrice">
@@ -106,29 +107,9 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Categories</h5>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="t-shirts" id="cat1">
-                        <label class="form-check-label" for="cat1">T-Shirts</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="dresses" id="cat2">
-                        <label class="form-check-label" for="cat2">Dresses</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="jackets" id="cat3">
-                        <label class="form-check-label" for="cat3">Jackets</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="shoes" id="cat4">
-                        <label class="form-check-label" for="cat4">Shoes</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="shirts" id="cat5">
-                        <label class="form-check-label" for="cat5">Shirts</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="accessories" id="cat6">
-                        <label class="form-check-label" for="cat6">Accessories</label>
+                    <div class="form-check" th:each="category : ${categories}">
+                        <input class="form-check-input category-filter" type="checkbox" th:value="${category.id}" th:id="'cat' + ${category.id}">
+                        <label class="form-check-label" th:for="'cat' + ${category.id}" th:text="${category.categoryName}">Category</label>
                     </div>
                 </div>
             </div>
@@ -137,29 +118,9 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Brands</h5>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="styleco" id="brand1">
-                        <label class="form-check-label" for="brand1">StyleCo</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="fashionhub" id="brand2">
-                        <label class="form-check-label" for="brand2">FashionHub</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="denimco" id="brand3">
-                        <label class="form-check-label" for="brand3">DenimCo</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="comfortwalk" id="brand4">
-                        <label class="form-check-label" for="brand4">ComfortWalk</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="prostyle" id="brand5">
-                        <label class="form-check-label" for="brand5">ProStyle</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="luxebag" id="brand6">
-                        <label class="form-check-label" for="brand6">LuxeBag</label>
+                    <div class="form-check" th:each="brand : ${brands}">
+                        <input class="form-check-input brand-filter" type="checkbox" th:value="${brand.id}" th:id="'brand' + ${brand.id}">
+                        <label class="form-check-label" th:for="'brand' + ${brand.id}" th:text="${brand.brandName}">Brand</label>
                     </div>
                 </div>
             </div>
