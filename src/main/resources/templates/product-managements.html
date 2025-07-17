@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Product Management</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="/css/styles.css">
+    <meta charset="UTF-8">
+    <title>Product Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 <!-- Navbar -->
@@ -13,176 +13,175 @@
 
 <!-- Main Content -->
 <div class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="fw-bold mb-0">Product Management</h2>
-      <p class="text-muted">Manage your store's products</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Product Management</h2>
+            <p class="text-muted">Manage your store's products</p>
+        </div>
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="bi bi-plus-circle"></i> Add Product
+        </button>
     </div>
-    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addProductModal">
-      <i class="bi bi-plus-circle"></i> Add Product
-    </button>
-  </div>
 
-  <div class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-dark">
-      <tr>
-        <th>#</th>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Price ($)</th>
-        <th>Category</th>
-        <th>Brand</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="product, iterStat : ${products}">
-        <td th:text="${iterStat.count}">1</td>
-        <td>
-          <img th:src="@{'/products/image/' + ${product.id}}"
-               alt="Product"
-               class="img-thumbnail"
-               style="width: 70px; height: 70px;">
-        </td>
-        <td th:text="${product.productName}">Product Name</td>
-        <td th:text="${product.description}">Description</td>
-        <td th:text="${product.price}">0.00</td>
-        <td th:text="${product.category.getCategoryName()}">Category</td>
-        <td th:text="${product.brand.getBrandName()}">Brand</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary"
-                  th:attr="data-id=${product.id},
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price ($)</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product, iterStat : ${products}">
+                <td th:text="${iterStat.count}">1</td>
+                <td>
+                    <img th:src="@{'/products/image/' + ${product.id}}"
+                         alt="Product"
+                         class="img-thumbnail"
+                         style="width: 70px; height: 70px;">
+                </td>
+                <td th:text="${product.productName}">Product Name</td>
+                <td th:text="${product.description}">Description</td>
+                <td th:text="${product.price}">0.00</td>
+                <td th:text="${product.category.getCategoryName()}">Category</td>
+                <td th:text="${product.brand.getBrandName()}">Brand</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                            th:attr="data-id=${product.id},
                  data-category-id=${product.category.id},
                  data-brand-id=${product.brand.id}"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editProductModal">
-            <i class="bi bi-pencil-square"></i>
-          </button>
+                            data-bs-toggle="modal"
+                            data-bs-target="#editProductModal">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
 
-          <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post" class="d-inline">
-            <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Are you sure?')">
-              <i class="bi bi-trash"></i>
-            </button>
-          </form>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+                    <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger" type="submit"
+                                onclick="return confirm('Are you sure?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Add Product Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form th:action="@{/products/add}" method="post" class="modal-content" enctype="multipart/form-data">
-      <div class="modal-header">
-        <h5 class="modal-title">Add New Product</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Product Name</label>
-          <input type="text" name="productName" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Price ($)</label>
-          <input type="number" name="price" class="form-control" required step="0.01">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Category</label>
-          <input type="text" name="category" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Brand</label>
-          <input type="text" name="brand" class="form-control" required>
-        </div>
-        <div class="col-md-12">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="col-md-12">
-          <label class="form-label">Image URL</label>
-          <input type="text" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-dark" type="submit">Save</button>
-      </div>
-    </form>
-  </div>
+    <div class="modal-dialog modal-lg">
+        <form th:action="@{/products/add}" method="post" class="modal-content" enctype="multipart/form-data">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" name="productName" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Price ($)</label>
+                    <input type="number" name="price" class="form-control" required step="0.01">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    <input type="text" name="category" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Brand</label>
+                    <input type="text" name="brand" class="form-control" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Image URL</label>
+                    <input type="text" name="imageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-dark" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Edit Product Modal (you can make dynamic with JS later or one modal per product if needed) -->
 <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form th:action="@{/products/update}" method="post" class="modal-content" enctype="multipart/form-data">
-      <!-- Nội dung tương tự Add nhưng có thêm trường ID -->
-      <div class="modal-header">
-        <h5 class="modal-title">Edit Product</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body row g-3">
-        <div class="modal-body row g-3">
-          <input type="hidden" name="id" id="edit-id">
+    <div class="modal-dialog modal-lg">
+        <form th:action="@{/products/update}" method="post" class="modal-content" enctype="multipart/form-data">
+            <!-- Nội dung tương tự Add nhưng có thêm trường ID -->
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <div class="modal-body row g-3">
+                    <input type="hidden" name="id" id="edit-id">
 
-          <div class="col-md-6">
-            <label class="form-label">Product Name</label>
-            <input type="text" name="productName" id="edit-name" class="form-control" required>
-          </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" name="productName" id="edit-name" class="form-control" required>
+                    </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Price ($)</label>
-            <input type="number" name="price" id="edit-price" class="form-control" required step="0.01">
-          </div>
-          <!-- Category -->
-          <div class="col-md-6">
-            <label class="form-label">Category</label>
-            <select class="form-select" name="category.id" id="edit-category" required>
-              <option value="" disabled>-- Select Category --</option>
-              <option th:each="c : ${categories}"
-                      th:value="${c.id}"
-                      th:text="${c.categoryName}">
-              </option>
-            </select>
-          </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Price ($)</label>
+                        <input type="number" name="price" id="edit-price" class="form-control" required step="0.01">
+                    </div>
+                    <!-- Category -->
+                    <div class="col-md-6">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category.id" id="edit-category" required>
+                            <option value="" disabled>-- Select Category --</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.id}"
+                                    th:text="${c.categoryName}">
+                            </option>
+                        </select>
+                    </div>
 
-          <!-- Brand -->
-          <div class="col-md-6">
-            <label class="form-label">Brand</label>
-            <select class="form-select" name="brand.id" id="edit-brand" required>
-              <option value="" disabled>-- Select Brand --</option>
-              <option th:each="b : ${brands}"
-                      th:value="${b.id}"
-                      th:text="${b.brandName}">
-              </option>
-            </select>
-          </div>
-
-
+                    <!-- Brand -->
+                    <div class="col-md-6">
+                        <label class="form-label">Brand</label>
+                        <select class="form-select" name="brand.id" id="edit-brand" required>
+                            <option value="" disabled>-- Select Brand --</option>
+                            <option th:each="b : ${brands}"
+                                    th:value="${b.id}"
+                                    th:text="${b.brandName}">
+                            </option>
+                        </select>
+                    </div>
 
 
-          <div class="col-md-12">
-            <label class="form-label">Description</label>
-            <textarea name="description" id="edit-description" class="form-control" rows="3"></textarea>
-          </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="edit-description" class="form-control" rows="3"></textarea>
+                    </div>
 
-          <div class="col-md-12">
-            <label class="form-label">Upload Image</label>
-            <input type="file" name="imageFile" id="edit-image" class="form-control" accept="image/*">
-          </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Upload Image</label>
+                        <input type="file" name="imageFile" id="edit-image" class="form-control" accept="image/*">
+                    </div>
 
-        </div>
+                </div>
 
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-dark" type="submit">Update</button>
-      </div>
-    </form>
-  </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-dark" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Footer -->
@@ -191,31 +190,31 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/script.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const editButtons = document.querySelectorAll("button[data-bs-target='#editProductModal']");
+    document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll("button[data-bs-target='#editProductModal']");
 
-    editButtons.forEach(btn => {
-      btn.addEventListener("click", function () {
-        const row = btn.closest("tr");
+        editButtons.forEach(btn => {
+            btn.addEventListener("click", function () {
+                const row = btn.closest("tr");
 
-        const id = btn.getAttribute("data-id");
-        const name = row.querySelector("td:nth-child(3)").innerText;
-        const description = row.querySelector("td:nth-child(4)").innerText;
-        const price = row.querySelector("td:nth-child(5)").innerText;
-        const categoryId = btn.getAttribute("data-category-id");
-        const brandId = btn.getAttribute("data-brand-id");
-        const image = row.querySelector("img")?.getAttribute("src") || "";
+                const id = btn.getAttribute("data-id");
+                const name = row.querySelector("td:nth-child(3)").innerText;
+                const description = row.querySelector("td:nth-child(4)").innerText;
+                const price = row.querySelector("td:nth-child(5)").innerText;
+                const categoryId = btn.getAttribute("data-category-id");
+                const brandId = btn.getAttribute("data-brand-id");
+                const image = row.querySelector("img")?.getAttribute("src") || "";
 
-        document.getElementById("edit-id").value = id;
-        document.getElementById("edit-name").value = name;
-        document.getElementById("edit-description").value = description;
-        document.getElementById("edit-price").value = price;
-        document.getElementById("edit-category").value = categoryId;
-        document.getElementById("edit-brand").value = brandId;
-        document.getElementById("edit-image").value = image;
-      });
+                document.getElementById("edit-id").value = id;
+                document.getElementById("edit-name").value = name;
+                document.getElementById("edit-description").value = description;
+                document.getElementById("edit-price").value = price;
+                document.getElementById("edit-category").value = categoryId;
+                document.getElementById("edit-brand").value = brandId;
+                document.getElementById("edit-image").value = image;
+            });
+        });
     });
-  });
 
 </script>
 

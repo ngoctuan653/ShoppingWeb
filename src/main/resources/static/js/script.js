@@ -108,3 +108,82 @@ document.addEventListener("DOMContentLoaded", function () {
     cartBtn.addEventListener("click", loadCart);
     loadCart(); // Tải giỏ hàng khi trang load
 });
+
+//search Product by AJAX
+const searchInput = document.getElementById("searchInput");
+const productGrid = document.getElementById("productGrid");
+const minPriceInput = document.getElementById("minPrice");
+const maxPriceInput = document.getElementById("maxPrice");
+let debounceTimeout = null;
+
+const showLoading = () => {
+    productGrid.innerHTML = `
+        <div class="col-12 text-center py-4">
+            <div class="spinner-border text-dark" role="status"></div>
+        </div>`;
+};
+
+const handleSearch = () => {
+    const keyword = searchInput.value.trim();
+    const minPrice = minPriceInput.value;
+    const maxPrice = maxPriceInput.value;
+
+    showLoading();
+
+    // Gộp query param vào URL
+    const params = new URLSearchParams();
+    params.append("keyword", keyword);
+    if (minPrice) params.append("minPrice", minPrice);
+    if (maxPrice) params.append("maxPrice", maxPrice);
+
+    fetch(`/search?${params.toString()}`)
+        .then(res => res.json())
+        .then(products => {
+            productGrid.innerHTML = "";
+
+            if (products.length === 0) {
+                productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
+                return;
+            }
+
+            products.forEach(product => {
+                const card = `
+                <div class="col-md-4 mb-4 fade-in">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="/products/image/${product.id}" class="card-img-top" alt="Product Image" style="object-fit: cover; height: 250px;">
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">${product.productName}</h5>
+                            <p class="card-text text-muted small">${product.description || ''}</p>
+                            <p class="fw-bold text-primary">${formatCurrency(product.price)}</p>
+                            <button type="button" class="btn btn-dark btn-sm"
+                                    data-id="${product.id}" onclick="addToCart(this)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+                productGrid.insertAdjacentHTML('beforeend', card);
+            });
+        })
+        .catch(error => {
+            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Đã xảy ra lỗi khi tìm kiếm.</div>`;
+            console.error("Search error:", error);
+        });
+};
+
+// Debounce search input
+searchInput.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(handleSearch, 300);
+});
+
+// Thêm listener khi thay đổi min/max price
+minPriceInput.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(handleSearch, 300);
+});
+maxPriceInput.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(handleSearch, 300);
+});
+

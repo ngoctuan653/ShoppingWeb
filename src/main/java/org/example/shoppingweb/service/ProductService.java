@@ -1,5 +1,6 @@
 package org.example.shoppingweb.service;
 
+import jakarta.persistence.criteria.Predicate;
 import org.example.shoppingweb.entity.Brand;
 import org.example.shoppingweb.entity.Category;
 import org.example.shoppingweb.entity.Product;
@@ -7,8 +8,10 @@ import org.example.shoppingweb.repository.BrandRepository;
 import org.example.shoppingweb.repository.CategoryRepository;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -36,11 +39,26 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> searchByKeywordAndPrice(String keyword, BigDecimal minPrice, BigDecimal maxPrice) {
+        return productRepository.findAll((Specification<Product>) (root, query, cb) -> {
+            List<Predicate> predicates = new java.util.ArrayList<>();
 
-    public List<Product> searchProduct(String keyword) {
-        return productRepository.findByProductNameContainingIgnoreCase(keyword);
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
+            }
 
+            if (minPrice != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+            }
+
+            if (maxPrice != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        });
     }
+
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
