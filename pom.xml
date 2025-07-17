@@ -81,6 +81,12 @@
             <artifactId>lombok</artifactId>
             <scope>annotationProcessor</scope>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.6.1.jre11</version> <!-- chọn version phù hợp với JDK -->
+        </dependency>
+
     </dependencies>
 
     <build>
