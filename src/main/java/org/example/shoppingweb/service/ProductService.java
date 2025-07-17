@@ -81,6 +81,7 @@ public class ProductService {
         existing.setBrand(updatedProduct.getBrand());
         existing.setStatus(updatedProduct.getStatus());
         existing.setImage(updatedProduct.getImage());
+        existing.setStatus("Active");
 
         productRepository.save(existing);
     }
@@ -94,6 +95,11 @@ public class ProductService {
             product.setUpdatedAt(Instant.now());
             productRepository.save(product);
         }
+    }
+
+    public Product findById(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
     }
 
 }

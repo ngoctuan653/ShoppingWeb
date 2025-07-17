@@ -179,6 +179,7 @@
 
             <div class="row">
                 <div class="col-md-4 mb-4" th:each="product : ${products}">
+                    <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
                     <div class="card h-100">
                         <img th:src="@{'/products/image/' + ${product.id}}"
                              class="card-img-top" alt="Product Image">
@@ -193,6 +194,7 @@
                             </button>
                         </div>
                     </div>
+                    </a>
                 </div>
             </div>
 
