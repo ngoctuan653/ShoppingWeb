@@ -24,11 +24,11 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/index")
+    @GetMapping("/shop")
     public String showProduct(Model model) {
         List<Product> products = productService.getAllActiveProducts();
         model.addAttribute("products", products);
-        return "index";
+        return "shop";
     }
 
     @GetMapping("/search")

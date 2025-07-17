@@ -11,7 +11,7 @@ public class HomePageController {
 
     @GetMapping("/")
     public String home() {
-        return "redirect:/index";
+        return "redirect:/shop";
     }
 
     @GetMapping("/login")
