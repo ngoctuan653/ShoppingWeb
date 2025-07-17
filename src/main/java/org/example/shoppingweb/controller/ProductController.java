@@ -42,7 +42,11 @@ public class ProductController {
                                         @RequestParam(required = false) Double maxPrice,
                                         @RequestParam(required = false) List<Long> categories,
                                         @RequestParam(required = false) List<Long> brands) {
-
+        System.out.println("Keyword: " + keyword);
+        System.out.println("Min Price: " + minPrice);
+        System.out.println("Max Price: " + maxPrice);
+        System.out.println("Categories: " + categories);
+        System.out.println("Brands: " + brands);
         return productService.searchProducts(keyword, minPrice, maxPrice, categories, brands);
     }
 

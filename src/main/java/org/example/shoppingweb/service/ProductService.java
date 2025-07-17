@@ -46,7 +46,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> searchProducts(String keyword, Double minPrice, Double maxPrice, List<Long> categoryIds, List<Long> brandIds) {
+    public List<Product> searchProducts(String keyword, Double minPrice, Double maxPrice, List<Long> categories, List<Long> brands) {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -59,11 +59,11 @@ public class ProductService {
             if (maxPrice != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
             }
-            if (categoryIds != null && !categoryIds.isEmpty()) {
-                predicates.add(root.get("category").get("id").in(categoryIds));
+            if (categories != null && !categories.isEmpty()) {
+                predicates.add(cb.in(root.get("category").get("id")).value(categories));
             }
-            if (brandIds != null && !brandIds.isEmpty()) {
-                predicates.add(root.get("brand").get("id").in(brandIds));
+            if (brands != null && !brands.isEmpty()) {
+                predicates.add(cb.in(root.get("brand").get("id")).value(brands));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
