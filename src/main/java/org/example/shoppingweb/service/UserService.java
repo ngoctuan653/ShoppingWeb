@@ -37,6 +37,7 @@ public class UserService {
         user.setUsername(dto.getUsername());
         user.setPassword(password);
         user.setRole(role);
+        user.setStatus("Active");
         Instant now = Instant.now();
         user.setCreatedAt(now);
         return userRepository.save(user);

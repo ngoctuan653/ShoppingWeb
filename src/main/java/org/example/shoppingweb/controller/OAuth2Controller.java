@@ -32,8 +32,12 @@ public class OAuth2Controller {
     public String oauth2Success(OAuth2AuthenticationToken authentication, HttpSession session) {
         OAuth2User oauthUser = authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
-        String name = oauthUser.getAttribute("name");
+        if (email == null) {
+            return "redirect:/login?error=facebook_email_missing";
+        }
+        System.out.println("Facebook email: " + oauthUser.getAttribute("email"));
 
+        String name = oauthUser.getAttribute("name");
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user;
 
@@ -41,6 +45,7 @@ public class OAuth2Controller {
             String rawPassword = generateRandomPassword();
             String encodedPassword = passwordEncoder.encode(rawPassword);
             String username = generateNonDuplicateUsername();
+
             user = new User();
             user.setEmail(email);
             user.setFullName(name);
@@ -48,6 +53,7 @@ public class OAuth2Controller {
             user.setPassword(encodedPassword);
             Role userRole = roleRepository.findById(2).orElseThrow(); // Lấy role 'user thường'
             user.setRole(userRole);
+            user.setStatus("Active");
 
             userRepository.save(user);
         } else {

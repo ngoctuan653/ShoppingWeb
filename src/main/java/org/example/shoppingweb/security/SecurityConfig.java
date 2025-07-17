@@ -33,8 +33,7 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .successHandler(loginSuccessHandler)
                         .failureUrl("/login?error=true")
-                        .permitAll()
-                )
+                        .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
