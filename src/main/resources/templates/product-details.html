@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<!-- Product Details Section -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <img id="productImage" src="" alt="Product Image" class="img-fluid">
+        </div>
+        <div class="col-lg-6">
+            <h2 id="productTitle" class="fw-bold"></h2>
+            <p id="productDescription" class="text-muted"></p>
+            <p id="productPrice" class="fw-bold"></p>
+            <button class="btn btn-dark btn-sm">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get the product ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    // Example product data (replace with your backend or database)
+    const products = [
+        {
+            id: 1,
+            title: "Slim Fit Jeans",
+            description: "High-quality slim fit jeans for a trendy look",
+            price: "$49.99",
+            imageUrl: "https://via.placeholder.com/400x300"
+        },
+        {
+            id: 2,
+            title: "Summer Dress",
+            description: "A light and breezy summer dress for sunny days",
+            price: "$39.99",
+            imageUrl: "https://via.placeholder.com/400x300"
+        },
+        // Add more products as needed...
+    ];
+
+    // Find the product based on the ID
+    const product = products.find(p => p.id == productId);
+
+    // Display the product details on the page
+    if (product) {
+        document.getElementById('productTitle').textContent = product.title;
+        document.getElementById('productDescription').textContent = product.description;
+        document.getElementById('productPrice').textContent = product.price;
+        document.getElementById('productImage').src = product.imageUrl;
+    } else {
+        // If no product is found, show an error message
+        document.getElementById('productTitle').textContent = "Product not found!";
+    }
+</script>
+
+</body>
+</html>

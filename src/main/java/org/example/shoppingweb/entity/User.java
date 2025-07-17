@@ -15,6 +15,7 @@ import java.time.Instant;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
@@ -64,6 +65,4 @@ public class User {
     @Column(name = "status", length = 50)
     private String status;
 
-    
-    
 }
