@@ -154,7 +154,7 @@
             <div class="row">
                 <div class="col-md-4 mb-4" th:each="product : ${products}">
                     <div class="card h-100">
-                        <img th:src="@{'https://noithatbinhminh.com.vn/wp-content/uploads/2022/08/anh-dep-44.jpg.webp'}"
+                        <img th:src="@{'/products/image/' + ${product.id}}"
                              class="card-img-top" alt="Product Image">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
