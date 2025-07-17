@@ -148,8 +148,7 @@
                             <p class="card-text text-muted" th:text="${product.description}">Product description</p>
                             <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
                             <button type="button" class="btn btn-dark btn-sm"
-                                    th:attr="data-id=${product.id}"
-                                    onclick="addToCart(this)">
+                                    th:attr="data-id=${product.id}" onclick="addToCart(this)">
                                 Add to Cart
                             </button>
                         </div>
