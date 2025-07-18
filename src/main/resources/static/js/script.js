@@ -256,7 +256,6 @@ const handleSearch = () => {
         });
 };
 
-
 // Debounce search input
 if (searchInput) {
     let debounceTimeout;
