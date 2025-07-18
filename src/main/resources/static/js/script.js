@@ -192,7 +192,6 @@ const handleSearch = () => {
     const selectedBrands = getCheckedValues(".brand-filter");
 
 
-
     // ✅ In ra console để debug
     console.log("🔍 Keyword:", keyword);
     console.log("💲 Min Price:", minPrice);
@@ -259,30 +258,15 @@ const handleSearch = () => {
 
 
 // Debounce search input
-if(searchInput){
+if (searchInput) {
     let debounceTimeout;
     searchInput.addEventListener("input", () => {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(handleSearch, 300);
     });
-}else{
+} else {
     console.log("searchInput not found");
 }
-// searchInput.addEventListener("input", () => {
-//     clearTimeout(debounceTimeout);
-//     debounceTimeout = setTimeout(handleSearch, 300);
-// });
-
-// Thêm listener khi thay đổi min/max price
-// minPriceInput.addEventListener("input", () => {
-//     clearTimeout(debounceTimeout);
-//     debounceTimeout = setTimeout(handleSearch, 300);
-// });
-
-// maxPriceInput.addEventListener("input", () => {
-//     clearTimeout(debounceTimeout);
-//     debounceTimeout = setTimeout(handleSearch, 300);
-// });
 
 if (minPriceInput) {
     minPriceInput.addEventListener("input", () => {
