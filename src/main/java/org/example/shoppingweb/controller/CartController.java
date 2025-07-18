@@ -69,6 +69,52 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
     }
 
+    @PostMapping("/increase/{productId}")
+    @ResponseBody
+    public ResponseEntity<String> increaseQuantity(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+        if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        if (cartOpt.isPresent()) {
+            Cart cart = cartOpt.get();
+            cart.setQuantity(cart.getQuantity() + 1);
+            cartRepository.save(cart);
+            return ResponseEntity.ok("Quantity increased");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
+    }
+
+
+    @PostMapping("/decrease/{productId}")
+    @ResponseBody
+    public ResponseEntity<String> decreaseQuantity(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+        if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        if (cartOpt.isPresent()) {
+            Cart cart = cartOpt.get();
+            if (cart.getQuantity() > 1) {
+                cart.setQuantity(cart.getQuantity() - 1);
+                cartRepository.save(cart);
+            } else {
+                cartRepository.delete(cart);
+            }
+            return ResponseEntity.ok("Quantity decreased or item removed");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
+    }
+
+
+    @DeleteMapping("/remove/{productId}")
+    @ResponseBody
+    public ResponseEntity<String> removeItem(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+        if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        cartOpt.ifPresent(cartRepository::delete);
+        return ResponseEntity.ok("Item removed");
+    }
+
     @GetMapping("/json")
     @ResponseBody
     public ResponseEntity<List<CartItemDTO>> getCart(@SessionAttribute(name = "currentUser", required = false) User currentUser) {

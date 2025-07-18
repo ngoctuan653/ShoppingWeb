@@ -83,18 +83,22 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
         const cartItem = document.createElement("div");
         cartItem.className = "d-flex justify-content-between align-items-center mb-3 border-bottom pb-2";
         cartItem.innerHTML = `
-            <img src="${item.imageBase64}" alt="${item.productName}" class="me-2 rounded" style="width: 60px; height: 70px; object-fit: cover;">
+            <a href="/products/${item.productId}">
+                <img src="${item.imageBase64}" alt="${item.productName}" class="me-2 rounded" style="width: 60px; height: 70px; object-fit: cover;">
+            </a>
             <div class="flex-grow-1 ms-2">
-                <p class="mb-1 fw-semibold">${item.productName}</p>
+                <a href="/products/${item.productId}" class="text-decoration-none text-dark">
+                    <p class="mb-1 fw-semibold">${item.productName}</p>
+                </a>
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-1">-</button>
+                    <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease" data-id="${item.productId}">-</button>
                     <span class="px-2">${item.quantity}</span>
-                    <button class="btn btn-sm btn-outline-secondary ms-1">+</button>
+                    <button class="btn btn-sm btn-outline-secondary ms-1 btn-increase" data-id="${item.productId}">+</button>
                 </div>
             </div>
             <div class="text-end">
                 <p class="fw-bold mb-1">${formatCurrency(itemTotal)}</p>
-                <button class="btn btn-sm btn-outline-danger">x</button>
+                <button class="btn btn-sm btn-outline-danger btn-remove" data-id="${item.productId}">x</button>
             </div>
         `;
         cartContainer.appendChild(cartItem);
@@ -103,15 +107,58 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
     cartTotalEl.textContent = formatCurrency(total);
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalItems;
+
+    cartContainer.querySelectorAll(".btn-increase").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const productId = btn.dataset.id;
+            console.log(`Tăng sản phẩm: ${productId}`);
+            fetch(`/cart/increase/${productId}`, {
+                method: "POST",
+                credentials: "include"
+            }).then(() => {
+                console.log("Tăng xong, load lại cart");
+                loadCart();
+            });
+        });
+    });
+
+    cartContainer.querySelectorAll(".btn-decrease").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const productId = btn.dataset.id;
+            console.log(`Giảm sản phẩm: ${productId}`);
+            fetch(`/cart/decrease/${productId}`, {
+                method: "POST",
+                credentials: "include"
+            }).then(() => {
+                console.log("Giảm xong, load lại cart");
+                loadCart();
+            });
+        });
+    });
+
+    cartContainer.querySelectorAll(".btn-remove").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const productId = btn.dataset.id;
+            console.log(`Xóa sản phẩm: ${productId}`);
+            fetch(`/cart/remove/${productId}`, {
+                method: "DELETE",
+                credentials: "include"
+            }).then(() => {
+                console.log("Xóa xong, load lại cart");
+                loadCart();
+            });
+        });
+    });
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {
     const cartBtn = document.querySelector("button[data-bs-target='#cartOffcanvas']");
-    if (cartBtn){
+    if (cartBtn) {
         cartBtn.addEventListener("click", loadCart);
         loadCart(); // Tải giỏ hàng khi trang load
-    }else{
-        console.log(" cartBtn not found");
+    } else {
+        console.log("cartBtn not found");
     }
 
 });
@@ -143,6 +190,8 @@ const handleSearch = () => {
     const maxPrice = maxPriceInput.value;
     const selectedCategories = getCheckedValues(".category-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
+
+
 
     // ✅ In ra console để debug
     console.log("🔍 Keyword:", keyword);
@@ -210,20 +259,48 @@ const handleSearch = () => {
 
 
 // Debounce search input
-searchInput.addEventListener("input", () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(handleSearch, 300);
-});
+if(searchInput){
+    let debounceTimeout;
+    searchInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+}else{
+    console.log("searchInput not found");
+}
+// searchInput.addEventListener("input", () => {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(handleSearch, 300);
+// });
 
 // Thêm listener khi thay đổi min/max price
-minPriceInput.addEventListener("input", () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(handleSearch, 300);
-});
-maxPriceInput.addEventListener("input", () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(handleSearch, 300);
-});
+// minPriceInput.addEventListener("input", () => {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(handleSearch, 300);
+// });
+
+// maxPriceInput.addEventListener("input", () => {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(handleSearch, 300);
+// });
+
+if (minPriceInput) {
+    minPriceInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+} else {
+    console.log("minPriceInput not found");
+}
+
+if (maxPriceInput) {
+    maxPriceInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+} else {
+    console.log("maxPriceInput not found");
+}
 
 // // Khi kéo slider → cập nhật maxPriceInput và gọi handleSearch
 //     priceRangeInput.addEventListener("input", () => {
