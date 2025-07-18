@@ -166,37 +166,45 @@ const handleSearch = () => {
     console.log("🌐 Final Search URL:", `/search?${params.toString()}`);
 
     fetch(`/search?${params.toString()}`)
-        .then(res => res.json())
+        .then(res => {
+            console.log("🔄 Đang gửi request tới:", `/search?${params.toString()}`);
+            return res.json();
+        })
         .then(products => {
+            console.log("Dữ liệu trả về từ server:", products);
+
             productGrid.innerHTML = "";
 
-            if (products.length === 0) {
+            if (!Array.isArray(products) || products.length === 0) {
+                console.warn("Không có sản phẩm nào thỏa mãn điều kiện lọc.");
                 productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
                 return;
             }
-
             products.forEach(product => {
-                const card = `
+                const productCard = `
                 <div class="col-md-4 mb-4 fade-in">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="/products/image/${product.id}" class="card-img-top" alt="Product Image" style="object-fit: cover; height: 250px;">
-                        <div class="card-body">
-                            <h5 class="card-title text-truncate">${product.productName}</h5>
-                            <p class="card-text text-muted small">${product.description || ''}</p>
-                            <p class="fw-bold text-primary">${formatCurrency(product.price)}</p>
-                            <button type="button" class="btn btn-dark btn-sm"
-                                    data-id="${product.id}" onclick="addToCart(this)">
-                                Add to Cart
-                            </button>
-                        </div>
+                  <div class="card h-100 shadow-sm">
+                    <a href="/products/${product.id}">
+                    <img  src="data:image/jpeg;base64,${product.image}" class="card-img-top" alt="${product.productName}" />
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                    <a href="/products/${product.id}" class="text-decoration-none text-dark">
+                      <h5 class="card-title">${product.productName}</h5>
+                    </a>
+                      <p class="card-text text-truncate">${product.description}</p>
+                      <div class="mt-auto">
+                        <p class="fw-bold">$${product.price}</p>
+                        <button class="btn btn-dark w-100" onclick="addToCartById(${product.id})">Add to Cart</button>
+                      </div>
                     </div>
-                </div>`;
-                productGrid.insertAdjacentHTML('beforeend', card);
+                  </div>
+                </div>
+            `;
+                productGrid.insertAdjacentHTML("beforeend", productCard);
             });
         })
         .catch(error => {
-            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Đã xảy ra lỗi khi tìm kiếm.</div>`;
-            console.error("Search error:", error);
+            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error);
         });
 };
 

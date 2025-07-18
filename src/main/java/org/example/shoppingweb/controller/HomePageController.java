@@ -11,7 +11,7 @@ public class HomePageController {
 
     @GetMapping("/")
     public String home() {
-        return "redirect:/shop";
+        return "redirect:/home";
     }
 
     @GetMapping("/login")
@@ -39,5 +39,10 @@ public class HomePageController {
     @GetMapping("/contact")
     public String contactPage(){
         return "contact";
+    }
+
+    @GetMapping("/checkout")
+    public String checkoutPage(){
+        return "checkout";
     }
 }
