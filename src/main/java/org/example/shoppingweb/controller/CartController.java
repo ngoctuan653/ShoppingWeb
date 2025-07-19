@@ -3,15 +3,22 @@ package org.example.shoppingweb.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.CartItemDTO;
 import org.example.shoppingweb.entity.Cart;
+import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Product;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.CartRepository;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.UserRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
+import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -32,6 +39,9 @@ public class CartController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/add/{productId}")
     @ResponseBody
@@ -104,7 +114,6 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
     }
 
-
     @DeleteMapping("/remove/{productId}")
     @ResponseBody
     public ResponseEntity<String> removeItem(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
@@ -135,5 +144,25 @@ public class CartController {
             );
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/checkout")
+    public String checkout(@RequestParam String shippingAddress,
+                           @RequestParam String phone) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/login?needLogin=true";
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        User user = userDetails.getUser();
+
+        Order order = orderService.createOrder(user, shippingAddress, phone);
+        if (order == null) {
+            return "redirect:/cart?emptyCart=true";
+        }
+
+        return "redirect:/order/success?id=" + order.getId();
     }
 }

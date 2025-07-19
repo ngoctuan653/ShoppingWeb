@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lịch sử đơn hàng</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container my-5">
+    <h2 class="mb-4">Lịch sử đơn hàng của bạn</h2>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}">123</td>
+            <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+            <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">100000</td>
+            <td th:text="${order.status.statusName}">Đã giao</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(orders)}">
+            <td colspan="4" class="text-center">Bạn chưa có đơn hàng nào</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

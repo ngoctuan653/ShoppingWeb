@@ -118,6 +118,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
             }).then(() => {
                 console.log("Tăng xong, load lại cart");
                 loadCart();
+                loadCheckoutCart();
             });
         });
     });
@@ -132,6 +133,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
             }).then(() => {
                 console.log("Giảm xong, load lại cart");
                 loadCart();
+                loadCheckoutCart();
             });
         });
     });
@@ -146,11 +148,79 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
             }).then(() => {
                 console.log("Xóa xong, load lại cart");
                 loadCart();
+                loadCheckoutCart();
             });
         });
     });
 
 }
+
+function loadCheckoutCart() {
+    fetch("/cart/json", {
+        method: "GET",
+        credentials: "include"
+    })
+        .then(res => res.json())
+        .then(data => {
+            const cartContainer = document.getElementById("checkout-cart-items");
+            const totalEl = document.getElementById("checkout-cart-total");
+
+            cartContainer.innerHTML = "";
+            let total = 0;
+
+            data.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const card = document.createElement("div");
+                card.className = "col-md-4 mb-4";
+                card.innerHTML = `
+                    <div class="card">
+                        <img src="${item.imageBase64  || '/images/default.png'}" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.productName}</h5>
+                            <p class="fw-bold">$${item.price.toFixed(2)}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, -1)">-</button>
+                                <span class="px-2">${item.quantity}</span>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                cartContainer.appendChild(card);
+            });
+
+            totalEl.textContent = `$${total.toFixed(2)}`;
+        })
+        .catch(err => {
+            console.error("Không thể tải giỏ hàng:", err);
+        });
+}
+
+function updateCartItemCount() {
+    fetch('/api/cart')
+        .then(res => res.json())
+        .then(data => {
+            let totalQuantity = 0;
+            data.forEach(item => totalQuantity += item.quantity);
+            document.getElementById("cartItemCount").innerText = totalQuantity;
+        });
+    loadCart();
+}
+
+function changeQuantity(productId, delta) {
+    const url = delta > 0 ? `/cart/increase/${productId}` : `/cart/decrease/${productId}`;
+    fetch(url, { method: "POST", credentials: "include" })
+        .then(() => {
+            loadCheckoutCart();       // cập nhật lại giao diện checkout
+            updateCartItemCount();    // cập nhật số lượng ở biểu tượng cart
+        })
+        .catch(err => console.error("Lỗi thay đổi số lượng:", err));
+}
+
+
+document.addEventListener("DOMContentLoaded", loadCheckoutCart);
 
 document.addEventListener("DOMContentLoaded", function () {
     const cartBtn = document.querySelector("button[data-bs-target='#cartOffcanvas']");
@@ -285,32 +355,7 @@ if (maxPriceInput) {
     console.log("maxPriceInput not found");
 }
 
-// // Khi kéo slider → cập nhật maxPriceInput và gọi handleSearch
-//     priceRangeInput.addEventListener("input", () => {
-//         const value = priceRangeInput.value;
-//         priceValueSpan.textContent = `$${value}`;
-//         maxPriceInput.value = value;
-//
-//         clearTimeout(debounceTimeout);
-//         debounceTimeout = setTimeout(handleSearch, 300);
-//     });
-//
-// // Khi sửa maxPriceInput → cập nhật slider
-//     maxPriceInput.addEventListener("input", () => {
-//         const value = maxPriceInput.value;
-//         if (value) {
-//             priceRangeInput.value = value;
-//             priceValueSpan.textContent = `$${value}`;
-//         }
-//
-//         clearTimeout(debounceTimeout);
-//         debounceTimeout = setTimeout(handleSearch, 300);
-//     });
-
 document.addEventListener("DOMContentLoaded", () => {
-    // priceValueSpan.textContent = `$${priceRangeInput.value}`;
-    // maxPriceInput.value = priceRangeInput.value;
-
     // Gắn sự kiện change cho các checkbox category
     document.querySelectorAll(".category-filter").forEach(cb => {
         cb.addEventListener("change", () => {
