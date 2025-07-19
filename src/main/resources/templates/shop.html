@@ -19,22 +19,28 @@
 <!-- Hero Section -->
 <section class="hero-section position-relative">
     <!-- Carousel background -->
-    <div id="heroCarousel" class="carousel slide carousel-fade position-absolute top-0 start-0 w-100 h-100" data-bs-ride="carousel">
+    <div id="heroCarousel" class="carousel slide carousel-fade position-absolute top-0 start-0 w-100 h-100"
+         data-bs-ride="carousel">
         <div class="carousel-inner h-100">
             <div class="carousel-item active h-100">
-                <img src="https://vn.louisvuitton.com/content/dam/lv/online/picture/asiapacific/2025/HP_Dream_Misty_Push1_DI3.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 1">
+                <img src="https://vn.louisvuitton.com/content/dam/lv/online/picture/asiapacific/2025/HP_Dream_Misty_Push1_DI3.jpg?wid=2400"
+                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 1">
             </div>
             <div class="carousel-item h-100">
-                <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-gazelle-banner.jpg?w=1920" class="d-block w-100 h-100 object-fit-cover" alt="Slide 2">
+                <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-gazelle-banner.jpg?w=1920"
+                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 2">
             </div>
             <div class="carousel-item h-100">
-                <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-adilette-22-banner.jpg?w=1920" class="d-block w-100 h-100 object-fit-cover" alt="Slide 3">
+                <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-adilette-22-banner.jpg?w=1920"
+                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 3">
             </div>
             <div class="carousel-item h-100">
-                <img src="https://vn.louisvuitton.com/images/is/image//content/dam/lv/editorial-content/brand-content-coremedia/women/2025/category/slg/WSLG_PO_LVBLOOM_DI3.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 4">
+                <img src="https://vn.louisvuitton.com/images/is/image//content/dam/lv/editorial-content/brand-content-coremedia/women/2025/category/slg/WSLG_PO_LVBLOOM_DI3.jpg?wid=2400"
+                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 4">
             </div>
             <div class="carousel-item h-100">
-                <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Slide 5">
+                <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg"
+                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 5">
             </div>
         </div>
     </div>
@@ -83,14 +89,14 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Price Range</h5>
-<!--                    <div class="mb-3">-->
-<!--                        <label for="priceRange" class="form-label">Max Price: <span id="priceValue">$200</span></label>-->
-<!--                        <input type="range" class="form-range" min="0" max="3000" value="200" id="priceRange">-->
-<!--                        <div class="d-flex justify-content-between small text-muted">-->
-<!--                            <span>$0</span>-->
-<!--                            <span>$3000</span>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <!--                    <div class="mb-3">-->
+                    <!--                        <label for="priceRange" class="form-label">Max Price: <span id="priceValue">$200</span></label>-->
+                    <!--                        <input type="range" class="form-range" min="0" max="3000" value="200" id="priceRange">-->
+                    <!--                        <div class="d-flex justify-content-between small text-muted">-->
+                    <!--                            <span>$0</span>-->
+                    <!--                            <span>$3000</span>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
                     <div class="row g-2">
                         <div class="col">
                             <input type="number" class="form-control form-control-sm" placeholder="Min" id="minPrice">
@@ -108,8 +114,10 @@
                 <div class="card-body">
                     <h5 class="card-title">Categories</h5>
                     <div class="form-check" th:each="category : ${categories}">
-                        <input class="form-check-input category-filter" type="checkbox" th:value="${category.id}" th:id="'cat' + ${category.id}">
-                        <label class="form-check-label" th:for="'cat' + ${category.id}" th:text="${category.categoryName}">Category</label>
+                        <input class="form-check-input category-filter" type="checkbox" th:value="${category.id}"
+                               th:id="'cat' + ${category.id}">
+                        <label class="form-check-label" th:for="'cat' + ${category.id}"
+                               th:text="${category.categoryName}">Category</label>
                     </div>
                 </div>
             </div>
@@ -119,7 +127,8 @@
                 <div class="card-body">
                     <h5 class="card-title">Brands</h5>
                     <div class="form-check" th:each="brand : ${brands}">
-                        <input class="form-check-input brand-filter" type="checkbox" th:value="${brand.id}" th:id="'brand' + ${brand.id}">
+                        <input class="form-check-input brand-filter" type="checkbox" th:value="${brand.id}"
+                               th:id="'brand' + ${brand.id}">
                         <label class="form-check-label" th:for="'brand' + ${brand.id}" th:text="${brand.brandName}">Brand</label>
                     </div>
                 </div>
@@ -140,12 +149,15 @@
 
             <div class="row" id="productGrid">
                 <div class="col-md-4 mb-4" th:each="product : ${products}">
-                    <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
                     <div class="card h-100">
-                        <img th:src="@{'/products/image/' + ${product.id}}"
-                             class="card-img-top" alt="Product Image">
+                        <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                            <img th:src="@{'/products/image/' + ${product.id}}" class="card-img-top"
+                                 alt="Product Image">
+                        </a>
                         <div class="card-body">
-                            <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                            <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                                <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                            </a>
                             <p class="card-text text-muted" th:text="${product.description}">Product description</p>
                             <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
                             <button type="button" class="btn btn-dark btn-sm"
@@ -154,7 +166,6 @@
                             </button>
                         </div>
                     </div>
-                    </a>
                 </div>
             </div>
 

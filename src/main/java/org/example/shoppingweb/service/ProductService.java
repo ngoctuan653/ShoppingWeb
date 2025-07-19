@@ -8,10 +8,8 @@ import org.example.shoppingweb.repository.BrandRepository;
 import org.example.shoppingweb.repository.CategoryRepository;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
