@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
-    List<Product> findByProductNameContainingIgnoreCase(String keyword);
+    List<Product> findByStatusAndProductNameContainingIgnoreCase(String status, String keyword);
 
     List<Product> findByStatus(String status);
 

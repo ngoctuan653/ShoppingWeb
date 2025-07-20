@@ -1,9 +1,7 @@
 package org.example.shoppingweb.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -13,22 +11,26 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Table(name = "categories")
-public class Category {
+@Table(name = "productsizes")
+public class Productsize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "product_size_id", nullable = false)
     private Integer id;
 
-    @Size(max = 100)
     @NotNull
-    @Column(name = "category_name", nullable = false, length = 100)
-    private String categoryName;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @Size(max = 255)
-    @Column(name = "description")
-    private String description;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
+
+    @ColumnDefault("0")
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")

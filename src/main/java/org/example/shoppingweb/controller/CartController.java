@@ -2,27 +2,21 @@ package org.example.shoppingweb.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.CartItemDTO;
-import org.example.shoppingweb.entity.Cart;
-import org.example.shoppingweb.entity.Order;
-import org.example.shoppingweb.entity.Product;
-import org.example.shoppingweb.entity.User;
-import org.example.shoppingweb.repository.CartRepository;
-import org.example.shoppingweb.repository.ProductRepository;
-import org.example.shoppingweb.repository.UserRepository;
+import org.example.shoppingweb.entity.*;
+import org.example.shoppingweb.repository.*;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,41 +37,67 @@ public class CartController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private SizeRepository sizeRepository;
+
+    @Autowired
+    private ProductSizeRepository productSizeRepository;
+
     @PostMapping("/add/{productId}")
     @ResponseBody
-    public ResponseEntity<String> addToCartAjax(@PathVariable Integer productId, HttpSession session) {
+    public ResponseEntity<String> addToCartAjax(
+            @PathVariable Integer productId,
+            @RequestBody Map<String, String> body,
+            HttpSession session) {
+
         Integer userId = (Integer) session.getAttribute("userId");
         User currentUser = (User) session.getAttribute("currentUser");
+
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login");
         }
 
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<Product> productOpt = productRepository.findById(productId);
-
-        if (userOpt.isPresent() && productOpt.isPresent()) {
-            User user = userOpt.get();
-            Product product = productOpt.get();
-
-            Optional<Cart> existingCart = cartRepository.findByUserAndProduct(user, product);
-            if (existingCart.isPresent()) {
-                Cart cart = existingCart.get();
-                cart.setQuantity(cart.getQuantity() + 1);
-                cartRepository.save(cart);
-            } else {
-                Cart cart = new Cart();
-                cart.setUser(user);
-                cart.setProduct(product);
-                cart.setQuantity(1);
-                cart.setCreatedAt(Instant.now());
-                cartRepository.save(cart);
-            }
-
-            return ResponseEntity.ok("Add to cart successfully");
+        String sizeLabel = body.get("sizeLabel");
+        if (sizeLabel == null || sizeLabel.isEmpty()) {
+            return ResponseEntity.badRequest().body("Size must be selected.");
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Product> productOpt = productRepository.findById(productId);
+        Optional<Size> sizeOpt = sizeRepository.findBySizeLabel(sizeLabel);
+
+        if (userOpt.isEmpty() || productOpt.isEmpty() || sizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product or size not found.");
+        }
+
+        User user = userOpt.get();
+        Product product = productOpt.get();
+        Size size = sizeOpt.get();
+
+        Optional<Productsize> productSizeOpt = productSizeRepository.findByProductAndSize(product, size);
+        if (productSizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Size not available for this product.");
+        }
+
+        Optional<Cart> existingCart = cartRepository.findByUserAndProductAndSize(user, product, size);
+
+        if (existingCart.isPresent()) {
+            Cart cart = existingCart.get();
+            cart.setQuantity(cart.getQuantity() + 1);
+            cartRepository.save(cart);
+        } else {
+            Cart cart = new Cart();
+            cart.setUser(user);
+            cart.setProduct(product);
+            cart.setSize(size);
+            cart.setQuantity(1);
+            cart.setCreatedAt(Instant.now());
+            cartRepository.save(cart);
+        }
+
+        return ResponseEntity.ok("Added to cart successfully!");
     }
+
 
     @PostMapping("/increase/{productId}")
     @ResponseBody
@@ -140,7 +160,8 @@ public class CartController {
                     cart.getProduct().getProductName(),
                     base64Image,
                     cart.getQuantity(),
-                    cart.getProduct().getPrice()
+                    cart.getProduct().getPrice(),
+                    cart.getSize().getSizeLabel()
             );
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);

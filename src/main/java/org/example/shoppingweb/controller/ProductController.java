@@ -1,8 +1,8 @@
 package org.example.shoppingweb.controller;
 
-import org.example.shoppingweb.entity.Brand;
-import org.example.shoppingweb.entity.Category;
-import org.example.shoppingweb.entity.Product;
+import org.example.shoppingweb.DTO.SizeDTO;
+import org.example.shoppingweb.entity.*;
+import org.example.shoppingweb.repository.ProductSizeRepository;
 import org.example.shoppingweb.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -24,30 +24,36 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductSizeRepository productsizeRepository;
+
     @GetMapping("/shop")
     public String showProduct(Model model) {
         List<Product> products = productService.getAllActiveProducts();
         List<Category> categories = productService.getAllCategories();
         List<Brand> brands = productService.getAllBrands();
+        List<Subcategory> subcategories = productService.getAllSubcategories();
         model.addAttribute("categories", categories);
+        model.addAttribute("subcategories", subcategories);
         model.addAttribute("products", products);
         model.addAttribute("brands", brands);
         return "shop";
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Product> searchProducts(@RequestParam(required = false) String keyword,
                                         @RequestParam(required = false) Double minPrice,
                                         @RequestParam(required = false) Double maxPrice,
                                         @RequestParam(required = false) List<Long> categories,
+                                        @RequestParam(required = false) List<Long> subcategories,
                                         @RequestParam(required = false) List<Long> brands) {
         System.out.println("Keyword: " + keyword);
         System.out.println("Min Price: " + minPrice);
         System.out.println("Max Price: " + maxPrice);
         System.out.println("Categories: " + categories);
         System.out.println("Brands: " + brands);
-        return productService.searchProducts(keyword, minPrice, maxPrice, categories, brands);
+        return productService.searchProducts(keyword, minPrice, maxPrice, categories, subcategories, brands);
     }
 
 
@@ -63,8 +69,11 @@ public class ProductController {
         model.addAttribute("products", productService.getAllProduct());
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("brands", productService.getAllBrands());
+        model.addAttribute("subcategories", productService.getAllSubcategories()); // <- thêm dòng này
+
         Product p = new Product();
-        p.setCategory(new Category());
+        p.setSubcategory(new Subcategory());
+        p.getSubcategory().setCategory(new Category());
         p.setBrand(new Brand());
         model.addAttribute("product", p);
 
@@ -149,6 +158,18 @@ public class ProductController {
         Product product = productService.findById(id);
         model.addAttribute("product", product);
         return "product-detail"; // -> product-detail.html
+    }
+
+    @GetMapping("/{productId}/sizes")
+    @ResponseBody
+    public ResponseEntity<List<SizeDTO>> getSizesByProduct(@PathVariable Integer productId) {
+        List<Size> sizes = productService.getSizesByProductId(productId);
+
+        List<SizeDTO> result = sizes.stream()
+                .map(size -> new SizeDTO(size.getId(), size.getSizeLabel()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
 
 }

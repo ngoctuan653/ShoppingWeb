@@ -15,4 +15,6 @@ public class CartItemDTO {
     private String imageBase64;
     private int quantity;
     private BigDecimal price;
+    private String sizeLabel;
+
 }

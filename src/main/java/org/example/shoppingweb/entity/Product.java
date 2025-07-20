@@ -39,18 +39,16 @@ public class Product {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "subcategory_id", nullable = false)
+    private Subcategory subcategory;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @Lob
-    @Column(name = "image", columnDefinition = "LONGBLOB") // <- rất quan trọng
+    @Column(name = "image")
     private byte[] image;
-
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")

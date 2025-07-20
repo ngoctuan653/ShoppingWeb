@@ -1,19 +1,17 @@
 package org.example.shoppingweb.service;
 
 import jakarta.persistence.criteria.Predicate;
-import org.example.shoppingweb.entity.Brand;
-import org.example.shoppingweb.entity.Category;
-import org.example.shoppingweb.entity.Product;
-import org.example.shoppingweb.repository.BrandRepository;
-import org.example.shoppingweb.repository.CategoryRepository;
-import org.example.shoppingweb.repository.ProductRepository;
+import org.example.shoppingweb.entity.*;
+import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -28,8 +26,18 @@ public class ProductService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private SubCategoryRepository subCategoryRepository;
+
+    @Autowired
+    private ProductSizeRepository productSizeRepository;
+
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    public List<Subcategory> getAllSubcategories() {
+        return subCategoryRepository.findAll();
     }
 
     public List<Product> getAllActiveProducts() {
@@ -44,28 +52,47 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> searchProducts(String keyword, Double minPrice, Double maxPrice, List<Long> categories, List<Long> brands) {
+    public List<Product> searchProducts(String keyword,
+                                        Double minPrice,
+                                        Double maxPrice,
+                                        List<Long> categories,
+                                        List<Long> subcategories,
+                                        List<Long> brands) {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            // ✅ Thêm dòng này để chỉ lấy sản phẩm có status là "Active"
+            predicates.add(cb.equal(root.get("status"), "Active"));
 
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
             if (minPrice != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), BigDecimal.valueOf(minPrice)));
             }
             if (maxPrice != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), BigDecimal.valueOf(maxPrice)));
             }
-            if (categories != null && !categories.isEmpty()) {
-                predicates.add(cb.in(root.get("category").get("id")).value(categories));
+
+            // Lọc theo category hoặc subcategory
+            if ((categories != null && !categories.isEmpty()) || (subcategories != null && !subcategories.isEmpty())) {
+                List<Predicate> orCategorySub = new ArrayList<>();
+                if (categories != null && !categories.isEmpty()) {
+                    orCategorySub.add(root.get("subcategory").get("category").get("id").in(categories));
+                }
+                if (subcategories != null && !subcategories.isEmpty()) {
+                    orCategorySub.add(root.get("subcategory").get("id").in(subcategories));
+                }
+                predicates.add(cb.or(orCategorySub.toArray(new Predicate[0])));
             }
+
             if (brands != null && !brands.isEmpty()) {
-                predicates.add(cb.in(root.get("brand").get("id")).value(brands));
+                predicates.add(root.get("subcategory").get("brand").get("id").in(brands));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         });
+
     }
 
 
@@ -89,8 +116,11 @@ public class ProductService {
 
     public Category getCategoryByProductId(Integer productId) {
         Product product = productRepository.findById(productId).orElse(null);
-        return product != null ? product.getCategory() : null;
+        return (product != null && product.getSubcategory() != null)
+                ? product.getSubcategory().getCategory()
+                : null;
     }
+
 
     public Brand getBrandByProductId(Integer productId) {
         Product product = productRepository.findById(productId).orElse(null);
@@ -104,11 +134,10 @@ public class ProductService {
         existing.setPrice(updatedProduct.getPrice());
         existing.setDescription(updatedProduct.getDescription());
         existing.setStockQuantity(updatedProduct.getStockQuantity());
-        existing.setCategory(updatedProduct.getCategory());
+        existing.setSubcategory(updatedProduct.getSubcategory());
         existing.setBrand(updatedProduct.getBrand());
         existing.setStatus(updatedProduct.getStatus());
         existing.setImage(updatedProduct.getImage());
-        existing.setStatus("Active");
 
         productRepository.save(existing);
     }
@@ -129,4 +158,11 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
     }
 
+
+    public List<Size> getSizesByProductId(Integer productId) {
+        List<Productsize> productSizes = productSizeRepository.findByProductId(productId);
+        return productSizes.stream()
+                .map(Productsize::getSize)
+                .collect(Collectors.toList());
+    }
 }

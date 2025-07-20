@@ -1,6 +1,5 @@
 package org.example.shoppingweb.security;
 
-import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

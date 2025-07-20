@@ -1,7 +1,7 @@
 package org.example.shoppingweb.repository;
 
-import org.example.shoppingweb.entity.Orderstatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.example.shoppingweb.entity.Orderstatus;
 
 import java.util.Optional;
 
