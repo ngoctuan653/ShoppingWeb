@@ -25,7 +25,6 @@ public class Product {
     @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
 
-    @Lob
     @Column(name = "description")
     private String description;
 
@@ -47,6 +46,7 @@ public class Product {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
+    @Lob
     @Column(name = "image")
     private byte[] image;
 

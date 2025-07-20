@@ -28,7 +28,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        // Kiểm tra user đã tồn tại chưa
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
 
@@ -36,19 +35,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             user = userOptional.get();
         } else {
             Role role = new Role();
-            role.setId(2); // hoặc role.setRoleId(2); tùy theo tên field
-
-            // Nếu chưa có → tạo mới user
+            role.setId(2);
             user = new User();
             user.setEmail(email);
             user.setFullName(name);
-            user.setUsername(email); // Có thể dùng email làm username
-            user.setPassword(""); // Không cần mật khẩu nếu login bằng OAuth2
+            user.setUsername(email);
+            user.setPassword("");
             user.setRole(role);
             user.setCreatedAt(Instant.now());
             user.setUpdatedAt(Instant.now());
-            user.setStatus("Active"); // Hoặc active mặc định
-
+            user.setStatus("Active");
             user = userRepository.save(user);
         }
 
