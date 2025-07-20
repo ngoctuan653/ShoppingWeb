@@ -5,6 +5,7 @@ import org.example.shoppingweb.entity.Role;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.RoleRepository;
 import org.example.shoppingweb.repository.UserRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -31,39 +32,12 @@ public class OAuth2Controller {
     @GetMapping("/oauth2/success")
     public String oauth2Success(OAuth2AuthenticationToken authentication, HttpSession session) {
         OAuth2User oauthUser = authentication.getPrincipal();
-        String email = oauthUser.getAttribute("email");
-        if (email == null) {
-            return "redirect:/login?error=facebook_email_missing";
-        }
-        System.out.println("Facebook email: " + oauthUser.getAttribute("email"));
-
-        String name = oauthUser.getAttribute("name");
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        User user;
-
-        if (optionalUser.isEmpty()) {
-            String rawPassword = generateRandomPassword();
-            String encodedPassword = passwordEncoder.encode(rawPassword);
-            String username = generateNonDuplicateUsername();
-
-            user = new User();
-            user.setEmail(email);
-            user.setFullName(name);
-            user.setUsername(username);
-            user.setPassword(encodedPassword);
-            Role userRole = roleRepository.findById(2).orElseThrow();
-            user.setRole(userRole);
-            user.setStatus("Active");
-
-            userRepository.save(user);
-        } else {
-            user = optionalUser.get();
-        }
+        User user = ((CustomUserDetails) oauthUser).getUser();
         session.setAttribute("userId", user.getId());
         session.setAttribute("currentUser", user);
-
         return "redirect:/";
     }
+
 
     private String generateRandomPassword() {
         return UUID.randomUUID().toString();

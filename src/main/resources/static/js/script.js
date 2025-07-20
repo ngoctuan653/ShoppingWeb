@@ -215,6 +215,15 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
 }
 
 function loadCheckoutCart() {
+    const cartContainer = document.querySelector("#checkout-cart-items");
+    const cartTotal = document.querySelector("#checkout-cart-total");
+
+    // 🛑 Nếu DOM chưa tồn tại thì không làm gì cả
+    if (!cartContainer || !cartTotal) {
+        console.warn("⚠️ DOM phần giỏ hàng checkout chưa sẵn sàng. loadCheckoutCart() dừng.");
+        return;
+    }
+
     fetch("/cart/json", {
         method: "GET",
         credentials: "include"
@@ -279,8 +288,8 @@ function changeQuantity(productId, delta) {
     const url = delta > 0 ? `/cart/increase/${productId}` : `/cart/decrease/${productId}`;
     fetch(url, { method: "POST", credentials: "include" })
         .then(() => {
-            loadCheckoutCart();       // cập nhật lại giao diện checkout
-            updateCartItemCount();    // cập nhật số lượng ở biểu tượng cart
+            loadCheckoutCart();
+            updateCartItemCount();
         })
         .catch(err => console.error("Lỗi thay đổi số lượng:", err));
 }
