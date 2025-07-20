@@ -155,8 +155,14 @@
                 <div class="col-md-4 mb-4" th:each="product : ${products}">
                     <div class="card h-100">
                         <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                            <img th:src="@{'/products/image/' + ${product.id}}" class="card-img-top"
+                            <img th:if="${product.image != null}"
+                                 th:src="@{'/products/image/' + ${product.id}}"
+                                 class="card-img-top"
                                  alt="Product Image">
+                            <img th:if="${product.image == null}"
+                                 th:src="@{/images/default.png}"
+                                 class="card-img-top"
+                                 alt="Default Product Image">
                         </a>
                         <div class="card-body">
                             <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
