@@ -104,9 +104,11 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Categories</h5>
-                    <div class="form-check">
-                        <input class="form-check-input " type="checkbox">
-                        <label class="form-check-label">Category</label>
+                    <div class="form-check" th:each="category : ${categories}">
+                        <input class="form-check-input category-filter" type="checkbox" th:value="${category.id}"
+                               th:id="'cat' + ${category.id}">
+                        <label class="form-check-label" th:for="'cat' + ${category.id}"
+                               th:text="${category.categoryName}">Category</label>
                     </div>
                 </div>
             </div>
@@ -114,12 +116,12 @@
             <!--Sub Category Filter -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Categories</h5>
-                    <div class="form-check" th:each="category : ${categories}">
-                        <input class="form-check-input category-filter" type="checkbox" th:value="${category.id}"
-                               th:id="'cat' + ${category.id}">
-                        <label class="form-check-label" th:for="'cat' + ${category.id}"
-                               th:text="${category.categoryName}">Category</label>
+                    <h5 class="card-title">Subcategories</h5>
+                    <div class="form-check" th:each="sub : ${subcategories}">
+                        <input class="form-check-input subcategory-filter" type="checkbox"
+                               th:value="${sub.id}" th:id="'subcat' + ${sub.id}">
+                        <label class="form-check-label" th:for="'subcat' + ${sub.id}"
+                               th:text="${sub.subcategoryName}">Subcategory</label>
                     </div>
                 </div>
             </div>
@@ -162,10 +164,10 @@
                             </a>
                             <p class="card-text text-muted" th:text="${product.description}">Product description</p>
                             <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
-                            <button type="button" class="btn btn-dark btn-sm"
-                                    th:attr="data-id=${product.id}" onclick="addToCart(this)">
-                                Add to Cart
-                            </button>
+<!--                            <button type="button" class="btn btn-dark btn-sm"-->
+<!--                                    th:attr="data-id=${product.id}" onclick="addToCart(this)">-->
+<!--                                Add to Cart-->
+<!--                            </button>-->
                         </div>
                     </div>
                 </div>

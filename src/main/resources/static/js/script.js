@@ -1,45 +1,103 @@
 console.log("✅ script.js loaded");
 
-// Thêm sản phẩm vào giỏ hàng
 function addToCart(button) {
     const productId = button.getAttribute("data-id");
+    const selectedSize = document.getElementById("sizeSelect").value;
+
+    if (!selectedSize) {
+        showToast("Please choose a size!", "warning");
+        return;
+    }
+
     fetch(`/cart/add/${productId}`, {
         method: "POST",
         headers: {
-            "X-Requested-With": "XMLHttpRequest"
-        }
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ sizeLabel: selectedSize })
     })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(msg => {
-                    throw new Error(msg); // để xử lý dưới catch
+                    throw new Error(msg);
                 });
             }
             return response.text();
         })
         .then(message => {
-            showToast(message, 'success'); // hiện màu xanh nếu thành công
+            showToast(message, "success");
             loadCart();
         })
         .catch(err => {
-            showToast(err.message, 'danger'); // hiện màu đỏ nếu lỗi (vd: chưa login)
+            showToast(err.message, "danger");
         });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const pathSegments = window.location.pathname.split("/");
+    const productId = pathSegments[pathSegments.length - 1];
+
+    // Nếu URL dạng /products/{id}
+    if (!isNaN(productId)) {
+        loadSizes(productId);
+    }
+
+    function loadSizes(productId) {
+        fetch(`/${productId}/sizes`)
+            .then(res => {
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                    throw new Error("Không thể tải size: Phản hồi không hợp lệ hoặc chưa đăng nhập");
+                }
+                return res.json();
+            })
+            .then(sizes => {
+                const select = document.getElementById("sizeSelect");
+                select.innerHTML = `<option value="">-- Choose size --</option>`;
+
+                sizes.forEach(size => {
+                    const option = document.createElement("option");
+                    option.value = size.sizeLabel;
+                    option.textContent = size.sizeLabel;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error("❌ Lỗi khi tải size:", error);
+            });
+    }
+
+    // Gắn sự kiện click cho tất cả nút Add to Cart
+    document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+        button.addEventListener("click", () => addToCart(button));
+    });
+});
+
 
 // hiện thông báo
 function showToast(message, type) {
     const toastEl = document.getElementById("cart-toast");
     const toastBody = document.getElementById("toast-message");
+
+    if (!toastEl || !toastBody) {
+        console.error("❌ Toast element not found.");
+        return;
+    }
+
     toastBody.textContent = message;
-    toastEl.classList.remove("bg-success", "bg-danger");
+
+    toastEl.classList.remove("bg-success", "bg-danger", "bg-warning");
     toastEl.classList.add("bg-" + type);
 
-    const delayTime = (type === "danger") ? 4000 : 400;
+    const delayTime = (type === "danger") ? 4000 : 1000;
     const toast = new bootstrap.Toast(toastEl, {
-        delay: delayTime,
+        delay: delayTime
     });
     toast.show();
 }
+
+
 
 function formatCurrency(amount) {
     return "$" + Number(amount).toFixed(2);
@@ -90,6 +148,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
                 <a href="/products/${item.productId}" class="text-decoration-none text-dark">
                     <p class="mb-1 fw-semibold">${item.productName}</p>
                 </a>
+                <p class="mb-1 text-muted small">Size: ${item.sizeLabel ?? "N/A"}</p>
                 <div class="d-flex align-items-center">
                     <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease" data-id="${item.productId}">-</button>
                     <span class="px-2">${item.quantity}</span>
@@ -160,7 +219,14 @@ function loadCheckoutCart() {
         method: "GET",
         credentials: "include"
     })
-        .then(res => res.json())
+        .then(res => {
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                throw new Error("Chưa đăng nhập hoặc phản hồi không hợp lệ");
+            }
+            return res.json();
+        })
+
         .then(data => {
             const cartContainer = document.getElementById("checkout-cart-items");
             const totalEl = document.getElementById("checkout-cart-total");
@@ -259,14 +325,14 @@ const handleSearch = () => {
     const minPrice = minPriceInput.value;
     const maxPrice = maxPriceInput.value;
     const selectedCategories = getCheckedValues(".category-filter");
+    const selectedSubcategories = getCheckedValues(".subcategory-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
 
-
-    // ✅ In ra console để debug
     console.log("🔍 Keyword:", keyword);
     console.log("💲 Min Price:", minPrice);
     console.log("💲 Max Price:", maxPrice);
     console.log("📂 Selected Categories:", selectedCategories);
+    console.log("📁 Selected Subcategories:", selectedSubcategories);
     console.log("🏷️ Selected Brands:", selectedBrands);
 
     showLoading();
@@ -275,54 +341,58 @@ const handleSearch = () => {
     if (keyword) params.append("keyword", keyword);
     if (minPrice) params.append("minPrice", minPrice);
     if (maxPrice) params.append("maxPrice", maxPrice);
-
-    // ✅ Dùng vòng lặp để append từng cái
     selectedCategories.forEach(id => params.append("categories", id));
+    selectedSubcategories.forEach(id => params.append("subcategories", id));
     selectedBrands.forEach(id => params.append("brands", id));
 
-    /// ✅ In ra URL
-    console.log("🌐 Final Search URL:", `/search?${params.toString()}`);
+    const url = `/search?${params.toString()}`;
+    console.log("🌐 Final Search URL:", url);
+    console.log("------------------------------------------------------------------");
 
-    fetch(`/search?${params.toString()}`)
+    fetch(url)
         .then(res => {
-            console.log("🔄 Đang gửi request tới:", `/search?${params.toString()}`);
+            if (!res.ok) {
+                return res.text().then(text => {
+                    console.error("❌ Server trả về HTML hoặc lỗi:", text);
+                    throw new Error(`Lỗi server (${res.status})`);
+                });
+            }
             return res.json();
         })
         .then(products => {
-            console.log("Dữ liệu trả về từ server:", products);
-
             productGrid.innerHTML = "";
 
             if (!Array.isArray(products) || products.length === 0) {
-                console.warn("Không có sản phẩm nào thỏa mãn điều kiện lọc.");
                 productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
                 return;
             }
+
             products.forEach(product => {
+                const productImage = product.image ? `data:image/jpeg;base64,${product.image}` : '/images/default.png';
                 const productCard = `
-                <div class="col-md-4 mb-4 fade-in">
-                  <div class="card h-100 shadow-sm">
-                    <a href="/products/${product.id}">
-                    <img  src="data:image/jpeg;base64,${product.image}" class="card-img-top" alt="${product.productName}" />
-                    </a>
-                    <div class="card-body d-flex flex-column">
-                    <a href="/products/${product.id}" class="text-decoration-none text-dark">
-                      <h5 class="card-title">${product.productName}</h5>
-                    </a>
-                      <p class="card-text text-truncate">${product.description}</p>
-                      <div class="mt-auto">
-                        <p class="fw-bold">$${product.price}</p>
-                        <button class="btn btn-dark w-100" onclick="addToCartById(${product.id})">Add to Cart</button>
-                      </div>
+                    <div class="col-md-4 mb-4 fade-in">
+                        <div class="card h-100 shadow-sm">
+                            <a href="/products/${product.id}">
+                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" />
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <a href="/products/${product.id}" class="text-decoration-none text-dark">
+                                    <h5 class="card-title">${product.productName}</h5>
+                                </a>
+                                <p class="card-text text-truncate">${product.description}</p>
+                                <div class="mt-auto">
+                                    <p class="fw-bold">$${product.price}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
-            `;
+                `;
                 productGrid.insertAdjacentHTML("beforeend", productCard);
             });
         })
         .catch(error => {
-            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error);
+            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error.message || error);
+            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Lỗi khi tải dữ liệu sản phẩm.</div>`;
         });
 };
 
@@ -358,6 +428,13 @@ if (maxPriceInput) {
 document.addEventListener("DOMContentLoaded", () => {
     // Gắn sự kiện change cho các checkbox category
     document.querySelectorAll(".category-filter").forEach(cb => {
+        cb.addEventListener("change", () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(handleSearch, 100);
+        });
+    });
+
+    document.querySelectorAll(".subcategory-filter").forEach(cb => {
         cb.addEventListener("change", () => {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(handleSearch, 100);

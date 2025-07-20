@@ -58,7 +58,8 @@
                     <ul class="dropdown-menu" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="#">Profile</a></li>
                         <li><a class="dropdown-item" th:href="@{/order/history}">Order History</a></li>
-                        <li th:if="${currentUser.getId() == 1}"><a class="dropdown-item" th:href="@{/products}">Product Managements</a></li>
+<!--                        <li th:if="${currentUser.getId() == 1}"><a class="dropdown-item" th:href="@{/products}">Product Managements</a></li>-->
+                        <li><a class="dropdown-item" th:href="@{/products}">Product Managements</a></li>
                         <li>
                             <form th:action="@{/logout}" method="post" style="margin: 0;">
                                 <button type="submit" class="dropdown-item bg-transparent border-0">Logout</button>
