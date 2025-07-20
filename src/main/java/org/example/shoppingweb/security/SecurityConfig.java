@@ -25,7 +25,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/shop","/home", "/signup", "/forgot",
                                 "/doLogin", "/oauth2/**", "/css/**", "/js/**",
                                 "/about", "/contact","/products/image/**",
-                                "/products/**").permitAll()
+                                "/products/**","/search").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
