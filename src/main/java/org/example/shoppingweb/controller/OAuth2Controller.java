@@ -51,7 +51,7 @@ public class OAuth2Controller {
             user.setFullName(name);
             user.setUsername(username);
             user.setPassword(encodedPassword);
-            Role userRole = roleRepository.findById(2).orElseThrow(); // Lấy role 'user thường'
+            Role userRole = roleRepository.findById(2).orElseThrow();
             user.setRole(userRole);
             user.setStatus("Active");
 

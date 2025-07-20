@@ -17,6 +17,9 @@ public class SecurityConfig {
     @Autowired
     private CustomLoginSuccessHandler loginSuccessHandler;
 
+    @Autowired
+    private CustomOAuth2UserService oAuth2UserService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -25,7 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/shop","/home", "/signup", "/forgot",
                                 "/doLogin", "/oauth2/**", "/css/**", "/js/**",
                                 "/about", "/contact","/products/image/**",
-                                "/products/**","/search").permitAll()
+                                "/products/**","/search","/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

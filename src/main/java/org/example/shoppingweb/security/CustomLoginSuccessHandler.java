@@ -19,7 +19,6 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        // Lấy thông tin UserDetails
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
 

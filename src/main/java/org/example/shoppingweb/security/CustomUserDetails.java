@@ -61,7 +61,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return true;
     }
 
-    // Các phương thức của OAuth2User
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;
@@ -69,6 +68,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return user.getFullName(); // hoặc user.getId().toString()
+        return user.getFullName();
     }
 }
