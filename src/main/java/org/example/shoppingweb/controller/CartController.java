@@ -101,26 +101,62 @@ public class CartController {
 
     @PostMapping("/increase/{productId}")
     @ResponseBody
-    public ResponseEntity<String> increaseQuantity(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+    public ResponseEntity<String> increaseQuantity(
+            @PathVariable Integer productId,
+            @RequestBody Map<String, String> body,
+            @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+
         if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 
-        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        String sizeLabel = body.get("sizeLabel");
+        if (sizeLabel == null || sizeLabel.isEmpty()) {
+            return ResponseEntity.badRequest().body("Size must be provided");
+        }
+
+        Optional<Product> productOpt = productRepository.findById(productId);
+        Optional<Size> sizeOpt = sizeRepository.findBySizeLabel(sizeLabel);
+
+        if (productOpt.isEmpty() || sizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product or size not found");
+        }
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProductAndSize(currentUser, productOpt.get(), sizeOpt.get());
+
         if (cartOpt.isPresent()) {
             Cart cart = cartOpt.get();
             cart.setQuantity(cart.getQuantity() + 1);
             cartRepository.save(cart);
             return ResponseEntity.ok("Quantity increased");
         }
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
     }
 
 
+
     @PostMapping("/decrease/{productId}")
     @ResponseBody
-    public ResponseEntity<String> decreaseQuantity(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+    public ResponseEntity<String> decreaseQuantity(
+            @PathVariable Integer productId,
+            @RequestBody Map<String, String> body,
+            @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+
         if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 
-        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        String sizeLabel = body.get("sizeLabel");
+        if (sizeLabel == null || sizeLabel.isEmpty()) {
+            return ResponseEntity.badRequest().body("Size must be provided");
+        }
+
+        Optional<Product> productOpt = productRepository.findById(productId);
+        Optional<Size> sizeOpt = sizeRepository.findBySizeLabel(sizeLabel);
+
+        if (productOpt.isEmpty() || sizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product or size not found");
+        }
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProductAndSize(currentUser, productOpt.get(), sizeOpt.get());
+
         if (cartOpt.isPresent()) {
             Cart cart = cartOpt.get();
             if (cart.getQuantity() > 1) {
@@ -131,18 +167,37 @@ public class CartController {
             }
             return ResponseEntity.ok("Quantity decreased or item removed");
         }
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
     }
 
+
     @DeleteMapping("/remove/{productId}")
     @ResponseBody
-    public ResponseEntity<String> removeItem(@PathVariable Integer productId, @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+    public ResponseEntity<String> removeItem(
+            @PathVariable Integer productId,
+            @RequestBody Map<String, String> body,
+            @SessionAttribute(name = "currentUser", required = false) User currentUser) {
+
         if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 
-        Optional<Cart> cartOpt = cartRepository.findByUserAndProduct(currentUser, productRepository.findById(productId).orElse(null));
+        String sizeLabel = body.get("sizeLabel");
+        if (sizeLabel == null || sizeLabel.isEmpty()) {
+            return ResponseEntity.badRequest().body("Size must be provided");
+        }
+
+        Optional<Product> productOpt = productRepository.findById(productId);
+        Optional<Size> sizeOpt = sizeRepository.findBySizeLabel(sizeLabel);
+
+        if (productOpt.isEmpty() || sizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product or size not found");
+        }
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProductAndSize(currentUser, productOpt.get(), sizeOpt.get());
         cartOpt.ifPresent(cartRepository::delete);
         return ResponseEntity.ok("Item removed");
     }
+
 
     @GetMapping("/json")
     @ResponseBody

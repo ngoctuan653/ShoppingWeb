@@ -28,6 +28,11 @@ public class Orderdetail {
     private Product product;
 
     @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
+
+    @NotNull
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 

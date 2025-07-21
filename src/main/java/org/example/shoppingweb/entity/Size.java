@@ -3,6 +3,7 @@ package org.example.shoppingweb.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -11,6 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "sizes")
 public class Size {
     @Id
@@ -34,5 +36,9 @@ public class Size {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    public Size(String sizeLabel) {
+        this.sizeLabel = sizeLabel;
+    }
 
 }

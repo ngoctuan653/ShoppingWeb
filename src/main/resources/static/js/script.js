@@ -150,14 +150,20 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
                 </a>
                 <p class="mb-1 text-muted small">Size: ${item.sizeLabel ?? "N/A"}</p>
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease" data-id="${item.productId}">-</button>
+                    <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease" 
+                            data-id="${item.productId}" 
+                            data-size="${item.sizeLabel}">-</button>
                     <span class="px-2">${item.quantity}</span>
-                    <button class="btn btn-sm btn-outline-secondary ms-1 btn-increase" data-id="${item.productId}">+</button>
+                    <button class="btn btn-sm btn-outline-secondary ms-1 btn-increase" 
+                            data-id="${item.productId}" 
+                            data-size="${item.sizeLabel}">+</button>
                 </div>
             </div>
             <div class="text-end">
                 <p class="fw-bold mb-1">${formatCurrency(itemTotal)}</p>
-                <button class="btn btn-sm btn-outline-danger btn-remove" data-id="${item.productId}">x</button>
+                <button class="btn btn-sm btn-outline-danger btn-remove" 
+                        data-id="${item.productId}" 
+                        data-size="${item.sizeLabel}">x</button>
             </div>
         `;
         cartContainer.appendChild(cartItem);
@@ -167,52 +173,70 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalItems;
 
+    // Tăng số lượng
     cartContainer.querySelectorAll(".btn-increase").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
-            console.log(`Tăng sản phẩm: ${productId}`);
+            const sizeLabel = btn.dataset.size;
+
             fetch(`/cart/increase/${productId}`, {
                 method: "POST",
-                credentials: "include"
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Tăng xong, load lại cart");
+                console.log("Tăng số lượng thành công");
                 loadCart();
                 loadCheckoutCart();
             });
         });
     });
 
+    // Giảm số lượng
     cartContainer.querySelectorAll(".btn-decrease").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
-            console.log(`Giảm sản phẩm: ${productId}`);
+            const sizeLabel = btn.dataset.size;
+
             fetch(`/cart/decrease/${productId}`, {
                 method: "POST",
-                credentials: "include"
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Giảm xong, load lại cart");
+                console.log("Giảm số lượng thành công");
                 loadCart();
                 loadCheckoutCart();
             });
         });
     });
 
+    // Xóa sản phẩm
     cartContainer.querySelectorAll(".btn-remove").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
-            console.log(`Xóa sản phẩm: ${productId}`);
+            const sizeLabel = btn.dataset.size;
+
             fetch(`/cart/remove/${productId}`, {
                 method: "DELETE",
-                credentials: "include"
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Xóa xong, load lại cart");
+                console.log("Xóa sản phẩm thành công");
                 loadCart();
                 loadCheckoutCart();
             });
         });
     });
-
 }
+
 
 function loadCheckoutCart() {
     const cartContainer = document.querySelector("#checkout-cart-items");
@@ -251,14 +275,15 @@ function loadCheckoutCart() {
                 card.className = "col-md-4 mb-4";
                 card.innerHTML = `
                     <div class="card">
-                        <img src="${item.imageBase64  || '/images/default.png'}" class="card-img-top" alt="Product Image">
+                        <img src="${item.imageBase64 || '/images/default.png'}" class="card-img-top" alt="Product Image">
                         <div class="card-body">
                             <h5 class="card-title">${item.productName}</h5>
+                            <p class="text-muted small">Size: ${item.sizeLabel}</p>
                             <p class="fw-bold">$${item.price.toFixed(2)}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, -1)">-</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, -1, '${item.sizeLabel}')">-</button>
                                 <span class="px-2">${item.quantity}</span>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, 1)">+</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, 1, '${item.sizeLabel}')">+</button>
                             </div>
                         </div>
                     </div>
@@ -274,26 +299,78 @@ function loadCheckoutCart() {
 }
 
 function updateCartItemCount() {
-    fetch('/api/cart')
-        .then(res => res.json())
+    console.log("🔄 Bắt đầu updateCartItemCount...");
+
+    fetch('/cart/json')
+        .then(res => {
+            const contentType = res.headers.get("content-type");
+            console.log("📥 Phản hồi nhận được từ /cart/json:", res.status, contentType);
+
+            if (!res.ok || !contentType.includes("application/json")) {
+                throw new Error("❌ Phản hồi không hợp lệ từ /cart/json");
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log("✅ Dữ liệu giỏ hàng:", data);
+
+            if (!Array.isArray(data)) {
+                throw new Error("❌ Dữ liệu trả về không phải là danh sách");
+            }
+
             let totalQuantity = 0;
-            data.forEach(item => totalQuantity += item.quantity);
-            document.getElementById("cartItemCount").innerText = totalQuantity;
+            data.forEach(item => {
+                console.log(`🛒 ${item.productName} (size: ${item.sizeLabel}) - SL: ${item.quantity}`);
+                totalQuantity += item.quantity;
+            });
+
+            const cartCountEl = document.getElementById("cartItemCount");
+            if (cartCountEl) {
+                cartCountEl.innerText = totalQuantity;
+                console.log("✅ Tổng số lượng hiển thị trong giỏ:", totalQuantity);
+                console.log("---------------------------------------------------------------");
+            } else {
+                console.warn("⚠️ Không tìm thấy phần tử #cartItemCount");
+                console.log("---------------------------------------------------------------");
+            }
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi cập nhật số lượng giỏ hàng:", err.message);
         });
+
     loadCart();
 }
 
-function changeQuantity(productId, delta) {
+function changeQuantity(productId, delta, sizeLabel) {
     const url = delta > 0 ? `/cart/increase/${productId}` : `/cart/decrease/${productId}`;
-    fetch(url, { method: "POST", credentials: "include" })
-        .then(() => {
+    console.log(`🛠️ Gửi yêu cầu ${delta > 0 ? "TĂNG" : "GIẢM"} số lượng: productId=${productId}, sizeLabel=${sizeLabel}, URL=${url}`);
+
+    fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ sizeLabel: sizeLabel })
+    })
+        .then(res => {
+            console.log("📥 Phản hồi từ thay đổi số lượng:", res.status);
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(text || "Lỗi không xác định");
+                });
+            }
+            return res.text();
+        })
+        .then(msg => {
+            console.log("✅ Thay đổi số lượng thành công:", msg);
             loadCheckoutCart();
             updateCartItemCount();
         })
-        .catch(err => console.error("Lỗi thay đổi số lượng:", err));
+        .catch(err => {
+            console.error("❌ Lỗi thay đổi số lượng:", err.message);
+        });
 }
-
 
 document.addEventListener("DOMContentLoaded", loadCheckoutCart);
 

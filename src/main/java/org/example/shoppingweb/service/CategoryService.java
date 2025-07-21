@@ -18,4 +18,14 @@ public class CategoryService {
         categoryRepository.findAll().forEach(categories::add);
         return categories;
     }
+
+    public Category getCategoryById(Integer id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
+
+    public Category findById(Integer id) {
+        return categoryRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Category not found with ID: " + id));
+    }
 }

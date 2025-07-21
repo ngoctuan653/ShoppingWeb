@@ -9,6 +9,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -36,6 +38,10 @@ public class Product {
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "subcategory_id", nullable = false)
@@ -46,8 +52,7 @@ public class Product {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @Lob
-    @Column(name = "image")
+    @Column(name = "image", columnDefinition = "LONGBLOB")
     private byte[] image;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -62,5 +67,8 @@ public class Product {
     @ColumnDefault("'Active'")
     @Column(name = "status", length = 50)
     private String status;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Productsize> productSizes = new ArrayList<>();
 
 }

@@ -1,15 +1,18 @@
 package org.example.shoppingweb.service;
 
 import jakarta.persistence.criteria.Predicate;
+import org.example.shoppingweb.DTO.ProductDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,8 @@ public class ProductService {
 
     @Autowired
     private ProductSizeRepository productSizeRepository;
+    @Autowired
+    private SizeRepository sizeRepository;
 
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
@@ -61,7 +66,6 @@ public class ProductService {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // ✅ Thêm dòng này để chỉ lấy sản phẩm có status là "Active"
             predicates.add(cb.equal(root.get("status"), "Active"));
 
             if (keyword != null && !keyword.isBlank()) {
@@ -134,6 +138,7 @@ public class ProductService {
         existing.setPrice(updatedProduct.getPrice());
         existing.setDescription(updatedProduct.getDescription());
         existing.setStockQuantity(updatedProduct.getStockQuantity());
+        existing.setCategory(updatedProduct.getCategory());
         existing.setSubcategory(updatedProduct.getSubcategory());
         existing.setBrand(updatedProduct.getBrand());
         existing.setStatus(updatedProduct.getStatus());
@@ -165,4 +170,51 @@ public class ProductService {
                 .map(Productsize::getSize)
                 .collect(Collectors.toList());
     }
+
+    public void saveProduct(ProductDTO form) throws IOException {
+        Product product = new Product();
+        product.setProductName(form.getProductName());
+        product.setDescription(form.getDescription());
+        product.setPrice(form.getPrice());
+        if (form.getImage() != null && !form.getImage().isEmpty()) {
+            product.setImage(form.getImage().getBytes());
+        } else {
+            throw new IllegalArgumentException("Vui lòng chọn ảnh sản phẩm.");
+        }
+
+        product.setSubcategory(subCategoryRepository.findById(form.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("SubCategory not found")));
+        product.setBrand(brandRepository.findById(form.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found")));
+
+        List<Productsize> productSizes = new ArrayList<>();
+
+        List<String> labels = form.getSizeLabels();
+        List<Integer> quantities = form.getSizeQuantities();
+
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i).trim();
+            int quantity = quantities.get(i);
+
+            if (label.isEmpty() || quantity <= 0) continue;
+
+            // Tìm hoặc tạo size
+            Size size = sizeRepository.findBySizeLabel(label)
+                    .orElseGet(() -> {
+                        Size newSize = new Size();
+                        newSize.setSizeLabel(label);
+                        return sizeRepository.save(newSize);
+                    });
+
+            Productsize ps = new Productsize();
+            ps.setProduct(product);
+            ps.setSize(size);
+            ps.setStockQuantity(quantity);
+            productSizes.add(ps);
+        }
+
+        product.setProductSizes(productSizes);
+        productRepository.save(product);
+    }
+
 }

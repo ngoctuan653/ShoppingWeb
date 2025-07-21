@@ -1,9 +1,12 @@
 package org.example.shoppingweb.controller;
 
+import org.example.shoppingweb.DTO.ProductDTO;
 import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
+import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.ProductSizeRepository;
-import org.example.shoppingweb.service.ProductService;
+import org.example.shoppingweb.repository.SizeRepository;
+import org.example.shoppingweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -25,7 +30,23 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private ProductSizeRepository productsizeRepository;
+    private SizeRepository sizeRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductSizeRepository productSizeRepository;
+    @Autowired
+    private SizeService sizeService;
+    @Autowired
+    private BrandService brandService;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private SubCategoryService subCategoryService;
+    @Autowired
+    private ProductSizeService productSizeService;
 
     @GetMapping("/shop")
     public String showProduct(Model model) {
@@ -70,6 +91,7 @@ public class ProductController {
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("brands", productService.getAllBrands());
         model.addAttribute("subcategories", productService.getAllSubcategories()); // <- thêm dòng này
+        model.addAttribute("sizes", sizeRepository.findAll());
 
         Product p = new Product();
         p.setSubcategory(new Subcategory());
@@ -108,10 +130,8 @@ public class ProductController {
     @PostMapping("/products/update")
     public String updateProduct(@ModelAttribute Product product,
                                 @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        // Lấy dữ liệu sản phẩm cũ từ DB
         Product existing = productService.getProductById(product.getId());
 
-        // Nếu người dùng không chọn ảnh mới, giữ lại ảnh cũ
         if (!imageFile.isEmpty()) {
             product.setImage(imageFile.getBytes());
         } else {
@@ -119,6 +139,20 @@ public class ProductController {
         }
 
         productService.updateProduct(product);
+        return "redirect:/products";
+    }
+
+    @PostMapping("/products/add")
+    public String addProduct(@ModelAttribute ProductDTO productDto) throws IOException {
+        MultipartFile image = productDto.getImage();
+        if (image != null && !image.isEmpty()) {
+            System.out.println("Tên file: " + image.getOriginalFilename());
+            System.out.println("Kích thước: " + image.getSize());
+            System.out.println("Loại: " + image.getContentType());
+        } else {
+            System.out.println("Không có file nào được gửi.");
+        }
+        productService.saveProduct(productDto);
         return "redirect:/products";
     }
 
@@ -133,18 +167,6 @@ public class ProductController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG); // hoặc IMAGE_PNG nếu ảnh là PNG
         return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
-    }
-
-    @PostMapping("/products/add")
-    public String addProduct(@ModelAttribute Product product,
-                             @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-
-        if (!imageFile.isEmpty()) {
-            product.setImage(imageFile.getBytes());
-        }
-
-        productService.saveProduct(product);
-        return "redirect:/products";
     }
 
     @PostMapping("/products/delete/{id}")

@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface ProductSizeRepository extends JpaRepository<Productsize,Integer> {
     List<Productsize> findByProductId(int productId);
     Optional<Productsize> findByProductAndSize(Product product, Size size);
+    List<Productsize> findByProduct(Product product);
 
 }

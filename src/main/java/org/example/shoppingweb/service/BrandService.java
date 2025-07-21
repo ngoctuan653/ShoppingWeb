@@ -18,4 +18,14 @@ public class BrandService {
         brandRepository.findAll().forEach(brands::add);
         return brands;
     }
+
+    public Brand getBrandById(Integer id) {
+        return brandRepository.findById(id).orElse(null);
+    }
+
+
+    public Brand findById(Integer id) {
+        return brandRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Brand not found with ID: " + id));
+    }
 }
