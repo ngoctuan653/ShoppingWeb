@@ -43,7 +43,12 @@
             <tr th:each="product : ${products}">
                 <td th:text="${product.id}"></td>
                 <td>
-                    <img th:src="@{/products/image/{id}(id=${product.id})}"
+                    <img th:if="${product.image != null}" th:src="@{/products/image/{id}(id=${product.id})}"
+                         alt="Product Image"
+                         class="img-thumbnail"
+                         style="width: 70px; height: 70px;">
+
+                    <img th:if="${product.image == null}" th:src="@{/images/default.png}"
                          alt="Product Image"
                          class="img-thumbnail"
                          style="width: 70px; height: 70px;">
@@ -91,7 +96,7 @@
          aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form th:action="@{/products/add}" method="post" enctype="multipart/form-data">
+                <form id="productForm" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -109,11 +114,9 @@
                                 <input type="number" class="form-control" id="price" name="price" required>
                             </div>
 
-                            <input type="hidden" class="form-control" id="stockQuantity" name="stockQuantity" value="0">
-
                             <div class="col-md-6">
-                                <label for="brand" class="form-label">Brand</label>
-                                <select class="form-select" id="brand" name="brandId" required>
+                                <label for="brandId" class="form-label">Brand</label>
+                                <select class="form-select" id="brandId" name="brandId" required>
                                     <option value="" disabled selected>-- Select Brand --</option>
                                     <option th:each="brand : ${brands}" th:value="${brand.id}"
                                             th:text="${brand.brandName}"></option>
@@ -121,16 +124,16 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="category" class="form-label">Category</label>
-                                <select class="form-select" id="category" name="categoryId" required>
+                                <label for="categoryId" class="form-label">Category</label>
+                                <select class="form-select" id="categoryId" name="categoryId" required>
                                     <option value="" disabled selected>-- Select Category --</option>
                                     <option th:each="category : ${categories}" th:value="${category.id}"
                                             th:text="${category.categoryName}"></option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="subcategory" class="form-label">SubCategory</label>
-                                <select class="form-select" id="subcategory" name="subCategoryId" required>
+                                <label for="subCategoryId" class="form-label">SubCategory</label>
+                                <select class="form-select" id="subCategoryId" name="subCategoryId" required>
                                     <option value="" disabled selected>-- Select SubCategory --</option>
                                     <option th:each="sub : ${subcategories}" th:value="${sub.id}"
                                             th:text="${sub.subcategoryName}"></option>
@@ -140,6 +143,7 @@
                                 <label for="description" class="form-label">Description</label>
                                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                             </div>
+
                             <div class="col-md-6">
                                 <label for="status" class="form-label">Status</label>
                                 <select class="form-select" id="status" name="status" required>
@@ -147,14 +151,20 @@
                                     <option value="Inactive">Inactive</option>
                                 </select>
                             </div>
+
                             <div class="col-md-6">
                                 <label for="image" class="form-label">Image</label>
-                                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                                <input type="file" class="form-control" id="image" name="image">
                             </div>
+
                             <div class="col-md-12">
-                                <label class="form-label">Sizes & Quantity</label>
-                                <div id="size-container"></div>
-                                <button type="button" class="btn btn-outline-primary mt-2" onclick="addSizeRow()">+ Add Size</button>
+                                <h3>Sizes</h3>
+                                <label class="form-label">Size:</label>
+                                <input type="text" id="sizeLabel">
+                                <label>Số lượng:</label>
+                                <input type="number" id="stockQuantity">
+                                <button type="button" onclick="addSize()">+ Thêm Size</button>
+                                <ul id="sizeList"></ul>
                             </div>
                         </div>
                     </div>
@@ -173,8 +183,8 @@
          aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form th:action="@{/products/update}" method="post" enctype="multipart/form-data">
-                    <input type="hidden" id="edit-id" name="id">
+                <form id="updateForm" enctype="multipart/form-data">
+                    <input type="text" id="edit-id" name="id">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -229,9 +239,19 @@
                             <label for="edit-image" class="form-label">Image</label>
                             <input type="file" class="form-control" id="edit-image" name="imageFile">
                         </div>
+
+                        <div class="col-md-12">
+                            <h3>Sizes</h3>
+                            <label class="form-label">Size:</label>
+                            <input type="text" id="sizeLabelUpdate">
+                            <label>Số lượng:</label>
+                            <input type="number" id="stockQuantityUpdate">
+                            <button type="button" onclick="addSizeUpdate()">+ Thêm Size</button>
+                            <ul id="sizeListUpdate"></ul>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Update Product</button>
+                        <button type="submit" class="btn btn-dark">Update Product</button>
                     </div>
                 </form>
             </div>
@@ -240,45 +260,10 @@
 </div>
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
-<script>
-    document.querySelectorAll(".btn-edit").forEach(btn => {
-        btn.addEventListener("click", () => {
-            document.getElementById("edit-id").value = btn.getAttribute("data-id");
-            document.getElementById("edit-productName").value = btn.getAttribute("data-name");
-            document.getElementById("edit-price").value = btn.getAttribute("data-price");
-            document.getElementById("edit-stockQuantity").value = btn.getAttribute("data-quantity");
-            document.getElementById("edit-description").value = btn.getAttribute("data-description");
-            document.getElementById("edit-category").value = btn.getAttribute("data-category-id");
-            document.getElementById("edit-subcategory").value = btn.getAttribute("data-subcategory-id");
-            document.getElementById("edit-brand").value = btn.getAttribute("data-brand-id");
-            document.getElementById("edit-status").value = btn.getAttribute("data-status");
-        });
-    });
-
-    document.getElementById('image').addEventListener('change', function () {
-        const file = this.files[0];
-        if (file && file.size > 10 * 1024 * 1024) { // 10MB
-            alert("File ảnh quá lớn (tối đa 10MB)");
-            this.value = "";
-        }
-    });
-
-
-    function addSizeRow() {
-        document.getElementById("size-container").insertAdjacentHTML("beforeend", `
-        <div class="row g-2 mb-2">
-            <div class="col-md-6">
-                <input type="text" name="sizeLabels[]" class="form-control" placeholder="Size">
-            </div>
-            <div class="col-md-6">
-                <input type="number" name="sizeQuantities[]" class="form-control" placeholder="Quantity">
-            </div>
-        </div>
-    `);
-    }
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/add-product.js"></script>
+<script src="/js/update-product.js"></script>
 
 </body>
 </html>

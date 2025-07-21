@@ -11,5 +11,4 @@ public interface ProductRepository extends JpaRepository<Product, Integer>, JpaS
 
     List<Product> findByStatus(String status);
 
-
 }

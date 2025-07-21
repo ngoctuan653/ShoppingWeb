@@ -1,7 +1,11 @@
 package org.example.shoppingweb.controller;
 
-import org.example.shoppingweb.DTO.ProductDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.shoppingweb.DTO.ProductRequest;
+import org.example.shoppingweb.DTO.ProductSizeRequest;
 import org.example.shoppingweb.DTO.SizeDTO;
+import org.example.shoppingweb.DTO.StockUpdateRequest;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.ProductSizeRepository;
@@ -25,16 +29,12 @@ import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
-
     @Autowired
     private ProductService productService;
-
     @Autowired
     private SizeRepository sizeRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductSizeRepository productSizeRepository;
     @Autowired
@@ -143,17 +143,41 @@ public class ProductController {
     }
 
     @PostMapping("/products/add")
-    public String addProduct(@ModelAttribute ProductDTO productDto) throws IOException {
-        MultipartFile image = productDto.getImage();
-        if (image != null && !image.isEmpty()) {
-            System.out.println("Tên file: " + image.getOriginalFilename());
-            System.out.println("Kích thước: " + image.getSize());
-            System.out.println("Loại: " + image.getContentType());
-        } else {
-            System.out.println("Không có file nào được gửi.");
+    public ResponseEntity<?> addProduct(
+            @RequestPart("product") ProductRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        Product product = productService.createProduct(request, imageFile);
+        return ResponseEntity.ok(product);
+    }
+
+    @PostMapping("/products/update/{id}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Integer id,
+            @RequestPart("product") ProductRequest productRequest,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        try {
+            Product updated = productService.updateProduct(id, productRequest, image);
+            System.out.println("[DEBUG] ProductRequest: " + productRequest);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Product updated successfully",
+                    "productId", updated.getId()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi: " + e.getMessage());
         }
-        productService.saveProduct(productDto);
-        return "redirect:/products";
+    }
+
+
+    @PutMapping("/{productId}/stock")
+    public ResponseEntity<Product> updateStock(
+            @PathVariable Integer productId,
+            @RequestBody StockUpdateRequest request) {
+
+        Product updated = productService.updateStockQuantity(productId, request.getStockQuantity());
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/products/image/{id}")
@@ -165,7 +189,7 @@ public class ProductController {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG); // hoặc IMAGE_PNG nếu ảnh là PNG
+        headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
     }
 

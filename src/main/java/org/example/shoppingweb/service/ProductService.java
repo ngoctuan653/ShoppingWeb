@@ -1,18 +1,20 @@
 package org.example.shoppingweb.service;
 
 import jakarta.persistence.criteria.Predicate;
-import org.example.shoppingweb.DTO.ProductDTO;
+import jakarta.transaction.Transactional;
+import org.example.shoppingweb.DTO.ProductRequest;
+import org.example.shoppingweb.DTO.ProductSizeRequest;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -171,50 +173,128 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public void saveProduct(ProductDTO form) throws IOException {
+    public Product createProduct(ProductRequest req, MultipartFile imageFile) {
+        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId()).orElseThrow(() -> new RuntimeException("SubCategory not found"));
+        Category category = categoryRepository.findById(req.getCategoryId()).orElseThrow(() -> new RuntimeException("Category not found"));
+        Brand brand = brandRepository.findById(req.getBrandId()).orElseThrow(() -> new RuntimeException("Brand not found"));
+
         Product product = new Product();
-        product.setProductName(form.getProductName());
-        product.setDescription(form.getDescription());
-        product.setPrice(form.getPrice());
-        if (form.getImage() != null && !form.getImage().isEmpty()) {
-            product.setImage(form.getImage().getBytes());
-        } else {
-            throw new IllegalArgumentException("Vui lòng chọn ảnh sản phẩm.");
+        product.setProductName(req.getProductName());
+        product.setDescription(req.getDescription());
+        product.setPrice(req.getPrice());
+        product.setStockQuantity(0);
+        product.setCategory(category);
+        product.setSubcategory(subCategory);
+        product.setBrand(brand);
+        product.setCreatedAt(Instant.now());
+        product.setUpdatedAt(Instant.now());
+        product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
+        if(imageFile != null && !imageFile.isEmpty()){
+            try {
+                product.setImage(imageFile.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        product.setSubcategory(subCategoryRepository.findById(form.getSubCategoryId())
-                .orElseThrow(() -> new RuntimeException("SubCategory not found")));
-        product.setBrand(brandRepository.findById(form.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found")));
+        Product savedProduct = productRepository.save(product);
 
-        List<Productsize> productSizes = new ArrayList<>();
+        int totalStock = 0;
 
-        List<String> labels = form.getSizeLabels();
-        List<Integer> quantities = form.getSizeQuantities();
+        if (req.getSizes() != null) {
+            for (ProductSizeRequest sizeReq : req.getSizes()) {
+                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel())
+                        .orElseGet(() -> {
+                            Size newSize = new Size();
+                            newSize.setSizeLabel(sizeReq.getSizeLabel());
+                            newSize.setDescription("");
+                            return sizeRepository.save(newSize);
+                        });
 
-        for (int i = 0; i < labels.size(); i++) {
-            String label = labels.get(i).trim();
-            int quantity = quantities.get(i);
+                Productsize ps = new Productsize();
+                ps.setProduct(savedProduct);
+                ps.setSize(size);
+                ps.setStockQuantity(sizeReq.getStockQuantity());
+                ps.setCreatedAt(Instant.now());
+                ps.setUpdatedAt(Instant.now());
+                productSizeRepository.save(ps);
 
-            if (label.isEmpty() || quantity <= 0) continue;
-
-            // Tìm hoặc tạo size
-            Size size = sizeRepository.findBySizeLabel(label)
-                    .orElseGet(() -> {
-                        Size newSize = new Size();
-                        newSize.setSizeLabel(label);
-                        return sizeRepository.save(newSize);
-                    });
-
-            Productsize ps = new Productsize();
-            ps.setProduct(product);
-            ps.setSize(size);
-            ps.setStockQuantity(quantity);
-            productSizes.add(ps);
+                totalStock += sizeReq.getStockQuantity();
+            }
         }
 
-        product.setProductSizes(productSizes);
-        productRepository.save(product);
+        savedProduct.setStockQuantity(totalStock);
+        productRepository.save(savedProduct);
+
+        return savedProduct;
     }
 
+    @Transactional
+    public Product updateProduct(Integer productId, ProductRequest req,MultipartFile image) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        Category category = categoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("SubCategory not found"));
+        Brand brand = brandRepository.findById(req.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+
+        // Cập nhật thông tin cơ bản
+        product.setProductName(req.getProductName());
+        product.setDescription(req.getDescription());
+        product.setPrice(req.getPrice());
+        product.setSubcategory(subCategory);
+        product.setCategory(category);
+        product.setBrand(brand);
+        product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
+        product.setUpdatedAt(Instant.now());
+
+        if (image != null && !image.isEmpty()) {
+            product.setImage(image.getBytes());
+        }
+
+
+        // Xoá các size cũ
+        productSizeRepository.deleteByProduct(product);
+
+        int totalStock = 0;
+        if (req.getSizes() != null) {
+            for (ProductSizeRequest sizeReq : req.getSizes()) {
+                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel())
+                        .orElseGet(() -> {
+                            Size newSize = new Size();
+                            newSize.setSizeLabel(sizeReq.getSizeLabel());
+                            newSize.setDescription("");
+                            return sizeRepository.save(newSize);
+                        });
+
+                Productsize ps = new Productsize();
+                ps.setProduct(product);
+                ps.setSize(size);
+                ps.setStockQuantity(sizeReq.getStockQuantity());
+                ps.setCreatedAt(Instant.now());
+                ps.setUpdatedAt(Instant.now());
+                productSizeRepository.save(ps);
+
+                totalStock += sizeReq.getStockQuantity();
+            }
+        }
+
+        product.setStockQuantity(totalStock);
+        return productRepository.save(product);
+    }
+
+
+
+
+
+    public Product updateStockQuantity(Integer productId, int stockQuantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setStockQuantity(stockQuantity);
+        return productRepository.save(product);
+    }
 }

@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface SizeRepository extends JpaRepository<Size, Integer> {
     Optional<Size> findBySizeLabel(String sizeLabel);
+    boolean existsBySizeLabel(String sizeLabel);
+
 }

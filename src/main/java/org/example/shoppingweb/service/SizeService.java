@@ -1,5 +1,6 @@
 package org.example.shoppingweb.service;
 
+import org.example.shoppingweb.DTO.SizeRequest;
 import org.example.shoppingweb.entity.Size;
 import org.example.shoppingweb.repository.SizeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,18 @@ public class SizeService {
     }
 
     public Size save(Size size) {
+        return sizeRepository.save(size);
+    }
+
+    public Size createSize(SizeRequest request) {
+        if (sizeRepository.existsBySizeLabel(request.getSizeLabel())) {
+            throw new RuntimeException("Size already exists");
+        }
+
+        Size size = new Size();
+        size.setSizeLabel(request.getSizeLabel());
+        size.setDescription(request.getDescription());
+
         return sizeRepository.save(size);
     }
 }
