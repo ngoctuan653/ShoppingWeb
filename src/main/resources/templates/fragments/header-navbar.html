@@ -56,7 +56,7 @@
                         <span th:text="${currentUser.fullName}">User Name</span>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
                         <li><a class="dropdown-item" th:href="@{/order/history}">Order History</a></li>
 <!--                        <li th:if="${currentUser.getId() == 1}"><a class="dropdown-item" th:href="@{/products}">Product Managements</a></li>-->
                         <li><a class="dropdown-item" th:href="@{/products}">Product Managements</a></li>

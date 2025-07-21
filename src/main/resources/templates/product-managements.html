@@ -87,71 +87,79 @@
     </div>
 
     <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
-         aria-hidden="true">
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <form th:action="@{/products/add}" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body row g-3">
-                    <div class="col-md-6">
-                        <label for="productName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="productName" name="productName" required>
+            <div class="modal-content">
+                <form th:action="@{/products/add}" method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="col-md-6">
-                        <label for="price" class="form-label">Price</label>
-                        <input type="number" class="form-control" id="price" name="price" required>
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="productName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="price" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="price" name="price" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="stockQuantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="brand" class="form-label">Brand</label>
+                                <select class="form-select" id="brand" name="brand.id" required>
+                                    <option value="" disabled selected>-- Select Brand --</option>
+                                    <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                            th:text="${brand.brandName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category.id" required>
+                                    <option value="" disabled selected>-- Select Category --</option>
+                                    <option th:each="category : ${categories}" th:value="${category.id}"
+                                            th:text="${category.categoryName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="subcategory" class="form-label">SubCategory</label>
+                                <select class="form-select" id="subcategory" name="subcategory.id" required>
+                                    <option value="" disabled selected>-- Select SubCategory --</option>
+                                    <option th:each="sub : ${subcategories}" th:value="${sub.id}"
+                                            th:text="${sub.subcategoryName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="image" class="form-label">Image</label>
+                                <input type="file" class="form-control" id="image" name="imageFile">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="stockQuantity" class="form-label">Quantity</label>
-                        <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" required>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Product</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
-                    <div class="col-md-6">
-                        <label for="brand" class="form-label">Brand</label>
-                        <select class="form-select" id="brand" name="brand.id" required>
-                            <option th:each="brand : ${brands}" th:value="${brand.id}"
-                                    th:text="${brand.brandName}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="category" class="form-label">Category</label>
-                        <select class="form-select" id="category" name="category.id" required>
-                            <option th:each="category : ${categories}" th:value="${category.id}"
-                                    th:text="${category.categoryName}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="subcategory" class="form-label">SubCategory</label>
-                        <select class="form-select" id="subcategory" name="subcategory.id" required>
-                            <option th:each="sub : ${subcategories}" th:value="${sub.id}"
-                                    th:text="${sub.subcategoryName}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" class="form-control" id="image" name="imageFile">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save Product</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-
     <!-- Edit Product Modal -->
     <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
          aria-hidden="true">
