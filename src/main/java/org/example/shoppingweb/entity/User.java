@@ -49,7 +49,8 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "avatar")
+    @Lob
+    @Column(name = "avatar", columnDefinition = "LONGBLOB")
     private byte[] avatar;
 
     @ColumnDefault("CURRENT_TIMESTAMP")

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -42,4 +43,42 @@ public class UserService {
         user.setCreatedAt(now);
         return userRepository.save(user);
     }
+
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+
+    public List<User> searchUsersByKeyword(String keyword) {
+        return userRepository.findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
+    }
+
+
+    public void deleteUserById(Integer id) {
+        userRepository.deleteById(id);
+    }
+
+
+    public User getUserById(Integer id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+
+    public void updateUser(User user) {
+        User existing = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existing.setFullName(user.getFullName());
+        existing.setEmail(user.getEmail());
+        existing.setPhoneNumber(user.getPhoneNumber());
+        existing.setAddress(user.getAddress());
+
+        if (user.getAvatar() != null && user.getAvatar().length > 0) {
+            existing.setAvatar(user.getAvatar());
+        }
+
+        userRepository.save(existing);
+    }
+
 }

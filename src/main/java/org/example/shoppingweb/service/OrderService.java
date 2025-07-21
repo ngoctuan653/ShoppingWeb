@@ -55,6 +55,8 @@ public class OrderService {
             orderDetail.setQuantity(cart.getQuantity());
             orderDetail.setUnitPrice(cart.getProduct().getPrice());
             orderDetail.setSize(cart.getSize());
+
+
             orderDetailRepository.save(orderDetail);
         }
         cartRepository.deleteByUser(user);
