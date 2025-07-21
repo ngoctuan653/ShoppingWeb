@@ -92,7 +92,8 @@
     </div>
 
     <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="productForm" enctype="multipart/form-data">
@@ -194,11 +195,8 @@
                             <label for="edit-price" class="form-label">Price</label>
                             <input type="number" class="form-control" id="edit-price" name="price" required>
                         </div>
-                        <div class="col-md-6">
-                            <label for="edit-stockQuantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control" id="edit-stockQuantity" name="stockQuantity"
-                                   required>
-                        </div>
+
+                        <input type="hidden" class="form-control" id="edit-stockQuantity" name="stockQuantity" required>
                         <div class="col-md-6">
                             <label for="edit-brand" class="form-label">Brand</label>
                             <select class="form-select" id="edit-brand" name="brand.id" required>
