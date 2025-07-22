@@ -66,32 +66,22 @@ public class ProductService {
                                         List<Long> brands) {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            // Lọc sản phẩm Active
             predicates.add(cb.equal(root.get("status"), "Active"));
-
-            // Keyword
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
-
-            // Price
             if (minPrice != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), BigDecimal.valueOf(minPrice)));
             }
             if (maxPrice != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), BigDecimal.valueOf(maxPrice)));
             }
-
-            // Lọc theo category/subcategory
             if (categories != null && !categories.isEmpty()) {
                 predicates.add(root.get("category").get("id").in(categories));
             }
             if (subcategories != null && !subcategories.isEmpty()) {
                 predicates.add(root.get("subcategory").get("id").in(subcategories));
             }
-
-            // Brand (đã fix đúng)
             if (brands != null && !brands.isEmpty()) {
                 predicates.add(root.get("brand").get("id").in(brands));
             }
