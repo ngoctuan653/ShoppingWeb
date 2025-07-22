@@ -104,41 +104,35 @@
                     <p class="text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
                 </div>
 
-                <form id="contactForm" class="needs-validation" novalidate>
+                <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="firstName" class="form-label">First Name *</label>
-                            <input type="text" class="form-control" id="firstName" required>
-                            <div class="invalid-feedback">
-                                Please provide your first name.
-                            </div>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            <div class="invalid-feedback">Please provide your first name.</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="lastName" class="form-label">Last Name *</label>
-                            <input type="text" class="form-control" id="lastName" required>
-                            <div class="invalid-feedback">
-                                Please provide your last name.
-                            </div>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            <div class="invalid-feedback">Please provide your last name.</div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email Address *</label>
-                            <input type="email" class="form-control" id="email" required>
-                            <div class="invalid-feedback">
-                                Please provide a valid email address.
-                            </div>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please provide a valid email address.</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone">
+                            <input type="tel" class="form-control" id="phone" name="phone">
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="subject" class="form-label">Subject *</label>
-                        <select class="form-select" id="subject" required>
+                        <select class="form-select" id="subject" name="subject" required>
                             <option value="">Choose a subject...</option>
                             <option value="general">General Inquiry</option>
                             <option value="order">Order Support</option>
@@ -147,22 +141,17 @@
                             <option value="complaint">Complaint</option>
                             <option value="other">Other</option>
                         </select>
-                        <div class="invalid-feedback">
-                            Please select a subject.
-                        </div>
+                        <div class="invalid-feedback">Please select a subject.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="message" class="form-label">Message *</label>
-                        <textarea class="form-control" id="message" rows="5" required
-                                  placeholder="Please provide details about your inquiry..."></textarea>
-                        <div class="invalid-feedback">
-                            Please provide your message.
-                        </div>
+                        <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Please provide details about your inquiry..."></textarea>
+                        <div class="invalid-feedback">Please provide your message.</div>
                     </div>
 
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="newsletter">
+                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">
                         <label class="form-check-label" for="newsletter">
                             I would like to receive updates and promotional emails
                         </label>
@@ -174,6 +163,7 @@
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>

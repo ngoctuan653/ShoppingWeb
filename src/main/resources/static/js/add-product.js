@@ -48,12 +48,13 @@ document.getElementById("productForm").addEventListener("submit", function (e) {
         body: formData
     })
         .then(response => {
-            if (!response.ok) throw new Error("Gửi thất bại");
+            if (!response.ok) throw new Error("Send data is invalid");
             return response.json();
         })
         .then(result => {
-            alert("Thêm sản phẩm thành công!");
+            alert("Add product successfully!");
             console.log(result);
+            window.location.reload();
         })
         .catch(err => {
             alert("Lỗi: " + err.message);

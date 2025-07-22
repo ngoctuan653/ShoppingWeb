@@ -83,8 +83,11 @@ public class ProductController {
 
     @GetMapping("/home")
     public String showProductHome(Model model) {
-        List<Product> products = productService.getAllActiveProducts();
-        model.addAttribute("products", products);
+        List<Product> allProducts = productRepository.findAll();
+        List<Product> availableProducts = allProducts.stream()
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
+                .collect(Collectors.toList());
+        model.addAttribute("products", availableProducts);
         return "Home";
     }
 

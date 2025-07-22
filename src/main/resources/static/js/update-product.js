@@ -203,7 +203,7 @@ document.getElementById("updateForm").addEventListener("submit", async function 
         try {
             const json = JSON.parse(text);
             console.log("[DEBUG] Server JSON response:", json);
-            alert("Cập nhật thành công!");
+            alert("Update successfully!");
             window.location.reload();
         } catch (jsonError) {
             console.error("[ERROR] Response không phải JSON:\n", text);

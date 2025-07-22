@@ -1,5 +1,6 @@
 package org.example.shoppingweb.service;
 
+import org.example.shoppingweb.entity.Contact;
 import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Orderdetail;
 import org.example.shoppingweb.entity.User;
@@ -28,6 +29,22 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
+    public void sendContactEmail(Contact contact) {
+        String to = "viethoang2454@gmail.com";
+        String subject = "New Contact: " + contact.getSubject();
+        String content = "From: " + contact.getFullName() + "\n"
+                + "Email: " + contact.getEmail() + "\n"
+                + "Phone: " + (contact.getPhoneNumber() != null ? contact.getPhoneNumber() : "N/A") + "\n"
+                + "Message:\n" + contact.getMessage();
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(content);
+
+        javaMailSender.send(message);
+    }
+
     public void sendOrderConfirmation(User user, Order order, List<Orderdetail> orderDetails, String shippingAddress, String phone) {
         StringBuilder emailBody = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
@@ -36,7 +53,7 @@ public class EmailService {
         String orderTimeString = formatter.format(order.getCreatedAt());  // dạng "21/07/2025 14:30:00"
 
 
-        emailBody.append("Hellt ").append(user.getFullName()).append(",\n\n");
+        emailBody.append("Hello ").append(user.getFullName()).append(",\n\n");
         emailBody.append("Thank you for ordering at StyleLegacy!\n");
         emailBody.append("Order code: ").append(order.getId()).append("\n");
         emailBody.append("Time to order: ").append(orderTimeString).append("\n\n");
