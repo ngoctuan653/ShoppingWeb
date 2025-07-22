@@ -15,6 +15,7 @@ import java.time.Instant;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
@@ -48,7 +49,8 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "avatar")
+    @Lob
+    @Column(name = "avatar", columnDefinition = "LONGBLOB")
     private byte[] avatar;
 
     @ColumnDefault("CURRENT_TIMESTAMP")

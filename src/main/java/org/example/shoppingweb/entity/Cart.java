@@ -14,6 +14,7 @@ import java.time.Instant;
 @Table(name = "cart")
 public class Cart {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id", nullable = false)
     private Integer id;
 
@@ -26,6 +27,12 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
+
 
     @ColumnDefault("1")
     @Column(name = "quantity")

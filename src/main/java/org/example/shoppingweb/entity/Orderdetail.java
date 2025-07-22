@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Table(name = "orderdetails")
 public class Orderdetail {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_detail_id", nullable = false)
     private Integer id;
 
@@ -25,6 +26,11 @@ public class Orderdetail {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
 
     @NotNull
     @Column(name = "quantity", nullable = false)

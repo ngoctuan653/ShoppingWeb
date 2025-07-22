@@ -2,298 +2,115 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StyleLegacy - Fashion Website</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+
+    <title>Thêm Sản Phẩm</title>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom">
-        <div class="container">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="bi bi-bag-heart fs-3 me-2"></i>
-                <span class="fw-bold fs-4">StyleLegacy</span>
-            </a>
+<h2>Thêm Sản Phẩm</h2>
+<form id="productForm" enctype="multipart/form-data">
+    <label>Tên sản phẩm:</label><br>
+    <input type="text" id="productName" required><br>
 
-            <!-- Mobile Toggle -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <label>Mô tả:</label><br>
+    <textarea id="description"></textarea><br>
 
-            <!-- Navigation Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active fw-medium" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="#">Shop</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="#">About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="#">Contact</a>
-                    </li>
-                </ul>
+    <label>Giá:</label><br>
+    <input type="number" id="price" required><br>
 
-                <!-- Right Side Actions -->
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-dark btn-sm d-none d-md-block">
-                        <i class="bi bi-person me-1"></i>Sign In
-                    </button>
-                    <button class="btn btn-dark btn-sm d-none d-md-block">Sign Up</button>
-                    <button class="btn btn-outline-dark btn-sm">
-                        <i class="bi bi-bag"></i>
-                        <span class="badge bg-danger ms-1">3</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <label>Category ID:</label><br>
+    <input type="number" id="categoryId" required><br>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="row align-items-center min-vh-75">
-                <div class="col-lg-6">
-                    <h1 class="display-3 fw-bold mb-4">
-                        It's not just fashion—it's <em>legacy</em>
-                    </h1>
-                    <p class="lead mb-4 text-muted">
-                        Discover timeless pieces that define your style and create lasting impressions. 
-                        Fashion that transcends trends and becomes part of your story.
-                    </p>
-                    <div class="d-flex flex-column flex-sm-row gap-3">
-                        <button class="btn btn-dark btn-lg px-4">Shop Collection</button>
-                        <button class="btn btn-outline-dark btn-lg px-4">Explore Trends</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <label>SubCategory ID:</label><br>
+    <input type="number" id="subCategoryId" required><br>
 
-    <!-- Main Content -->
-    <div class="container my-5">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-3 mb-4">
-                <!-- Search -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Search Products</h5>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" placeholder="Search by name, brand..." id="searchInput">
-                        </div>
-                    </div>
-                </div>
+    <label>Brand ID:</label><br>
+    <input type="number" id="brandId" required><br>
 
-                <!-- Price Filter -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Price Range</h5>
-                        <div class="mb-3">
-                            <input type="range" class="form-range" min="0" max="500" value="200" id="priceRange">
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span>$0</span>
-                                <span>$500</span>
-                            </div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col">
-                                <input type="number" class="form-control form-control-sm" placeholder="Min" id="minPrice">
-                            </div>
-                            <div class="col-auto align-self-center">-</div>
-                            <div class="col">
-                                <input type="number" class="form-control form-control-sm" placeholder="Max" id="maxPrice">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <label>Trạng thái:</label><br>
+    <select name="status" id="status">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select><br><br>
 
-                <!-- Category Filter -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Categories</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="t-shirts" id="cat1">
-                            <label class="form-check-label" for="cat1">T-Shirts</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="dresses" id="cat2">
-                            <label class="form-check-label" for="cat2">Dresses</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="jackets" id="cat3">
-                            <label class="form-check-label" for="cat3">Jackets</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="shoes" id="cat4">
-                            <label class="form-check-label" for="cat4">Shoes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="shirts" id="cat5">
-                            <label class="form-check-label" for="cat5">Shirts</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="accessories" id="cat6">
-                            <label class="form-check-label" for="cat6">Accessories</label>
-                        </div>
-                    </div>
-                </div>
+    <label>Chọn ảnh sản phẩm:</label><br>
+    <input type="file" name="image"><br><br>
 
-                <!-- Brand Filter -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Brands</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="styleco" id="brand1">
-                            <label class="form-check-label" for="brand1">StyleCo</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="fashionhub" id="brand2">
-                            <label class="form-check-label" for="brand2">FashionHub</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="denimco" id="brand3">
-                            <label class="form-check-label" for="brand3">DenimCo</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="comfortwalk" id="brand4">
-                            <label class="form-check-label" for="brand4">ComfortWalk</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="prostyle" id="brand5">
-                            <label class="form-check-label" for="brand5">ProStyle</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="luxebag" id="brand6">
-                            <label class="form-check-label" for="brand6">LuxeBag</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <h3>Sizes</h3>
+    <label>Size:</label>
+    <input type="text" id="sizeLabel">
+    <label>Số lượng:</label>
+    <input type="number" id="stockQuantity">
+    <button type="button" onclick="addSize()">+ Thêm Size</button>
 
-            <!-- Products Grid -->
-            <div class="col-lg-9">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="fw-bold mb-2">Featured Products</h2>
-                        <p class="text-muted">Discover our latest collection</p>
-                    </div>
-                    <button class="btn btn-outline-dark">
-                        <i class="bi bi-funnel me-2"></i>Filter
-                    </button>
-                </div>
+    <ul id="sizeList"></ul>
 
-                <div class="row" id="productsGrid">
-                    <!-- Products will be loaded here by JavaScript -->
-                </div>
+    <button type="submit">Gửi</button>
+</form>
 
-                <div class="text-center mt-4">
-                    <button class="btn btn-outline-dark btn-lg px-4">Load More Products</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<script>
+    const sizes = [];
+    function addSize() {
+        const sizeLabel = document.getElementById("sizeLabel").value;
+        const stockQuantity = document.getElementById("stockQuantity").value;
 
-    <!-- Footer -->
-    <footer class="bg-light border-top mt-5">
-        <div class="container py-5">
-            <div class="row">
-                <!-- Company Info -->
-                <div class="col-lg-3 mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-bag-heart fs-4 me-2"></i>
-                        <span class="fw-bold fs-5">StyleLegacy</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        Creating timeless fashion that defines your legacy. Quality, style, and elegance in every piece.
-                    </p>
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-twitter"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-pinterest"></i>
-                        </a>
-                    </div>
-                </div>
+        if (sizeLabel && stockQuantity) {
+            sizes.push({ sizeLabel, stockQuantity: parseInt(stockQuantity) });
 
-                <!-- Quick Links -->
-                <div class="col-lg-2 mb-4">
-                    <h5 class="fw-bold mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">About Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Our Story</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Press</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
-                    </ul>
-                </div>
+            const li = document.createElement("li");
+            li.innerText = `${sizeLabel} - SL: ${stockQuantity}`;
+            document.getElementById("sizeList").appendChild(li);
 
-                <!-- Customer Support -->
-                <div class="col-lg-3 mb-4">
-                    <h5 class="fw-bold mb-3">Customer Support</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">Contact Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">FAQ</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Size Guide</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Shipping Info</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Returns</a></li>
-                    </ul>
-                    <div class="mt-3">
-                        <p class="small text-muted mb-1">Customer Service</p>
-                        <p class="fw-bold">+1 (555) 123-4567</p>
-                        <p class="small text-muted">Mon-Fri 9AM-6PM EST</p>
-                    </div>
-                </div>
+            // Reset input
+            document.getElementById("sizeLabel").value = "";
+            document.getElementById("stockQuantity").value = "";
+        }
+    }
 
-                <!-- Newsletter -->
-                <div class="col-lg-4 mb-4">
-                    <h5 class="fw-bold mb-3">Stay Updated</h5>
-                    <p class="text-muted mb-3">
-                        Subscribe to get special offers, free giveaways, and exclusive deals.
-                    </p>
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Enter your email">
-                        <button class="btn btn-dark" type="button">Subscribe</button>
-                    </div>
-                </div>
-            </div>
 
-            <hr>
+    document.getElementById("productForm").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="text-muted small mb-0">© 2024 StyleLegacy. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-muted text-decoration-none small me-3">Privacy Policy</a>
-                    <a href="#" class="text-muted text-decoration-none small me-3">Terms of Service</a>
-                    <a href="#" class="text-muted text-decoration-none small">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+        const form = document.getElementById("productForm");
+        const formData = new FormData();
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="script.js"></script>
+        const product = {
+            productName: document.getElementById("productName").value,
+            description: document.getElementById("description").value,
+            price: parseFloat(document.getElementById("price").value),
+            categoryId: parseInt(document.getElementById("categoryId").value),
+            subCategoryId: parseInt(document.getElementById("subCategoryId").value),
+            brandId: parseInt(document.getElementById("brandId").value),
+            status: document.getElementById("status").value,
+            sizes: sizes
+        };
+
+        formData.append("product", new Blob([JSON.stringify(product)], {
+            type: "application/json"
+        }));
+
+        const imageInput = form.querySelector("input[name='image']");
+        if (imageInput.files.length > 0) {
+            formData.append("image", imageInput.files[0]);
+        }
+
+        fetch("http://localhost:8080/products/add", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Gửi thất bại");
+                return response.json();
+            })
+            .then(result => {
+                alert("Thêm sản phẩm thành công!");
+                console.log(result);
+            })
+            .catch(err => {
+                alert("Lỗi: " + err.message);
+            });
+    });
+
+</script>
+
 </body>
 </html>
