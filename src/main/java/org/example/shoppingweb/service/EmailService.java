@@ -36,25 +36,25 @@ public class EmailService {
         String orderTimeString = formatter.format(order.getCreatedAt());  // dạng "21/07/2025 14:30:00"
 
 
-        emailBody.append("Xin chào ").append(user.getFullName()).append(",\n\n");
-        emailBody.append("Cảm ơn bạn đã đặt hàng tại StyleLegacy!\n");
-        emailBody.append("Mã đơn hàng: ").append(order.getId()).append("\n");
-        emailBody.append("Thời gian đặt: ").append(orderTimeString).append("\n\n");
+        emailBody.append("Hellt ").append(user.getFullName()).append(",\n\n");
+        emailBody.append("Thank you for ordering at StyleLegacy!\n");
+        emailBody.append("Order code: ").append(order.getId()).append("\n");
+        emailBody.append("Time to order: ").append(orderTimeString).append("\n\n");
 
-        emailBody.append("Thông tin đơn hàng:\n");
+        emailBody.append("Order information:\n");
         for (Orderdetail detail : orderDetails) {
             emailBody.append("- ").append(detail.getProduct().getProductName())
                     .append(" (Size: ").append(detail.getSize().getSizeLabel())
                     .append(") x ").append(detail.getQuantity())
                     .append(" = ").append(detail.getUnitPrice().multiply(BigDecimal.valueOf(detail.getQuantity())))
-                    .append(" đ\n");
+                    .append(" $\n");
         }
 
-        emailBody.append("\nTổng tiền: ").append(order.getTotalAmount()).append(" đ\n");
-        emailBody.append("Địa chỉ giao hàng: ").append(shippingAddress).append("\n");
-        emailBody.append("SĐT: ").append(phone).append("\n\n");
-        emailBody.append("Cảm ơn bạn đã mua hàng!\nStyleLegacy");
+        emailBody.append("\nTotal amount: ").append(order.getTotalAmount()).append(" đ\n");
+        emailBody.append("Shipping address: ").append(shippingAddress).append("\n");
+        emailBody.append("Phone Number: ").append(phone).append("\n\n");
+        emailBody.append("Thank you for your purchase.!\nStyleLegacy");
 
-        sendOrderConfirmation(user.getEmail(), "Xác nhận đơn hàng #" + order.getId(), emailBody.toString());
+        sendOrderConfirmation(user.getEmail(), "Order Confirmation #" + order.getId(), emailBody.toString());
     }
 }

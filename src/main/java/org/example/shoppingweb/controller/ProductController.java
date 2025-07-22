@@ -52,7 +52,7 @@ public class ProductController {
     public String showProduct(Model model) {
         List<Product> allProducts = productRepository.findAll();
         List<Product> availableProducts = allProducts.stream()
-                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0)
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
                 .collect(Collectors.toList());
         List<Category> categories = productService.getAllCategories();
         List<Brand> brands = productService.getAllBrands();
