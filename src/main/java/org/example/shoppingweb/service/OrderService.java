@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,9 @@ public class OrderService {
     private ProductSizeRepository productSizeRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private EmailService emailService;
+
 
     @Transactional
     public Order createOrder(User user, String shippingAddress, String phone) {
@@ -37,6 +42,7 @@ public class OrderService {
         if (cartItems == null || cartItems.isEmpty()) {
             return null;
         }
+        ZonedDateTime nowInVietnam = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
         // Tạo order
         Order order = new Order();
@@ -44,7 +50,7 @@ public class OrderService {
         order.setOrderDate(Instant.now());
         order.setShippingAddress(shippingAddress);
         order.setPhoneNumber(phone);
-        order.setCreatedAt(Instant.now());
+        order.setCreatedAt(nowInVietnam.toInstant());  // vẫn lưu dạng Instant nhưng đúng giờ VN
         order.setUpdatedAt(Instant.now());
 
         // Lấy trạng thái mặc định
@@ -72,7 +78,7 @@ public class OrderService {
             // Trừ tồn kho
             productSize.setStockQuantity(productSize.getStockQuantity() - quantity);
             productSize.setUpdatedAt(Instant.now());
-            productSizeRepository.save(productSize); // cập nhật
+            productSizeRepository.save(productSize);
 
             List<Productsize> remainingSizes = productSizeRepository.findByProduct(product);
             int totalStock = remainingSizes.stream().mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0).sum();
@@ -94,14 +100,13 @@ public class OrderService {
 
         order.setTotalAmount(total);
 
-        // Lưu đơn và chi tiết đơn
         order = orderRepository.save(order);
         orderDetailRepository.saveAll(orderDetails);
-
-        // Xoá giỏ hàng
         cartRepository.deleteAll(cartItems);
-
+        emailService.sendOrderConfirmation(user, order, orderDetails, shippingAddress, phone);
         return order;
     }
+
+
 }
 

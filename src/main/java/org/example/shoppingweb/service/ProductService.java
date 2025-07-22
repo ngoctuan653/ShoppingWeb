@@ -84,16 +84,11 @@ public class ProductService {
             }
 
             // Lọc theo category/subcategory
-            if ((categories != null && !categories.isEmpty()) || (subcategories != null && !subcategories.isEmpty())) {
-                List<Predicate> orCategorySub = new ArrayList<>();
-                if (categories != null && !categories.isEmpty()) {
-                    // ✅ Dùng trực tiếp product.category.id
-                    orCategorySub.add(root.get("category").get("id").in(categories));
-                }
-                if (subcategories != null && !subcategories.isEmpty()) {
-                    orCategorySub.add(root.get("subcategory").get("id").in(subcategories));
-                }
-                predicates.add(cb.or(orCategorySub.toArray(new Predicate[0])));
+            if (categories != null && !categories.isEmpty()) {
+                predicates.add(root.get("category").get("id").in(categories));
+            }
+            if (subcategories != null && !subcategories.isEmpty()) {
+                predicates.add(root.get("subcategory").get("id").in(subcategories));
             }
 
             // Brand (đã fix đúng)
