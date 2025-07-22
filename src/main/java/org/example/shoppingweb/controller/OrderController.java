@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
@@ -47,5 +48,39 @@ public class OrderController {
         model.addAttribute("orderDetailsMap", orderDetailsMap);
 
         return "order-history";
+    }
+    
+    @GetMapping("/orders/view/{id}")
+    public String viewOrderDetail(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        User currentUser = userDetails.getUser();
+        Order order = orderRepository.findById(id).orElse(null);
+
+        System.out.println("Current User ID: " + currentUser.getId() + ", Checking order ID: " + id);
+        System.out.println("Order found: " + (order != null ? order.getId() : "null"));
+        System.out.println("Order User ID: " + (order != null ? order.getUser().getId() : "null"));
+        System.out.println("Order User FullName: " + (order != null && order.getUser() != null ? order.getUser().getFullName() : "null"));
+        System.out.println("Order Status ID: " + (order != null ? order.getStatus().getId() : "null"));
+        System.out.println("Order Status Name: " + (order != null && order.getStatus() != null ? order.getStatus().getStatusName() : "null"));
+        System.out.println("Order Details size: " + (order != null ? orderDetailRepository.findByOrder(order).size() : 0));
+        if (order != null) {
+            for (Orderdetail detail : orderDetailRepository.findByOrder(order)) {
+                System.out.println("OrderDetail ID: " + detail.getId() + ", Quantity: " + detail.getQuantity() + ", UnitPrice: " + detail.getUnitPrice());
+            }
+        }
+
+        if (order == null) {
+            model.addAttribute("error", "Order not found with ID: " + id);
+            return "order-history";
+        } else if (!order.getUser().getId().equals(currentUser.getId())) {
+            model.addAttribute("error", "You do not have permission to view this order");
+            return "order-history";
+        }
+
+        List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
+        model.addAttribute("order", order);
+        model.addAttribute("orderDetails", orderDetails);
+
+        System.out.println("Returning template: order-detail");
+        return "order-detail";
     }
 }
