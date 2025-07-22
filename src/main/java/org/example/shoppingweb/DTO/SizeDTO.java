@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class SizeDTO {
     private Integer id;
     private String sizeLabel;
+    private Integer stockQuantity;
 }

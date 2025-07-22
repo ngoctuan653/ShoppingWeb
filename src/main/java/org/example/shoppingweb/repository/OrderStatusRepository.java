@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface OrderStatusRepository extends JpaRepository<Orderstatus, Integer> {
     Optional<Orderstatus> findById(int id);
+
+    Optional<Orderstatus> findByStatusName(String statusName);
 }

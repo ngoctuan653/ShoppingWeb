@@ -56,13 +56,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 const select = document.getElementById("sizeSelect");
                 select.innerHTML = `<option value="">-- Choose size --</option>`;
 
-                sizes.forEach(size => {
-                    const option = document.createElement("option");
-                    option.value = size.sizeLabel;
-                    option.textContent = size.sizeLabel;
-                    select.appendChild(option);
-                });
+                sizes
+                    .filter(size => size.stockQuantity > 0)  // ✨ Lọc chỉ size còn hàng
+                    .forEach(size => {
+                        const option = document.createElement("option");
+                        option.value = size.sizeLabel;
+                        option.textContent = size.sizeLabel;
+                        select.appendChild(option);
+                    });
             })
+
             .catch(error => {
                 console.error("❌ Lỗi khi tải size:", error);
             });
@@ -96,8 +99,6 @@ function showToast(message, type) {
     });
     toast.show();
 }
-
-
 
 function formatCurrency(amount) {
     return "$" + Number(amount).toFixed(2);
@@ -142,7 +143,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
         cartItem.className = "d-flex justify-content-between align-items-center mb-3 border-bottom pb-2";
         cartItem.innerHTML = `
             <a href="/products/${item.productId}">
-                <img src="${item.imageBase64}" alt="${item.productName}" class="me-2 rounded" style="width: 60px; height: 70px; object-fit: cover;">
+                <img src="${item.imageBase64 || '/images/default.png'}" alt="${item.productName}" class="me-2 rounded" style="width: 60px; height: 70px; object-fit: cover; border: 1px solid #dee2e6;">
             </a>
             <div class="flex-grow-1 ms-2">
                 <a href="/products/${item.productId}" class="text-decoration-none text-dark">
@@ -275,9 +276,13 @@ function loadCheckoutCart() {
                 card.className = "col-md-4 mb-4";
                 card.innerHTML = `
                     <div class="card">
-                        <img src="${item.imageBase64 || '/images/default.png'}" class="card-img-top" alt="Product Image">
+                        <a href="/products/${item.productId}">
+                            <img src="${item.imageBase64 || '/images/default.png'}" class="card-img-top" alt="Product Image">
+                        </a>
                         <div class="card-body">
-                            <h5 class="card-title">${item.productName}</h5>
+                            <a href="/products/${item.productId}" class="text-decoration-none text-dark">
+                                <h5 class="card-title">${item.productName}</h5>
+                            </a>
                             <p class="text-muted small">Size: ${item.sizeLabel}</p>
                             <p class="fw-bold">$${item.price.toFixed(2)}</p>
                             <div class="d-flex justify-content-between align-items-center">
@@ -390,8 +395,6 @@ const searchInput = document.getElementById("searchInput");
 const productGrid = document.getElementById("productGrid");
 const minPriceInput = document.getElementById("minPrice");
 const maxPriceInput = document.getElementById("maxPrice");
-const priceRangeInput = document.getElementById("priceRange");
-const priceValueSpan = document.getElementById("priceValue");
 let debounceTimeout = null;
 
 const showLoading = () => {
@@ -538,5 +541,3 @@ document.addEventListener("DOMContentLoaded", () => {
     // Nếu bạn có nút tìm kiếm thì cũng gắn ở đây
     document.getElementById("searchBtn")?.addEventListener("click", handleSearch);
 });
-
-

@@ -4,6 +4,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.example.shoppingweb.DTO.ProductRequest;
 import org.example.shoppingweb.DTO.ProductSizeRequest;
+import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -68,11 +67,15 @@ public class ProductService {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // Lọc sản phẩm Active
             predicates.add(cb.equal(root.get("status"), "Active"));
 
+            // Keyword
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
+
+            // Price
             if (minPrice != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), BigDecimal.valueOf(minPrice)));
             }
@@ -80,11 +83,12 @@ public class ProductService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), BigDecimal.valueOf(maxPrice)));
             }
 
-            // Lọc theo category hoặc subcategory
+            // Lọc theo category/subcategory
             if ((categories != null && !categories.isEmpty()) || (subcategories != null && !subcategories.isEmpty())) {
                 List<Predicate> orCategorySub = new ArrayList<>();
                 if (categories != null && !categories.isEmpty()) {
-                    orCategorySub.add(root.get("subcategory").get("category").get("id").in(categories));
+                    // ✅ Dùng trực tiếp product.category.id
+                    orCategorySub.add(root.get("category").get("id").in(categories));
                 }
                 if (subcategories != null && !subcategories.isEmpty()) {
                     orCategorySub.add(root.get("subcategory").get("id").in(subcategories));
@@ -92,15 +96,14 @@ public class ProductService {
                 predicates.add(cb.or(orCategorySub.toArray(new Predicate[0])));
             }
 
+            // Brand (đã fix đúng)
             if (brands != null && !brands.isEmpty()) {
-                predicates.add(root.get("subcategory").get("brand").get("id").in(brands));
+                predicates.add(root.get("brand").get("id").in(brands));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         });
-
     }
-
 
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
@@ -166,12 +169,22 @@ public class ProductService {
     }
 
 
-    public List<Size> getSizesByProductId(Integer productId) {
-        List<Productsize> productSizes = productSizeRepository.findByProductId(productId);
-        return productSizes.stream()
-                .map(Productsize::getSize)
+//    public List<Size> getSizesByProductId(Integer productId) {
+//        List<Productsize> productSizes = productSizeRepository.findByProductId(productId);
+//        return productSizes.stream()
+//                .map(Productsize::getSize)
+//                .collect(Collectors.toList());
+//    }
+
+    public List<SizeDTO> getSizesByProductId(Integer productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        return product.getProductSizes().stream()
+                .map(size -> new SizeDTO(size.getId(), size.getSize().getSizeLabel(), size.getStockQuantity()))
                 .collect(Collectors.toList());
     }
+
 
     public Product createProduct(ProductRequest req, MultipartFile imageFile) {
         Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId()).orElseThrow(() -> new RuntimeException("SubCategory not found"));
@@ -189,7 +202,7 @@ public class ProductService {
         product.setCreatedAt(Instant.now());
         product.setUpdatedAt(Instant.now());
         product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
-        if(imageFile != null && !imageFile.isEmpty()){
+        if (imageFile != null && !imageFile.isEmpty()) {
             try {
                 product.setImage(imageFile.getBytes());
             } catch (IOException e) {
@@ -230,65 +243,96 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(Integer productId, ProductRequest req,MultipartFile image) throws IOException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        Category category = categoryRepository.findById(req.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId())
-                .orElseThrow(() -> new RuntimeException("SubCategory not found"));
-        Brand brand = brandRepository.findById(req.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+    public Product updateProduct(Integer id, ProductRequest productRequest, MultipartFile image) throws IOException {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
         // Cập nhật thông tin cơ bản
-        product.setProductName(req.getProductName());
-        product.setDescription(req.getDescription());
-        product.setPrice(req.getPrice());
-        product.setSubcategory(subCategory);
-        product.setCategory(category);
-        product.setBrand(brand);
-        product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
+        product.setProductName(productRequest.getProductName());
+        product.setDescription(productRequest.getDescription());
+        product.setPrice(productRequest.getPrice());
+        product.setStatus(productRequest.getStatus());
         product.setUpdatedAt(Instant.now());
+
+        Category category = categoryRepository.findById(productRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        Subcategory subcategory = subCategoryRepository.findById(productRequest.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("Subcategory not found"));
+        Brand brand = brandRepository.findById(productRequest.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+
+        product.setCategory(category);
+        product.setSubcategory(subcategory);
+        product.setBrand(brand);
 
         if (image != null && !image.isEmpty()) {
             product.setImage(image.getBytes());
         }
 
+        // --- Cập nhật size ---
+        List<Productsize> existingSizes = productSizeRepository.findByProduct(product);
+        Map<Integer, Productsize> existingSizeMap = existingSizes.stream()
+                .filter(ps -> ps.getSize() != null && ps.getSize().getId() != null)
+                .collect(Collectors.toMap(ps -> ps.getSize().getId(), ps -> ps));
 
-        // Xoá các size cũ
-        productSizeRepository.deleteByProduct(product);
+        List<Productsize> updatedSizes = new ArrayList<>();
 
-        int totalStock = 0;
-        if (req.getSizes() != null) {
-            for (ProductSizeRequest sizeReq : req.getSizes()) {
-                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel())
+        for (ProductSizeRequest sizeDTO : productRequest.getSizes()) {
+            Size size;
+
+            if (sizeDTO.getId() != null) {
+                size = sizeRepository.findById(sizeDTO.getId())
+                        .orElseGet(() -> sizeRepository.findBySizeLabel(sizeDTO.getSizeLabel())
+                                .orElseGet(() -> {
+                                    Size newSize = new Size(sizeDTO.getSizeLabel());
+                                    newSize.setCreatedAt(Instant.now());
+                                    newSize.setUpdatedAt(Instant.now());
+                                    return sizeRepository.save(newSize);
+                                }));
+            } else {
+                size = sizeRepository.findBySizeLabel(sizeDTO.getSizeLabel())
                         .orElseGet(() -> {
-                            Size newSize = new Size();
-                            newSize.setSizeLabel(sizeReq.getSizeLabel());
-                            newSize.setDescription("");
+                            Size newSize = new Size(sizeDTO.getSizeLabel());
+                            newSize.setCreatedAt(Instant.now());
+                            newSize.setUpdatedAt(Instant.now());
                             return sizeRepository.save(newSize);
                         });
+            }
 
-                Productsize ps = new Productsize();
-                ps.setProduct(product);
-                ps.setSize(size);
-                ps.setStockQuantity(sizeReq.getStockQuantity());
-                ps.setCreatedAt(Instant.now());
-                ps.setUpdatedAt(Instant.now());
-                productSizeRepository.save(ps);
+            Productsize existing = existingSizeMap.get(size.getId());
 
-                totalStock += sizeReq.getStockQuantity();
+            if (existing != null) {
+                existing.setStockQuantity(sizeDTO.getStockQuantity());
+                existing.setUpdatedAt(Instant.now());
+                updatedSizes.add(existing);
+                existingSizeMap.remove(size.getId());
+            } else {
+                Productsize newSize = new Productsize();
+                newSize.setProduct(product);
+                newSize.setSize(size);
+                newSize.setStockQuantity(sizeDTO.getStockQuantity());
+                newSize.setCreatedAt(Instant.now());
+                newSize.setUpdatedAt(Instant.now());
+                updatedSizes.add(newSize);
             }
         }
 
+
+        // Xoá các size không còn
+        for (Productsize ps : existingSizeMap.values()) {
+            productSizeRepository.delete(ps);
+        }
+
+        productSizeRepository.saveAll(updatedSizes);
+
+        // --- Tính lại stock tổng ---
+        int totalStock = updatedSizes.stream()
+                .mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0)
+                .sum();
         product.setStockQuantity(totalStock);
+
         return productRepository.save(product);
     }
-
-
-
-
 
     public Product updateStockQuantity(Integer productId, int stockQuantity) {
         Product product = productRepository.findById(productId)

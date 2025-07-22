@@ -75,8 +75,14 @@ public class CartController {
         Size size = sizeOpt.get();
 
         Optional<Productsize> productSizeOpt = productSizeRepository.findByProductAndSize(product, size);
+
         if (productSizeOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Size not available for this product.");
+        }
+
+        Productsize productSize = productSizeOpt.get();
+        if (productSize.getStockQuantity() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This size is out of stock.");
         }
 
         Optional<Cart> existingCart = cartRepository.findByUserAndProductAndSize(user, product, size);

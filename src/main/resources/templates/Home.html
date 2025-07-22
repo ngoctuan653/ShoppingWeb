@@ -20,9 +20,11 @@
         .swiper {
             padding: 10px 0;
         }
+
         .swiper-slide {
             height: 100%;
         }
+
         .product-card {
             height: 100%;
         }
@@ -33,6 +35,7 @@
             height: 4px;
             margin-top: 15px;
         }
+
         .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
             background: #000;
         }
@@ -113,23 +116,22 @@
             <div class="swiper-wrapper">
                 <div class="swiper-slide" th:each="product : ${products}">
                     <div class="card product-card h-100">
-                        <img th:if="${product.image != null}"
-                             th:src="@{'/products/image/' + ${product.id}}"
-                             class="card-img-top"
-                             alt="Product Image">
-                        <img th:if="${product.image == null}"
-                             th:src="@{/images/default.png}"
-                             class="card-img-top"
-                             alt="Default Product Image">
+                        <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                            <img th:if="${product.image != null}"
+                                 th:src="@{'/products/image/' + ${product.id}}"
+                                 class="card-img-top"
+                                 alt="Product Image">
+                            <img th:if="${product.image == null}"
+                                 th:src="@{/images/default.png}"
+                                 class="card-img-top"
+                                 alt="Default Product Image">
+                        </a>
                         <div class="card-body">
-                            <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                            <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                                <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                            </a>
                             <p class="card-text text-muted" th:text="${product.description}">Product description</p>
                             <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
-                            <button type="button" class="btn btn-dark btn-sm"
-                                    th:attr="data-id=${product.id}"
-                                    onclick="addToCart(this)">
-                                Add to Cart
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -197,8 +199,6 @@
         </div>
     </div>
 </section>
-
-
 
 
 <!-- Scripts -->

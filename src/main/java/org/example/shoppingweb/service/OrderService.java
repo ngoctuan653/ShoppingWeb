@@ -2,15 +2,13 @@ package org.example.shoppingweb.service;
 
 import jakarta.transaction.Transactional;
 import org.example.shoppingweb.entity.*;
-import org.example.shoppingweb.repository.CartRepository;
-import org.example.shoppingweb.repository.OrderDetailRepository;
-import org.example.shoppingweb.repository.OrderRepository;
-import org.example.shoppingweb.repository.OrderStatusRepository;
+import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,40 +25,83 @@ public class OrderService {
 
     @Autowired
     OrderStatusRepository orderStatusRepository;
+    @Autowired
+    private ProductSizeRepository productSizeRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Transactional
-    public Order createOrder(User user, String address, String phoneNumber) {
+    public Order createOrder(User user, String shippingAddress, String phone) {
+        // Lấy giỏ hàng
         List<Cart> cartItems = cartRepository.findByUser(user);
-        Optional<Orderstatus> opt = orderStatusRepository.findById(1);
-        Orderstatus orderstatus = opt.orElseThrow(() -> new RuntimeException("Order status not found"));
-        if (cartItems.isEmpty()) {
+        if (cartItems == null || cartItems.isEmpty()) {
             return null;
         }
+
+        // Tạo order
         Order order = new Order();
         order.setUser(user);
         order.setOrderDate(Instant.now());
+        order.setShippingAddress(shippingAddress);
+        order.setPhoneNumber(phone);
         order.setCreatedAt(Instant.now());
         order.setUpdatedAt(Instant.now());
-        order.setShippingAddress(address);
-        order.setPhoneNumber(phoneNumber);
-        order.setStatus(orderstatus);
-        order.setTotalAmount(cartItems.stream()
-                .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        Order savedOrder = orderRepository.save(order);
-        for(Cart cart : cartItems){
-            Orderdetail orderDetail = new Orderdetail();
-            orderDetail.setOrder(savedOrder);
-            orderDetail.setProduct(cart.getProduct());
-            orderDetail.setQuantity(cart.getQuantity());
-            orderDetail.setUnitPrice(cart.getProduct().getPrice());
-            orderDetail.setSize(cart.getSize());
 
+        // Lấy trạng thái mặc định
+        Orderstatus defaultStatus = orderStatusRepository.findByStatusName("Pending").orElseThrow(() -> new RuntimeException("Order status 'Pending' not found"));
+        order.setStatus(defaultStatus);
 
-            orderDetailRepository.save(orderDetail);
+        // Tính tổng tiền
+        BigDecimal total = BigDecimal.ZERO;
+        List<Orderdetail> orderDetails = new ArrayList<>();
+
+        for (Cart item : cartItems) {
+            Product product = item.getProduct();
+            Size size = item.getSize();
+            int quantity = item.getQuantity();
+
+            // Tìm Productsize
+            Productsize productSize = productSizeRepository.findByProductAndSize(product, size).orElseThrow(() -> new RuntimeException("Size not found for product: " + product.getProductName()));
+
+            // Kiểm tra tồn kho
+            if (productSize.getStockQuantity() < quantity) {
+                throw new RuntimeException("Not enough stock for product: " + product.getProductName() +
+                        " (Size: " + size.getSizeLabel() + ")");
+            }
+
+            // Trừ tồn kho
+            productSize.setStockQuantity(productSize.getStockQuantity() - quantity);
+            productSize.setUpdatedAt(Instant.now());
+            productSizeRepository.save(productSize); // cập nhật
+
+            List<Productsize> remainingSizes = productSizeRepository.findByProduct(product);
+            int totalStock = remainingSizes.stream().mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0).sum();
+            product.setStockQuantity(totalStock);
+            product.setUpdatedAt(Instant.now());
+            productRepository.save(product);
+
+            // Tạo Orderdetail
+            Orderdetail detail = new Orderdetail();
+            detail.setOrder(order);
+            detail.setProduct(product);
+            detail.setSize(size);
+            detail.setQuantity(quantity);
+            detail.setUnitPrice(product.getPrice());
+
+            orderDetails.add(detail);
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
-        cartRepository.deleteByUser(user);
-        return savedOrder;
+
+        order.setTotalAmount(total);
+
+        // Lưu đơn và chi tiết đơn
+        order = orderRepository.save(order);
+        orderDetailRepository.saveAll(orderDetails);
+
+        // Xoá giỏ hàng
+        cartRepository.deleteAll(cartItems);
+
+        return order;
     }
 }
 

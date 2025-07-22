@@ -32,8 +32,9 @@
                 <th>Image</th>
                 <th>Name</th>
                 <th>Price</th>
-                <th>Quantity</th>
+                <th>Total Quantity</th>
                 <th>Brand</th>
+                <th>Category</th>
                 <th>SubCategory</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -57,6 +58,7 @@
                 <td th:text="${product.price}"></td>
                 <td th:text="${product.stockQuantity}"></td>
                 <td th:text="${product.brand.brandName}"></td>
+                <td th:text="${product.category.categoryName}"></td>
                 <td th:text="${product.subcategory.subcategoryName}"></td>
                 <td>
                     <span th:text="${product.status}"
@@ -71,7 +73,7 @@
                             data-price=${product.price},
                             data-quantity=${product.stockQuantity},
                             data-description=${product.description},
-                            data-category-id=${product.subcategory.category.id},
+                            data-category-id=${product.category.id},
                             data-subcategory-id=${product.subcategory.id},
                             data-brand-id=${product.brand.id},
                             data-status=${product.status}"
@@ -175,17 +177,20 @@
             </div>
         </div>
     </div>
+
+
     <!-- Edit Product Modal -->
     <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="updateForm" enctype="multipart/form-data">
-                    <input type="text" id="edit-id" name="id">
+                    <input type="hidden" id="edit-id" name="id">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body row g-3">
                         <div class="col-md-6">
                             <label for="edit-productName" class="form-label">Product Name</label>
@@ -196,7 +201,7 @@
                             <input type="number" class="form-control" id="edit-price" name="price" required>
                         </div>
 
-                        <input type="hidden" class="form-control" id="edit-stockQuantity" name="stockQuantity" required>
+                        <input type="hidden" class="form-control" id="edit-stockQuantity" name="stockQuantity" required disabled>
                         <div class="col-md-6">
                             <label for="edit-brand" class="form-label">Brand</label>
                             <select class="form-select" id="edit-brand" name="brand.id" required>
@@ -241,7 +246,7 @@
                             <label>Số lượng:</label>
                             <input type="number" id="stockQuantityUpdate">
                             <button type="button" onclick="addSizeUpdate()">+ Thêm Size</button>
-                            <ul id="sizeListUpdate"></ul>
+                            <ul id="sizeListUpdate" class="list-group mt-2"></ul>
                         </div>
                     </div>
                     <div class="modal-footer">

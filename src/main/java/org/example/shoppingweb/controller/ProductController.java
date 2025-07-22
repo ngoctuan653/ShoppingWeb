@@ -50,13 +50,16 @@ public class ProductController {
 
     @GetMapping("/shop")
     public String showProduct(Model model) {
-        List<Product> products = productService.getAllActiveProducts();
+        List<Product> allProducts = productRepository.findAll();
+        List<Product> availableProducts = allProducts.stream()
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0)
+                .collect(Collectors.toList());
         List<Category> categories = productService.getAllCategories();
         List<Brand> brands = productService.getAllBrands();
         List<Subcategory> subcategories = productService.getAllSubcategories();
         model.addAttribute("categories", categories);
         model.addAttribute("subcategories", subcategories);
-        model.addAttribute("products", products);
+        model.addAttribute("products", availableProducts);
         model.addAttribute("brands", brands);
         return "shop";
     }
@@ -111,7 +114,6 @@ public class ProductController {
         productService.saveProduct(product);
         return "redirect:/products";
     }
-
 
     @GetMapping("/products/edit/{id}")
     public String editProduct(@PathVariable("id") Integer id, Model model) {
@@ -206,16 +208,22 @@ public class ProductController {
         return "product-detail"; // -> product-detail.html
     }
 
-    @GetMapping("/{productId}/sizes")
-    @ResponseBody
-    public ResponseEntity<List<SizeDTO>> getSizesByProduct(@PathVariable Integer productId) {
-        List<Size> sizes = productService.getSizesByProductId(productId);
+//    @GetMapping("/{productId}/sizes")
+//    @ResponseBody
+//    public ResponseEntity<List<SizeDTO>> getSizesByProduct(@PathVariable Integer productId) {
+//        List<Size> sizes = productService.getSizesByProductId(productId);
+//
+//        List<SizeDTO> result = sizes.stream()
+//                .map(size -> new SizeDTO(size.getId(), size.getSizeLabel()))
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(result);
+//    }
 
-        List<SizeDTO> result = sizes.stream()
-                .map(size -> new SizeDTO(size.getId(), size.getSizeLabel()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}/sizes")
+    public ResponseEntity<List<SizeDTO>> getProductSizes(@PathVariable Integer id) {
+        List<SizeDTO> sizes = productService.getSizesByProductId(id);
+        return ResponseEntity.ok(sizes);
     }
 
 }

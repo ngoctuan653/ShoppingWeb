@@ -24,7 +24,7 @@
             <div class="col-lg-3 mb-4 text-center">
 				<img id="user-avatar" th:src="@{'/avatar/' + ${user.id}}"
 					 alt="User Avatar" class="rounded-circle"
-					 style="width: 150px; height: 150px; object-fit: cover;">
+					 style="width: 270px; height: 270px; object-fit: cover;">
             </div>
 
             <!-- Right: User Profile Form -->
@@ -45,8 +45,7 @@
 					<!-- Email -->
 					<div class="mb-3">
 						<label for="email" class="form-label">Email</label>
-						<input type="email" class="form-control" id="email" name="email"
-							   th:value="${user.email}" required>
+						<input type="email" class="form-control" id="email" name="email" th:value="${user.email}" readonly>
 					</div>
 
 					<!-- Phone Number -->
