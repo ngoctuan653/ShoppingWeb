@@ -1,5 +1,6 @@
 package org.example.shoppingweb.controller;
 
+import org.example.shoppingweb.DTO.OrderDTO;
 import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Orderdetail;
 import org.example.shoppingweb.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrderController {
@@ -37,15 +39,19 @@ public class OrderController {
         User user = userDetails.getUser();
         List<Order> orderList = orderRepository.findByUser(user);
 
+        List<OrderDTO> formattedOrders = orderList.stream()
+                .map(OrderDTO::new)
+                .collect(Collectors.toList());
+
         Map<Integer, List<Orderdetail>> orderDetailsMap = new HashMap<>();
         for (Order order : orderList) {
             List<Orderdetail> details = orderDetailRepository.findByOrder(order);
             orderDetailsMap.put(order.getId(), details);
         }
 
-        model.addAttribute("orders", orderList);
+        model.addAttribute("orders", formattedOrders);
         model.addAttribute("orderDetailsMap", orderDetailsMap);
-
         return "order-history";
     }
+
 }

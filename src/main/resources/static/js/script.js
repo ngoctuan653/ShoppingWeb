@@ -471,7 +471,8 @@ const handleSearch = () => {
                                 <a href="/products/${product.id}" class="text-decoration-none text-dark">
                                     <h5 class="card-title">${product.productName}</h5>
                                 </a>
-                                <p class="card-text text-truncate">${product.description}</p>
+                                <p class="card-text text-muted">${product.subcategory.subcategoryName}</p>
+                                <p class="card-text text-muted">${product.category.categoryName}</p>
                                 <div class="mt-auto">
                                     <p class="fw-bold">$${product.price}</p>
                                 </div>

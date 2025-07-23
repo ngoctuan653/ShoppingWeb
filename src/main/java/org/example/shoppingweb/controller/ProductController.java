@@ -126,7 +126,7 @@ public class ProductController {
         return "product-managements";
     }
 
-    @GetMapping("/products/delete/{id}")
+    @PostMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable("id") Integer id) {
         productService.deleteProduct(id);
         return "redirect:/products";
@@ -175,7 +175,6 @@ public class ProductController {
         }
     }
 
-
     @PutMapping("/{productId}/stock")
     public ResponseEntity<Product> updateStock(
             @PathVariable Integer productId,
@@ -198,7 +197,7 @@ public class ProductController {
         return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
     }
 
-    @PostMapping("/products/delete/{id}")
+    @PostMapping("/products/hide/{id}")
     public String softDeleteProduct(@PathVariable("id") Integer id) {
         productService.updateStatus(id, "Inactive");
         return "redirect:/products";

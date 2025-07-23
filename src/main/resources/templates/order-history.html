@@ -18,15 +18,14 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.id}">123</td>
-            <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
-            <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">100000</td>
-            <td th:text="${order.status.statusName}">Đã giao</td>
+        <tr th:each="orderDTO : ${orders}">
+            <td th:text="${orderDTO.formattedId}">OD00000023</td>
+            <td th:text="${#dates.format(orderDTO.order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+            <td th:text="${#numbers.formatDecimal(orderDTO.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">100000</td>
+            <td th:text="${orderDTO.order.status.statusName}">Đã giao</td>
         </tr>
 
-        <!-- Phần chi tiết nằm bên trong vòng lặp của order -->
-        <tr th:each="order : ${orders}">
+        <tr th:each="orderDTO : ${orders}">
             <td colspan="4">
                 <table class="table table-bordered table-sm mb-0">
                     <thead>
@@ -38,7 +37,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="detail : ${orderDetailsMap[order.id]}">
+                    <tr th:each="detail : ${orderDetailsMap[orderDTO.order.id]}">
                         <td th:text="${detail.product.productName}">Áo thun</td>
                         <td th:text="${detail.size.sizeLabel}">M</td>
                         <td th:text="${detail.quantity}">2</td>
