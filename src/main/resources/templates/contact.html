@@ -103,7 +103,6 @@
                     <h2 class="fw-bold">Send Us a Message</h2>
                     <p class="text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
                 </div>
-
                 <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -150,12 +149,12 @@
                         <div class="invalid-feedback">Please provide your message.</div>
                     </div>
 
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">
-                        <label class="form-check-label" for="newsletter">
-                            I would like to receive updates and promotional emails
-                        </label>
-                    </div>
+<!--                    <div class="mb-3 form-check">-->
+<!--                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">-->
+<!--                        <label class="form-check-label" for="newsletter">-->
+<!--                            I would like to receive updates and promotional emails-->
+<!--                        </label>-->
+<!--                    </div>-->
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-dark btn-lg px-5">
@@ -266,11 +265,32 @@
     </div>
 </section>
 
+<!--Toast-->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="contactToast" class="toast align-items-center text-bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${successMessage}">Your message has been sent successfully!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
 <div th:replace="fragments/cart :: cart"></div>
 
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        const toastEl = document.getElementById('contactToast');
+        if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
+            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            toast.show();
+        }
+    });
+</script>
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -36,7 +37,7 @@ public class OrderService {
 
 
     @Transactional
-    public Order createOrder(User user, String shippingAddress, String phone) {
+    public Order createOrder(User user, String shippingAddress, String phone, Discount discount) {
         // Lấy giỏ hàng
         List<Cart> cartItems = cartRepository.findByUser(user);
         if (cartItems == null || cartItems.isEmpty()) {
@@ -50,7 +51,7 @@ public class OrderService {
         order.setOrderDate(Instant.now());
         order.setShippingAddress(shippingAddress);
         order.setPhoneNumber(phone);
-        order.setCreatedAt(nowInVietnam.toInstant());  // vẫn lưu dạng Instant nhưng đúng giờ VN
+        order.setCreatedAt(nowInVietnam.toInstant());
         order.setUpdatedAt(Instant.now());
 
         // Lấy trạng thái mặc định
@@ -96,6 +97,16 @@ public class OrderService {
 
             orderDetails.add(detail);
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        }
+
+        if (discount != null) {
+            if (discount.getDiscountPercentage() != null) {
+                BigDecimal discountPercent = discount.getDiscountPercentage()
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                BigDecimal discountAmount = total.multiply(discountPercent);
+                total = total.subtract(discountAmount);
+            }
+            order.setDiscount(discount);
         }
 
         order.setTotalAmount(total);
