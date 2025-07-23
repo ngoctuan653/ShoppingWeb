@@ -297,6 +297,8 @@ function loadCheckoutCart() {
 
             totalEl.textContent = `$${total.toFixed(2)}`;
             document.getElementById("cartTotalValue").value = total.toFixed(2); // 👈 dùng trong discount
+            cartContainer.classList.remove("d-none");
+
         })
         .catch(err => {
             console.error("Không thể tải giỏ hàng:", err);
