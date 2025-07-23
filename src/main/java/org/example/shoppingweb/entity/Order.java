@@ -60,4 +60,9 @@ public class Order {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Transient
+    public String getDisplayCode() {
+        return "ORD-" + String.format("%06d", id);
+    }
+
 }

@@ -30,7 +30,8 @@ public class OrderController {
 
     @GetMapping("/order/success")
     public String orderSuccess(@RequestParam("id") Integer orderId, Model model) {
-        model.addAttribute("orderId", orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        model.addAttribute("order", order);
         return "order-success";
     }
 

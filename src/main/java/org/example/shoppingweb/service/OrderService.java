@@ -35,6 +35,10 @@ public class OrderService {
     @Autowired
     private EmailService emailService;
 
+    public Order findByIdAndUser(Integer orderId, User user) {
+        return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
+    }
+
 
     @Transactional
     public Order createOrder(User user, String shippingAddress, String phone, Discount discount) {

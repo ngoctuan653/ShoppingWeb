@@ -11,42 +11,48 @@
     <table class="table table-bordered table-striped">
         <thead>
         <tr>
-            <th>Mã đơn</th>
-            <th>Ngày đặt</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Detail</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="orderDTO : ${orders}">
-            <td th:text="${orderDTO.formattedId}">OD00000023</td>
+            <td th:text="${orderDTO.order.displayCode}">OD00000023</td>
             <td th:text="${#dates.format(orderDTO.order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
             <td th:text="${#numbers.formatDecimal(orderDTO.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">100000</td>
             <td th:text="${orderDTO.order.status.statusName}">Đã giao</td>
-        </tr>
-
-        <tr th:each="orderDTO : ${orders}">
-            <td colspan="4">
-                <table class="table table-bordered table-sm mb-0">
-                    <thead>
-                    <tr>
-                        <th>Tên sản phẩm</th>
-                        <th>Size</th>
-                        <th>Số lượng</th>
-                        <th>Đơn giá</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="detail : ${orderDetailsMap[orderDTO.order.id]}">
-                        <td th:text="${detail.product.productName}">Áo thun</td>
-                        <td th:text="${detail.size.sizeLabel}">M</td>
-                        <td th:text="${detail.quantity}">2</td>
-                        <td th:text="${#numbers.formatDecimal(detail.unitPrice, 2, 'POINT', 0, 'COMMA')} + ' $'">49.99</td>
-                    </tr>
-                    </tbody>
-                </table>
+            <td>
+                <a th:href="@{/order/detail/{id}(id=${orderDTO.order.id})}">
+                    <span>Chi tiết</span>
+                </a>
             </td>
         </tr>
+
+<!--        <tr th:each="orderDTO : ${orders}">-->
+<!--            <td colspan="4">-->
+<!--                <table class="table table-bordered table-sm mb-0">-->
+<!--                    <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Tên sản phẩm</th>-->
+<!--                        <th>Size</th>-->
+<!--                        <th>Số lượng</th>-->
+<!--                        <th>Đơn giá</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                    <tr th:each="detail : ${orderDetailsMap[orderDTO.order.id]}">-->
+<!--                        <td th:text="${detail.product.productName}">Áo thun</td>-->
+<!--                        <td th:text="${detail.size.sizeLabel}">M</td>-->
+<!--                        <td th:text="${detail.quantity}">2</td>-->
+<!--                        <td th:text="${#numbers.formatDecimal(detail.unitPrice, 2, 'POINT', 0, 'COMMA')} + ' $'">49.99</td>-->
+<!--                    </tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--            </td>-->
+<!--        </tr>-->
         </tbody>
     </table>
 </div>
