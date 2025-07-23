@@ -1,0 +1,44 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel" th:fragment="cart">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="cartOffcanvasLabel">Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" style="max-height: 70vh; overflow-y: auto;">
+        <!-- Cart item -->
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <img th:src="@{'/images/default.png'}" alt="T-Shirt Classic" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+            <div class="flex-grow-1 ms-2">
+                <p class="mb-1 fw-semibold">T-Shirt Classic</p>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary me-1">-</button>
+                    <span class="px-2">1</span>
+                    <button class="btn btn-sm btn-outline-secondary ms-1">+</button>
+                </div>
+            </div>
+            <div class="text-end">
+                <p class="fw-bold mb-1">$29.99</p>
+                <button class="btn btn-sm btn-outline-danger">x</button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <!-- Total  Amount-->
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Total:</span>
+        <span class="fw-bold" id="cart-total-amount">$0.00</span>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a th:href="@{/checkout}" class="btn btn-dark btn-sm py-2 px-5">Checkout</a>
+    </div>
+</div>
+
+</body>
+</html>

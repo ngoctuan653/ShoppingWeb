@@ -1,6 +1,5 @@
 package org.example.shoppingweb.controller;
 
-import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.DTO_Login;
 import org.example.shoppingweb.DTO.DTO_Signup;
 import org.springframework.stereotype.Controller;
@@ -10,9 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomePageController {
 
+
     @GetMapping("/")
     public String home() {
-        return "redirect:/index";
+        return "redirect:/home";
     }
 
     @GetMapping("/login")
@@ -27,9 +27,18 @@ public class HomePageController {
         return "signup";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/index";
+    @GetMapping("/about")
+    public String aboutPage(){
+        return "about";
+    }
+
+    @GetMapping("/contact")
+    public String contactPage(){
+        return "contact";
+    }
+
+    @GetMapping("/checkout")
+    public String checkoutPage(){
+        return "checkout";
     }
 }

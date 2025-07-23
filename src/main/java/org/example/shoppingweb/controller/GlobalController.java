@@ -13,6 +13,7 @@ public class GlobalController {
         User currentUser = (User) session.getAttribute("currentUser");
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
+            model.addAttribute("userId", currentUser.getId());
         }
     }
 }

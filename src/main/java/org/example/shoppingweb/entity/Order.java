@@ -16,6 +16,7 @@ import java.time.Instant;
 @Table(name = "orders")
 public class Order {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id", nullable = false)
     private Integer id;
 
@@ -30,6 +31,9 @@ public class Order {
 
     @Column(name = "total_amount", precision = 18, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(name = "total_amount_before_discount", precision = 18, scale = 2)
+    private BigDecimal totalAmountBeforeDiscount;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - StyleLegacy</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -13,401 +13,289 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom">
-        <div class="container">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <i class="bi bi-bag-heart fs-3 me-2"></i>
-                <span class="fw-bold fs-4">StyleLegacy</span>
-            </a>
+<!-- Navigation Bar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
 
-            <!-- Mobile Toggle -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Navigation Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="#">Shop</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium" href="about">About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active fw-medium" href="contact">Contact</a>
-                    </li>
-                </ul>
-
-                <!-- Right Side Actions -->
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-dark btn-sm d-none d-md-block">
-                        <i class="bi bi-person me-1"></i>Sign In
-                    </button>
-                    <button class="btn btn-dark btn-sm d-none d-md-block">Sign Up</button>
-                    <button class="btn btn-outline-dark btn-sm">
-                        <i class="bi bi-bag"></i>
-                        <span class="badge bg-danger ms-1">3</span>
-                    </button>
+<!-- Hero Section -->
+<section class="contact-hero">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Get in Touch</h1>
+                <p class="lead text-muted mb-4">
+                    We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                </p>
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-clock text-dark me-3 fs-5"></i>
+                    <div>
+                        <strong>Response Time:</strong>
+                        <span class="text-muted">Usually within 24 hours</span>
+                    </div>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                     alt="Contact Us" class="img-fluid rounded shadow">
+            </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- Hero Section -->
-    <section class="contact-hero">
-        <div class="container">
-            <div class="row align-items-center min-vh-50">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">Get in Touch</h1>
-                    <p class="lead text-muted mb-4">
-                        We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+<!-- Contact Information -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="contact-info-card text-center h-100">
+                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-geo-alt fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold">Visit Our Store</h4>
+                    <p class="text-muted">
+                        123 Fashion Street<br>
+                        Hoa Lac, Ha Noi<br>
+                        Viet Nam
                     </p>
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-clock text-dark me-3 fs-5"></i>
-                        <div>
-                            <strong>Response Time:</strong>
-                            <span class="text-muted">Usually within 24 hours</span>
-                        </div>
-                    </div>
+                    <a href="#" class="btn btn-outline-dark btn-sm">Get Directions</a>
                 </div>
-                <div class="col-lg-6">
-                    <img src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                         alt="Contact Us" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="contact-info-card text-center h-100">
+                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-telephone fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold">Call Us</h4>
+                    <p class="text-muted">
+                        Customer Service:<br>
+                        <strong>+1 (555) 123-4567</strong><br>
+                        Mon-Fri 9AM-6PM EST
+                    </p>
+                    <a href="tel:+15551234567" class="btn btn-outline-dark btn-sm">Call Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="contact-info-card text-center h-100">
+                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-envelope fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold">Email Us</h4>
+                    <p class="text-muted">
+                        General Inquiries:<br>
+                        <strong>info@stylelegacy.com</strong><br>
+                        Support: support@stylelegacy.com
+                    </p>
+                    <a href="mailto:info@stylelegacy.com" class="btn btn-outline-dark btn-sm">Send Email</a>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Contact Information -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="contact-info-card text-center h-100">
-                        <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                             style="width: 80px; height: 80px;">
-                            <i class="bi bi-geo-alt fs-3"></i>
-                        </div>
-                        <h4 class="fw-bold">Visit Our Store</h4>
-                        <p class="text-muted">
-                            123 Fashion Street<br>
-                            Hoa Lac, Ha Noi<br>
-                            Viet Nam
-                        </p>
-                        <a href="#" class="btn btn-outline-dark btn-sm">Get Directions</a>
-                    </div>
+<!-- Contact Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold">Send Us a Message</h2>
+                    <p class="text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
                 </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="contact-info-card text-center h-100">
-                        <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                             style="width: 80px; height: 80px;">
-                            <i class="bi bi-telephone fs-3"></i>
+                <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            <div class="invalid-feedback">Please provide your first name.</div>
                         </div>
-                        <h4 class="fw-bold">Call Us</h4>
-                        <p class="text-muted">
-                            Customer Service:<br>
-                            <strong>+1 (555) 123-4567</strong><br>
-                            Mon-Fri 9AM-6PM EST
-                        </p>
-                        <a href="tel:+15551234567" class="btn btn-outline-dark btn-sm">Call Now</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="contact-info-card text-center h-100">
-                        <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                             style="width: 80px; height: 80px;">
-                            <i class="bi bi-envelope fs-3"></i>
+                        <div class="col-md-6 mb-3">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            <div class="invalid-feedback">Please provide your last name.</div>
                         </div>
-                        <h4 class="fw-bold">Email Us</h4>
-                        <p class="text-muted">
-                            General Inquiries:<br>
-                            <strong>info@stylelegacy.com</strong><br>
-                            Support: support@stylelegacy.com
-                        </p>
-                        <a href="mailto:info@stylelegacy.com" class="btn btn-outline-dark btn-sm">Send Email</a>
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please provide a valid email address.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject *</label>
+                        <select class="form-select" id="subject" name="subject" required>
+                            <option value="">Choose a subject...</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="order">Order Support</option>
+                            <option value="return">Returns & Exchanges</option>
+                            <option value="product">Product Question</option>
+                            <option value="complaint">Complaint</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a subject.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message *</label>
+                        <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Please provide details about your inquiry..."></textarea>
+                        <div class="invalid-feedback">Please provide your message.</div>
+                    </div>
+
+<!--                    <div class="mb-3 form-check">-->
+<!--                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">-->
+<!--                        <label class="form-check-label" for="newsletter">-->
+<!--                            I would like to receive updates and promotional emails-->
+<!--                        </label>-->
+<!--                    </div>-->
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-dark btn-lg px-5">
+                            <i class="bi bi-send me-2"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Contact Form -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="text-center mb-5">
-                        <h2 class="fw-bold">Send Us a Message</h2>
-                        <p class="text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
-                    </div>
-                    
-                    <form id="contactForm" class="needs-validation" novalidate>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="firstName" class="form-label">First Name *</label>
-                                <input type="text" class="form-control" id="firstName" required>
-                                <div class="invalid-feedback">
-                                    Please provide your first name.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="lastName" class="form-label">Last Name *</label>
-                                <input type="text" class="form-control" id="lastName" required>
-                                <div class="invalid-feedback">
-                                    Please provide your last name.
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">Email Address *</label>
-                                <input type="email" class="form-control" id="email" required>
-                                <div class="invalid-feedback">
-                                    Please provide a valid email address.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phone">
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Subject *</label>
-                            <select class="form-select" id="subject" required>
-                                <option value="">Choose a subject...</option>
-                                <option value="general">General Inquiry</option>
-                                <option value="order">Order Support</option>
-                                <option value="return">Returns & Exchanges</option>
-                                <option value="product">Product Question</option>
-                                <option value="complaint">Complaint</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <div class="invalid-feedback">
-                                Please select a subject.
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message *</label>
-                            <textarea class="form-control" id="message" rows="5" required 
-                                      placeholder="Please provide details about your inquiry..."></textarea>
-                            <div class="invalid-feedback">
-                                Please provide your message.
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="newsletter">
-                            <label class="form-check-label" for="newsletter">
-                                I would like to receive updates and promotional emails
-                            </label>
-                        </div>
-                        
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-dark btn-lg px-5">
-                                <i class="bi bi-send me-2"></i>Send Message
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<!-- Map Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Find Our Store</h2>
+            <p class="text-muted">Visit us at our flagship location in the heart of Hoa Lac</p>
         </div>
-    </section>
-
-    <!-- Map Section -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="text-center mb-4">
-                <h2 class="fw-bold">Find Our Store</h2>
-                <p class="text-muted">Visit us at our flagship location in the heart of Hoa Lac</p>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="map-container rounded shadow">
-                        <!-- Embedded Google Map -->
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878459418!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1635959542132!5m2!1sen!2s" 
-                            width="100%" 
-                            height="400" 
-                            style="border:0;" 
-                            allowfullscreen="" 
+        <div class="row">
+            <div class="col-12">
+                <div class="map-container rounded shadow">
+                    <!-- Embedded Google Map -->
+                    <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878459418!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1635959542132!5m2!1sen!2s"
+                            width="100%"
+                            height="400"
+                            style="border:0;"
+                            allowfullscreen=""
                             loading="lazy">
-                        </iframe>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Frequently Asked Questions</h2>
+            <p class="text-muted">Quick answers to common questions</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse1">
+                                What are your store hours?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Our store is open Monday through Friday from 9:00 AM to 6:00 PM EST.
+                                We're closed on weekends and major holidays.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse2">
+                                How long does shipping take?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Standard shipping takes 3-5 business days. Express shipping (1-2 business days)
+                                and overnight shipping options are also available at checkout.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse3">
+                                What is your return policy?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We offer a 30-day return policy for unworn items with original tags.
+                                Items must be in original condition for a full refund.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse4">
+                                Do you offer international shipping?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, we ship to over 25 countries worldwide. International shipping rates
+                                and delivery times vary by destination.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- FAQ Section -->
-    <section class="py-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold">Frequently Asked Questions</h2>
-                <p class="text-muted">Quick answers to common questions</p>
-            </div>
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="accordion" id="faqAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq1">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#collapse1">
-                                    What are your store hours?
-                                </button>
-                            </h2>
-                            <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Our store is open Monday through Friday from 9:00 AM to 6:00 PM EST. 
-                                    We're closed on weekends and major holidays.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq2">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#collapse2">
-                                    How long does shipping take?
-                                </button>
-                            </h2>
-                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Standard shipping takes 3-5 business days. Express shipping (1-2 business days) 
-                                    and overnight shipping options are also available at checkout.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq3">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#collapse3">
-                                    What is your return policy?
-                                </button>
-                            </h2>
-                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    We offer a 30-day return policy for unworn items with original tags. 
-                                    Items must be in original condition for a full refund.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq4">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#collapse4">
-                                    Do you offer international shipping?
-                                </button>
-                            </h2>
-                            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Yes, we ship to over 25 countries worldwide. International shipping rates 
-                                    and delivery times vary by destination.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!--Toast-->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="contactToast" class="toast align-items-center text-bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${successMessage}">Your message has been sent successfully!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
         </div>
-    </section>
+    </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="bg-light border-top">
-        <div class="container py-5">
-            <div class="row">
-                <!-- Company Info -->
-                <div class="col-lg-3 mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-bag-heart fs-4 me-2"></i>
-                        <span class="fw-bold fs-5">StyleLegacy</span>
-                    </div>
-                    <p class="text-muted mb-3">
-                        Creating timeless fashion that defines your legacy. Quality, style, and elegance in every piece.
-                    </p>
-                    <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-twitter"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="#" class="btn btn-outline-dark btn-sm">
-                            <i class="bi bi-pinterest"></i>
-                        </a>
-                    </div>
-                </div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
 
-                <!-- Quick Links -->
-                <div class="col-lg-2 mb-4">
-                    <h5 class="fw-bold mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="about.html" class="text-muted text-decoration-none">About Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Our Story</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Press</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
-                    </ul>
-                </div>
+<div th:replace="fragments/cart :: cart"></div>
 
-                <!-- Customer Support -->
-                <div class="col-lg-3 mb-4">
-                    <h5 class="fw-bold mb-3">Customer Support</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="contact.html" class="text-muted text-decoration-none">Contact Us</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">FAQ</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Size Guide</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Shipping Info</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Returns</a></li>
-                    </ul>
-                    <div class="mt-3">
-                        <p class="small text-muted mb-1">Customer Service</p>
-                        <p class="fw-bold">+1 (555) 123-4567</p>
-                        <p class="small text-muted">Mon-Fri 9AM-6PM EST</p>
-                    </div>
-                </div>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        const toastEl = document.getElementById('contactToast');
+        if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
+            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            toast.show();
+        }
+    });
+</script>
 
-                <!-- Newsletter -->
-                <div class="col-lg-4 mb-4">
-                    <h5 class="fw-bold mb-3">Stay Updated</h5>
-                    <p class="text-muted mb-3">
-                        Subscribe to get special offers, free giveaways, and exclusive deals.
-                    </p>
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Enter your email">
-                        <button class="btn btn-dark" type="button">Subscribe</button>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="text-muted small mb-0">© 2024 StyleLegacy. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-muted text-decoration-none small me-3">Privacy Policy</a>
-                    <a href="#" class="text-muted text-decoration-none small me-3">Terms of Service</a>
-                    <a href="#" class="text-muted text-decoration-none small">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="contact.js"></script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="contact.js"></script>
+<script src="/js/script.js"></script>
 </body>
 </html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body style="padding-top: 50px;">
+<!-- Navbar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Product Management</h2>
+            <p class="text-muted">Manage your store's products</p>
+        </div>
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="bi bi-plus-circle"></i>Add Product
+        </button>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Total Quantity</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>SubCategory</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.id}"></td>
+                <td>
+                    <img th:if="${product.image != null}" th:src="@{/products/image/{id}(id=${product.id})}"
+                         alt="Product Image"
+                         class="img-thumbnail"
+                         style="width: 70px; height: 70px;">
+
+                    <img th:if="${product.image == null}" th:src="@{/images/default.png}"
+                         alt="Product Image"
+                         class="img-thumbnail"
+                         style="width: 70px; height: 70px;">
+                </td>
+                <td th:text="${product.productName}"></td>
+                <td th:text="${product.price}"></td>
+                <td th:text="${product.stockQuantity}"></td>
+                <td th:text="${product.brand.brandName}"></td>
+                <td th:text="${product.category.categoryName}"></td>
+                <td th:text="${product.subcategory.subcategoryName}"></td>
+                <td>
+                    <span th:text="${product.status}"
+                          th:classappend="${product.status == 'Active'} ? 'badge bg-success' : 'badge bg-danger'">
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary btn-edit"
+                            th:attr="
+                            data-id=${product.id},
+                            data-name=${product.productName},
+                            data-price=${product.price},
+                            data-quantity=${product.stockQuantity},
+                            data-description=${product.description},
+                            data-category-id=${product.category.id},
+                            data-subcategory-id=${product.subcategory.id},
+                            data-brand-id=${product.brand.id},
+                            data-status=${product.status}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editProductModal">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <form th:action="@{/products/hide/{id}(id=${product.id})}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-warning" type="submit" title="Hide Product"
+                                onclick="return confirm('Are you sure?')">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </form>
+                    <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="productForm" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="productName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="price" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="price" name="price" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="brandId" class="form-label">Brand</label>
+                                <select class="form-select" id="brandId" name="brandId" required>
+                                    <option value="" disabled selected>-- Select Brand --</option>
+                                    <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                            th:text="${brand.brandName}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="categoryId" class="form-label">Category</label>
+                                <select class="form-select" id="categoryId" name="categoryId" required>
+                                    <option value="" disabled selected>-- Select Category --</option>
+                                    <option th:each="category : ${categories}" th:value="${category.id}"
+                                            th:text="${category.categoryName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="subCategoryId" class="form-label">SubCategory</label>
+                                <select class="form-select" id="subCategoryId" name="subCategoryId" required>
+                                    <option value="" disabled selected>-- Select SubCategory --</option>
+                                    <option th:each="sub : ${subcategories}" th:value="${sub.id}"
+                                            th:text="${sub.subcategoryName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="image" class="form-label">Image</label>
+                                <input type="file" class="form-control" id="image" name="image">
+                            </div>
+
+                            <div class="col-md-12">
+                                <h3>Sizes</h3>
+                                <label class="form-label">Size:</label>
+                                <input type="text" id="sizeLabel">
+                                <label>Số lượng:</label>
+                                <input type="number" id="stockQuantity">
+                                <button type="button" onclick="addSize()">+ Thêm Size</button>
+                                <ul id="sizeList"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-dark">Save Product</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="updateForm" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6">
+                            <label for="edit-productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="edit-productName" name="productName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-price" class="form-label">Price</label>
+                            <input type="number" class="form-control" id="edit-price" name="price" required>
+                        </div>
+
+                        <input type="hidden" class="form-control" id="edit-stockQuantity" name="stockQuantity" required
+                               disabled>
+                        <div class="col-md-6">
+                            <label for="edit-brand" class="form-label">Brand</label>
+                            <select class="form-select" id="edit-brand" name="brand.id" required>
+                                <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                        th:text="${brand.brandName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-category" class="form-label">Category</label>
+                            <select class="form-select" id="edit-category" name="category.id" required>
+                                <option th:each="category : ${categories}" th:value="${category.id}"
+                                        th:text="${category.categoryName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-subcategory" class="form-label">SubCategory</label>
+                            <select class="form-select" id="edit-subcategory" name="subcategory.id" required>
+                                <option th:each="sub : ${subcategories}" th:value="${sub.id}"
+                                        th:text="${sub.subcategoryName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="edit-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="edit-description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-status" class="form-label">Status</label>
+                            <select class="form-select" id="edit-status" name="status" required>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-image" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="edit-image" name="imageFile">
+                        </div>
+
+                        <div class="col-md-12">
+                            <h3>Sizes</h3>
+                            <label class="form-label">Size:</label>
+                            <input type="text" id="sizeLabelUpdate">
+                            <label>Số lượng:</label>
+                            <input type="number" id="stockQuantityUpdate">
+                            <button type="button" onclick="addSizeUpdate()">+ Thêm Size</button>
+                            <ul id="sizeListUpdate" class="list-group mt-2"></ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-dark">Update Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#description'))
+        .catch(error => {
+            console.error(error);
+        });
+
+    ClassicEditor
+        .create(document.querySelector('#edit-description'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+<script src="/js/add-product.js"></script>
+<script src="/js/update-product.js"></script>
+</body>
+</html>

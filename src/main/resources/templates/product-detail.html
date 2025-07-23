@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.productName} + ' - StyleLegacy'">Product Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .product-image {
+            width: 100%;
+            object-fit: contain;
+            border-radius: 16px;
+            background: #f8f9fa;
+            max-height: 600px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .price-tag {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .product-detail-container {
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .product-detail-container {
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body style="padding-top: 50px;">
+
+<!-- Navbar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
+
+<!-- Product Detail -->
+<div class="container product-detail-container">
+    <div class="row align-items-center g-5">
+        <!-- Image Section -->
+        <div class="col-lg-6 col-md-12">
+            <img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}"
+                 class="img-fluid product-image shadow-sm" alt="Product Image"/>
+            <img th:if="${product.image == null}" src="/images/default.png" class="img-fluid product-image shadow-sm"
+                 alt="Default Product Image"/>
+        </div>
+
+        <!-- Info Section -->
+        <div class="col-lg-6 col-md-12">
+            <h1 class="display-6 fw-bold mb-3" th:text="${product.productName}">Product Name</h1>
+            <p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
+            <p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
+            <p class="mb-4 fs-7" th:utext="${product.description}">Product description</p>
+            <div class="price-tag mb-4" th:text="'$' + ${product.price}">$0.00</div>
+
+            <div th:if="${product.stockQuantity != 0}" class="mb-4">
+                <label class="form-label fw-semibold">Choose size:</label>
+                <!-- Size select -->
+                <select class="form-select form-select-lg" id="sizeSelect">
+                    <option value="">-- Choose size --</option>
+                </select>
+
+            </div>
+
+            <div class="d-grid gap-3 d-md-flex">
+                <span th:if="${product.stockQuantity == 0}"
+                      class="badge bg-danger fs-6 d-flex justify-content-center align-items-center"
+                      style="height: 48px; min-width: 150px;">
+                    Out of stock
+                </span>
+
+                <button th:if="${product.stockQuantity != 0}" class="btn btn-dark btn-lg add-to-cart-btn"
+                        th:attr="data-id=${product.id}">
+                    <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                </button>
+                <a th:href="@{/home}" class="btn btn-outline-secondary btn-lg">Back to Shop</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
+<div th:replace="fragments/cart :: cart"></div>
+<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+
+</body>
+</html>

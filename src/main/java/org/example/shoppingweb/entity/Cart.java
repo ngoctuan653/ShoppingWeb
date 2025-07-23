@@ -28,6 +28,12 @@ public class Cart {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
+
+
     @ColumnDefault("1")
     @Column(name = "quantity")
     private Integer quantity;
