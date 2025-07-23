@@ -99,6 +99,8 @@ public class OrderService {
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
+        order.setTotalAmountBeforeDiscount(total);
+
         if (discount != null) {
             if (discount.getDiscountPercentage() != null) {
                 BigDecimal discountPercent = discount.getDiscountPercentage()
