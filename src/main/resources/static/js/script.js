@@ -243,7 +243,6 @@ function loadCheckoutCart() {
     const cartContainer = document.querySelector("#checkout-cart-items");
     const cartTotal = document.querySelector("#checkout-cart-total");
 
-    // 🛑 Nếu DOM chưa tồn tại thì không làm gì cả
     if (!cartContainer || !cartTotal) {
         console.warn("⚠️ DOM phần giỏ hàng checkout chưa sẵn sàng. loadCheckoutCart() dừng.");
         return;
@@ -297,11 +296,13 @@ function loadCheckoutCart() {
             });
 
             totalEl.textContent = `$${total.toFixed(2)}`;
+            document.getElementById("cartTotalValue").value = total.toFixed(2); // 👈 dùng trong discount
         })
         .catch(err => {
             console.error("Không thể tải giỏ hàng:", err);
         });
 }
+
 
 function updateCartItemCount() {
     console.log("🔄 Bắt đầu updateCartItemCount...");

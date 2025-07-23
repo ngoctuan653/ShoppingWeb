@@ -42,6 +42,8 @@ public class CartController {
 
     @Autowired
     private ProductSizeRepository productSizeRepository;
+    @Autowired
+    private DiscountRepository discountRepository;
 
     @PostMapping("/add/{productId}")
     @ResponseBody
@@ -230,7 +232,8 @@ public class CartController {
 
     @PostMapping("/checkout")
     public String checkout(@RequestParam String shippingAddress,
-                           @RequestParam String phone) {
+                           @RequestParam String phone,
+                           @RequestParam(required = false) String discountCode) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
@@ -240,7 +243,12 @@ public class CartController {
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         User user = userDetails.getUser();
 
-        Order order = orderService.createOrder(user, shippingAddress, phone);
+        Discount discount = null;
+        if (discountCode != null && !discountCode.isEmpty()) {
+            discount = discountRepository.findByCodeIgnoreCase(discountCode.trim()).orElse(null);
+        }
+
+        Order order = orderService.createOrder(user, shippingAddress, phone,discount);
         if (order == null) {
             return "redirect:/cart?emptyCart=true";
         }
