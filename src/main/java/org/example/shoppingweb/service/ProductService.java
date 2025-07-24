@@ -85,7 +85,6 @@ public class ProductService {
             if (brands != null && !brands.isEmpty()) {
                 predicates.add(root.get("brand").get("id").in(brands));
             }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         });
     }
@@ -152,14 +151,6 @@ public class ProductService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
     }
-
-
-//    public List<Size> getSizesByProductId(Integer productId) {
-//        List<Productsize> productSizes = productSizeRepository.findByProductId(productId);
-//        return productSizes.stream()
-//                .map(Productsize::getSize)
-//                .collect(Collectors.toList());
-//    }
 
     public List<SizeDTO> getSizesByProductId(Integer productId) {
         Product product = productRepository.findById(productId)
@@ -232,7 +223,6 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
-        // Cập nhật thông tin cơ bản
         product.setProductName(productRequest.getProductName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -254,7 +244,6 @@ public class ProductService {
             product.setImage(image.getBytes());
         }
 
-        // --- Cập nhật size ---
         List<Productsize> existingSizes = productSizeRepository.findByProduct(product);
         Map<Integer, Productsize> existingSizeMap = existingSizes.stream()
                 .filter(ps -> ps.getSize() != null && ps.getSize().getId() != null)
@@ -318,12 +307,5 @@ public class ProductService {
 
         return productRepository.save(product);
     }
-
-    public Product updateStockQuantity(Integer productId, int stockQuantity) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        product.setStockQuantity(stockQuantity);
-        return productRepository.save(product);
-    }
+    
 }

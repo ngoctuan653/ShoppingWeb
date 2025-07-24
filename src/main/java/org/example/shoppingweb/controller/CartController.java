@@ -92,9 +92,16 @@ public class CartController {
 
         if (existingCart.isPresent()) {
             Cart cart = existingCart.get();
-            cart.setQuantity(cart.getQuantity() + 1);
+            int newQuantity = cart.getQuantity() + 1;
+            if (newQuantity > productSize.getStockQuantity()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not enough stock for this size.");
+            }
+            cart.setQuantity(newQuantity);
             cartRepository.save(cart);
         } else {
+            if (productSize.getStockQuantity()<1) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This size is out of stock.");
+            }
             Cart cart = new Cart();
             cart.setUser(user);
             cart.setProduct(product);
@@ -103,7 +110,6 @@ public class CartController {
             cart.setCreatedAt(Instant.now());
             cartRepository.save(cart);
         }
-
         return ResponseEntity.ok("Added to cart successfully!");
     }
 
@@ -115,7 +121,8 @@ public class CartController {
             @RequestBody Map<String, String> body,
             @SessionAttribute(name = "currentUser", required = false) User currentUser) {
 
-        if (currentUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        if (currentUser == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 
         String sizeLabel = body.get("sizeLabel");
         if (sizeLabel == null || sizeLabel.isEmpty()) {
@@ -129,10 +136,25 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product or size not found");
         }
 
-        Optional<Cart> cartOpt = cartRepository.findByUserAndProductAndSize(currentUser, productOpt.get(), sizeOpt.get());
+        Product product = productOpt.get();
+        Size size = sizeOpt.get();
+
+        Optional<Productsize> productSizeOpt = productSizeRepository.findByProductAndSize(product, size);
+        if (productSizeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Size not available for this product");
+        }
+
+        Productsize productSize = productSizeOpt.get();
+
+        Optional<Cart> cartOpt = cartRepository.findByUserAndProductAndSize(currentUser, product, size);
 
         if (cartOpt.isPresent()) {
             Cart cart = cartOpt.get();
+
+            if (cart.getQuantity() >= productSize.getStockQuantity()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not enough stock to increase quantity");
+            }
+
             cart.setQuantity(cart.getQuantity() + 1);
             cartRepository.save(cart);
             return ResponseEntity.ok("Quantity increased");
@@ -249,7 +271,7 @@ public class CartController {
             discount = discountRepository.findByCodeIgnoreCase(discountCode.trim()).orElse(null);
         }
 
-        Order order = orderService.createOrder(user, shippingAddress, phone,discount);
+        Order order = orderService.createOrder(user, shippingAddress, phone, discount);
         if (order == null) {
             redirectAttributes.addFlashAttribute("error", "Your cart is empty!");
             return "redirect:/checkout";

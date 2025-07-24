@@ -93,10 +93,17 @@
                 </div>
 
                 <!-- Discount Amount and New Total -->
-                <div class="d-flex justify-content-between mb-2" id="discountRow" style="display: none;">
+                <div class="d-flex justify-content-between mb-2 align-items-center" id="discountRow"
+                     style="display: none;">
                     <span>Discount:</span>
-                    <span id="discountAmount">- $0.00</span>
+                    <span>
+                        <span id="discountAmount">- $0.00</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeDiscount" title="Remove discount">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </span>
                 </div>
+
                 <div class="d-flex justify-content-between mb-4" id="finalTotalRow" style="display: none;">
                     <span>New Total:</span>
                     <span id="finalTotal">$0.00</span>
@@ -104,7 +111,6 @@
 
                 <button type="submit" class="btn btn-dark w-100">Complete Purchase</button>
             </form>
-
 
 
         </div>
@@ -133,7 +139,7 @@
     window.addEventListener('DOMContentLoaded', function () {
         const toastEl = document.getElementById('contactToast');
         if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
-            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            const toast = new bootstrap.Toast(toastEl, {delay: 4000});
             toast.show();
         }
     });
@@ -183,6 +189,24 @@
                 hiddenInput.value = "";
             });
     });
+
+    document.getElementById("removeDiscount").addEventListener("click", function () {
+        const discountRow = document.getElementById("discountRow");
+        const finalTotalRow = document.getElementById("finalTotalRow");
+        const discountAmountEl = document.getElementById("discountAmount");
+        const finalTotalEl = document.getElementById("finalTotal");
+        const hiddenInput = document.getElementById("discountCodeHidden");
+        const feedback = document.getElementById("discountFeedback");
+
+        discountRow.style.display = "none";
+        finalTotalRow.style.display = "none";
+        discountAmountEl.textContent = "- $0.00";
+        finalTotalEl.textContent = "$0.00";
+        hiddenInput.value = "";
+        feedback.textContent = "Discount removed.";
+        feedback.className = "form-text text-warning";
+    });
+
 
     document.addEventListener("DOMContentLoaded", () => {
         loadCheckoutCart();

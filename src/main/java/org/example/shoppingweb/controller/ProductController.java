@@ -175,15 +175,6 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{productId}/stock")
-    public ResponseEntity<Product> updateStock(
-            @PathVariable Integer productId,
-            @RequestBody StockUpdateRequest request) {
-
-        Product updated = productService.updateStockQuantity(productId, request.getStockQuantity());
-        return ResponseEntity.ok(updated);
-    }
-
     @GetMapping("/products/image/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getProductImage(@PathVariable("id") Integer id) {
