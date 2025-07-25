@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist | Clothes Shopping</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .product-card:hover .product-actions {
+            opacity: 1;
+        }
+        .empty-wishlist {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23e5e7eb" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 20%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div th:replace="fragments/header-navbar :: navbar"></div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Wishlist Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">My Wishlist</h1>
+                <p class="text-gray-600 mt-2">Saved items you love</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                <div class="relative">
+                    <select class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-4 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500">
+                        <option>Sort by: Recently Added</option>
+                        <option>Sort by: Price Low to High</option>
+                        <option>Sort by: Price High to Low</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-500"></i>
+                    </div>
+                </div>
+                <span class="text-gray-700 font-medium" th:text="|${#lists.size(wishlistItems)} items|">0 items</span>
+            </div>
+        </div>
+
+        <!-- Wishlist Content -->
+        <div class="wishlist-content">
+            <!-- Wishlist Items Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Empty Wishlist State -->
+                <div class="empty-wishlist flex flex-col items-center justify-center py-16 bg-gray-50 rounded-lg mt-8" th:classappend="${#lists.isEmpty(wishlistItems)} ? '' : 'hidden'">
+                    <div class="text-center max-w-md mx-auto">
+                        <i class="fas fa-heart text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">Your wishlist is empty</h3>
+                        <p class="text-gray-500 mb-6">Save your favorite items here to keep track of what you love</p>
+                        <a th:href="@{/shop}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-6 rounded-md transition-colors">Start Shopping</a>
+                    </div>
+                </div>
+
+                <div th:each="item : ${wishlistItems}" class="product-card bg-white border rounded-lg p-4 relative">
+                    <img th:src="@{'/product/image/' + ${item.product.id}}" alt="Product Image" class="w-full h-48 object-cover rounded-md mb-4">
+                    <h3 th:text="${item.product.productName}" class="text-lg font-semibold text-gray-800"></h3>
+                    <p th:text="'$' + ${item.product.price}" class="text-gray-600"></p>
+                    <div class="product-actions absolute top-2 right-2 opacity-0 transition-opacity">
+                        <form th:action="@{/wishlist/remove}" method="post">
+                            <input type="hidden" name="productId" th:value="${item.product.id}">
+                            <button class="remove-wishlist bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-trash text-gray-500"></i>
+                            </button>
+                            <button class="add-to-cart bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-shopping-cart text-gray-500"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end" th:classappend="${#lists.isEmpty(wishlistItems)} ? 'hidden' : ''">
+                <form th:action="@{/wishlist/move-all-to-cart}" method="post">
+                    <button type="submit" class="move-all-to-cart bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-6 rounded-md transition-colors flex items-center">
+                        <i class="fas fa-shopping-cart mr-2"></i>Move All to Cart
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
