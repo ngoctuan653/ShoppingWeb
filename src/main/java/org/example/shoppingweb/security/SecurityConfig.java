@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/doLogin", "/oauth2/**", "/css/**", "/js/**",
                                 "/about", "/contact", "/products/image/**",
                                 "/products/**", "/search", "/images/**", "/{productId}/sizes",
-                                "/verify-reset-code", "/reset-password", "/resend-code"
+                                "/verify-reset-code", "/reset-password", "/resend-code","/api/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

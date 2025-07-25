@@ -1,17 +1,16 @@
 package org.example.shoppingweb.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.example.shoppingweb.DTO.ProductRequest;
-import org.example.shoppingweb.DTO.ProductSizeRequest;
 import org.example.shoppingweb.DTO.SizeDTO;
-import org.example.shoppingweb.DTO.StockUpdateRequest;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.ProductSizeRepository;
 import org.example.shoppingweb.repository.SizeRepository;
 import org.example.shoppingweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,9 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,6 +52,7 @@ public class ProductController {
         List<Product> allProducts = productRepository.findAll();
         List<Product> availableProducts = allProducts.stream()
                 .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
+                .limit(6)
                 .collect(Collectors.toList());
         List<Category> categories = productService.getAllCategories();
         List<Brand> brands = productService.getAllBrands();
@@ -64,6 +64,19 @@ public class ProductController {
         return "shop";
     }
 
+    @GetMapping("/api/products")
+    @ResponseBody
+    public List<Product> loadProducts(@RequestParam(defaultValue = "0") Integer page,
+                                      @RequestParam(defaultValue = "6") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        return productPage.getContent().stream()
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
+                .limit(6)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Product> searchProducts(@RequestParam(required = false) String keyword,
@@ -71,13 +84,18 @@ public class ProductController {
                                         @RequestParam(required = false) Double maxPrice,
                                         @RequestParam(required = false) List<Long> categories,
                                         @RequestParam(required = false) List<Long> subcategories,
-                                        @RequestParam(required = false) List<Long> brands) {
+                                        @RequestParam(required = false) List<Long> brands,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "6") int size) {
         System.out.println("Keyword: " + keyword);
         System.out.println("Min Price: " + minPrice);
         System.out.println("Max Price: " + maxPrice);
         System.out.println("Categories: " + categories);
         System.out.println("Brands: " + brands);
-        return productService.searchProducts(keyword, minPrice, maxPrice, categories, subcategories, brands);
+        System.out.println("Page: " + page);
+        System.out.println("Size: " + size);
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.searchProducts(keyword, minPrice, maxPrice, categories, subcategories, brands, pageable);
     }
 
 

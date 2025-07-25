@@ -8,6 +8,7 @@ import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,10 +64,12 @@ public class ProductService {
                                         Double maxPrice,
                                         List<Long> categories,
                                         List<Long> subcategories,
-                                        List<Long> brands) {
+                                        List<Long> brands,
+                                        Pageable pageable) {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("status"), "Active"));
+
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
@@ -85,9 +88,11 @@ public class ProductService {
             if (brands != null && !brands.isEmpty()) {
                 predicates.add(root.get("brand").get("id").in(brands));
             }
+
             return cb.and(predicates.toArray(new Predicate[0]));
-        });
+        }, pageable).getContent();
     }
+
 
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
