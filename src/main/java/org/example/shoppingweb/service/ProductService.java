@@ -8,6 +8,7 @@ import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,10 +64,12 @@ public class ProductService {
                                         Double maxPrice,
                                         List<Long> categories,
                                         List<Long> subcategories,
-                                        List<Long> brands) {
+                                        List<Long> brands,
+                                        Pageable pageable) {
         return productRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("status"), "Active"));
+
             if (keyword != null && !keyword.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
             }
@@ -87,8 +90,9 @@ public class ProductService {
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
-        });
+        }, pageable).getContent();
     }
+
 
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
@@ -152,14 +156,6 @@ public class ProductService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
     }
-
-
-//    public List<Size> getSizesByProductId(Integer productId) {
-//        List<Productsize> productSizes = productSizeRepository.findByProductId(productId);
-//        return productSizes.stream()
-//                .map(Productsize::getSize)
-//                .collect(Collectors.toList());
-//    }
 
     public List<SizeDTO> getSizesByProductId(Integer productId) {
         Product product = productRepository.findById(productId)
@@ -232,7 +228,6 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
-        // Cập nhật thông tin cơ bản
         product.setProductName(productRequest.getProductName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -254,7 +249,6 @@ public class ProductService {
             product.setImage(image.getBytes());
         }
 
-        // --- Cập nhật size ---
         List<Productsize> existingSizes = productSizeRepository.findByProduct(product);
         Map<Integer, Productsize> existingSizeMap = existingSizes.stream()
                 .filter(ps -> ps.getSize() != null && ps.getSize().getId() != null)
@@ -318,12 +312,5 @@ public class ProductService {
 
         return productRepository.save(product);
     }
-
-    public Product updateStockQuantity(Integer productId, int stockQuantity) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        product.setStockQuantity(stockQuantity);
-        return productRepository.save(product);
-    }
+    
 }

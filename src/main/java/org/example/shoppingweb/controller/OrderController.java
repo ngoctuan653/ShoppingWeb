@@ -1,22 +1,28 @@
 package org.example.shoppingweb.controller;
 
+import org.example.shoppingweb.DTO.OrderDTO;
 import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Orderdetail;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.OrderDetailRepository;
 import org.example.shoppingweb.repository.OrderRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
+import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrderController {
@@ -26,10 +32,13 @@ public class OrderController {
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/order/success")
     public String orderSuccess(@RequestParam("id") Integer orderId, Model model) {
-        model.addAttribute("orderId", orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        model.addAttribute("order", order);
         return "order-success";
     }
 
@@ -38,17 +47,21 @@ public class OrderController {
         User user = userDetails.getUser();
         List<Order> orderList = orderRepository.findByUser(user);
 
+        List<OrderDTO> formattedOrders = orderList.stream()
+                .map(OrderDTO::new)
+                .collect(Collectors.toList());
+
         Map<Integer, List<Orderdetail>> orderDetailsMap = new HashMap<>();
         for (Order order : orderList) {
             List<Orderdetail> details = orderDetailRepository.findByOrder(order);
             orderDetailsMap.put(order.getId(), details);
         }
 
-        model.addAttribute("orders", orderList);
+        model.addAttribute("orders", formattedOrders);
         model.addAttribute("orderDetailsMap", orderDetailsMap);
-
         return "order-history";
     }
+// <<<<<<< HEAD
     
     @GetMapping("/orders/view/{id}")
     public String viewOrderDetail(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
@@ -82,5 +95,19 @@ public class OrderController {
 
         System.out.println("Returning template: order-detail");
         return "order-detail";
-    }
+// =======
+
+
+//     @PostMapping("/order/{orderId}/cancel")
+//     @ResponseBody
+//     public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId,
+//                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+//         try {
+//             orderService.cancelOrder(orderId, userDetails.getUser());
+//             return ResponseEntity.ok().body(Map.of("message", "Order cancelled successfully!"));
+//         } catch (Exception e) {
+//             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Order cannot be cancelled!"));
+//         }
+// >>>>>>> PhamVietHoang
+//     }
 }

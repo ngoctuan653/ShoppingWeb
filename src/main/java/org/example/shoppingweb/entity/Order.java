@@ -32,6 +32,9 @@ public class Order {
     @Column(name = "total_amount", precision = 18, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "total_amount_before_discount", precision = 18, scale = 2)
+    private BigDecimal totalAmountBeforeDiscount;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "status_id", nullable = false)
@@ -56,5 +59,10 @@ public class Order {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Transient
+    public String getDisplayCode() {
+        return "ORD-" + String.format("%06d", id);
+    }
 
 }

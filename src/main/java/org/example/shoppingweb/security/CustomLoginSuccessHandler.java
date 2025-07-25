@@ -26,6 +26,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         HttpSession session = request.getSession();
         session.setAttribute("currentUser", user);
         session.setAttribute("userId", user.getId());
+        session.setAttribute("roleId", user.getRole().getId());
 
         // Chuyển hướng sau khi login
         response.sendRedirect("/");

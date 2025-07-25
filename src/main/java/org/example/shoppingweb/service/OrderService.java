@@ -35,6 +35,10 @@ public class OrderService {
     @Autowired
     private EmailService emailService;
 
+    public Order findByIdAndUser(Integer orderId, User user) {
+        return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
+    }
+
 
     @Transactional
     public Order createOrder(User user, String shippingAddress, String phone, Discount discount) {
@@ -99,6 +103,8 @@ public class OrderService {
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
+        order.setTotalAmountBeforeDiscount(total);
+
         if (discount != null) {
             if (discount.getDiscountPercentage() != null) {
                 BigDecimal discountPercent = discount.getDiscountPercentage()
@@ -118,6 +124,23 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
+    public void cancelOrder(Integer orderId, User currentUser){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        if(!order.getUser().getId().equals(currentUser.getId())){
+            throw new RuntimeException("You are not authorized to cancel this order.");
+        }
+        if(order.getStatus().getId() != 1){
+            throw new RuntimeException("Only pending orders can be cancelled.");
+        }
 
+        Orderstatus cancelledStatus = orderStatusRepository.findByStatusName("Cancelled")
+                .orElseThrow(() -> new RuntimeException("Order status 'Cancelled' not found"));
+
+        order.setStatus(cancelledStatus);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
 }
 

@@ -297,6 +297,8 @@ function loadCheckoutCart() {
 
             totalEl.textContent = `$${total.toFixed(2)}`;
             document.getElementById("cartTotalValue").value = total.toFixed(2); // 👈 dùng trong discount
+            cartContainer.classList.remove("d-none");
+
         })
         .catch(err => {
             console.error("Không thể tải giỏ hàng:", err);
@@ -418,16 +420,17 @@ const handleSearch = () => {
     const selectedSubcategories = getCheckedValues(".subcategory-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
 
-    console.log("🔍 Keyword:", keyword);
-    console.log("💲 Min Price:", minPrice);
-    console.log("💲 Max Price:", maxPrice);
-    console.log("📂 Selected Categories:", selectedCategories);
-    console.log("📁 Selected Subcategories:", selectedSubcategories);
-    console.log("🏷️ Selected Brands:", selectedBrands);
+    // 👇 Reset trước khi tìm kiếm
+    currentPage = 1;
+    loadMoreBtn.style.display = "block";
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = "Load More Products";
 
     showLoading();
 
     const params = new URLSearchParams();
+    params.append("page", 0); // Page đầu tiên
+    params.append("size", pageSize); // Dùng lại biến pageSize ở script chính
     if (keyword) params.append("keyword", keyword);
     if (minPrice) params.append("minPrice", minPrice);
     if (maxPrice) params.append("maxPrice", maxPrice);
@@ -436,15 +439,12 @@ const handleSearch = () => {
     selectedBrands.forEach(id => params.append("brands", id));
 
     const url = `/search?${params.toString()}`;
-    console.log("🌐 Final Search URL:", url);
-    console.log("------------------------------------------------------------------");
 
     fetch(url)
         .then(res => {
             if (!res.ok) {
                 return res.text().then(text => {
-                    console.error("❌ Server trả về HTML hoặc lỗi:", text);
-                    throw new Error(`Lỗi server (${res.status})`);
+                    throw new Error(text || `HTTP error ${res.status}`);
                 });
             }
             return res.json();
@@ -454,6 +454,7 @@ const handleSearch = () => {
 
             if (!Array.isArray(products) || products.length === 0) {
                 productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
+                loadMoreBtn.style.display = "none";
                 return;
             }
 
@@ -463,13 +464,14 @@ const handleSearch = () => {
                     <div class="col-md-4 mb-4 fade-in">
                         <div class="card h-100 shadow-sm">
                             <a href="/products/${product.id}">
-                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" />
+                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;"/>
                             </a>
                             <div class="card-body d-flex flex-column">
                                 <a href="/products/${product.id}" class="text-decoration-none text-dark">
                                     <h5 class="card-title">${product.productName}</h5>
                                 </a>
-                                <p class="card-text text-truncate">${product.description}</p>
+                                <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
+                                <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
                                 <div class="mt-auto">
                                     <p class="fw-bold">$${product.price}</p>
                                 </div>
@@ -479,6 +481,11 @@ const handleSearch = () => {
                 `;
                 productGrid.insertAdjacentHTML("beforeend", productCard);
             });
+
+            // Ẩn nút nếu số sản phẩm < pageSize
+            if (products.length < pageSize) {
+                loadMoreBtn.style.display = "none";
+            }
         })
         .catch(error => {
             console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error.message || error);

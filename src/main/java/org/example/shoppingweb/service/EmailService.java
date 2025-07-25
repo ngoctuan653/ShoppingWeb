@@ -74,4 +74,12 @@ public class EmailService {
 
         sendOrderConfirmation(user.getEmail(), "Order Confirmation #" + order.getId(), emailBody.toString());
     }
+
+    public void sendResetCode(String toEmail, String resetCode) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Reset Password Code");
+        message.setText("Your reset code is: " + resetCode);
+        javaMailSender.send(message);
+    }
 }

@@ -11,11 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomePageController {
 
 
-    @GetMapping("/index")
-    public String test() {
-        return "index";
-    }
-
     @GetMapping("/")
     public String home() {
         return "redirect:/home";
@@ -31,11 +26,6 @@ public class HomePageController {
     public String signUpForm(Model model) {
         model.addAttribute("signUpForm", new DTO_Signup());
         return "signup";
-    }
-
-    @GetMapping("/forgot")
-    public String forgotPasswordPage(){
-        return "forgot";
     }
 
     @GetMapping("/about")

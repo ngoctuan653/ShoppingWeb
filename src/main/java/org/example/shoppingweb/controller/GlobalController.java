@@ -14,6 +14,7 @@ public class GlobalController {
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("userId", currentUser.getId());
+            model.addAttribute("roleId", currentUser.getRole().getId());
         }
     }
 }
