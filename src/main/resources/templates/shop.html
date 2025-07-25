@@ -158,11 +158,13 @@
                             <img th:if="${product.image != null}"
                                  th:src="@{'/products/image/' + ${product.id}}"
                                  class="card-img-top"
-                                 alt="Product Image">
+                                 alt="Product Image"
+                                 style="height: 350px; object-fit: cover;">
                             <img th:if="${product.image == null}"
                                  th:src="@{/images/default.png}"
                                  class="card-img-top"
-                                 alt="Default Product Image">
+                                 alt="Default Product Image"
+                                 style="height: 350px; object-fit: cover;">
                         </a>
                         <div class="card-body">
                             <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">

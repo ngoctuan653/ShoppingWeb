@@ -124,6 +124,23 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
+    public void cancelOrder(Integer orderId, User currentUser){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        if(!order.getUser().getId().equals(currentUser.getId())){
+            throw new RuntimeException("You are not authorized to cancel this order.");
+        }
+        if(order.getStatus().getId() != 1){
+            throw new RuntimeException("Only pending orders can be cancelled.");
+        }
 
+        Orderstatus cancelledStatus = orderStatusRepository.findByStatusName("Cancelled")
+                .orElseThrow(() -> new RuntimeException("Order status 'Cancelled' not found"));
+
+        order.setStatus(cancelledStatus);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
 }
 

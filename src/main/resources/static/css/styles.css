@@ -232,7 +232,7 @@ html {
     background: var(--primary-color);
 }
 
-img{
+.img-product{
     height: 350px;
 }
 

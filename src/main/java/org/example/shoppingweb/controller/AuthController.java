@@ -117,7 +117,7 @@ public class AuthController {
             return "redirect:/verify-reset-code";
         }
 
-        if (now - codeSentTime > 10 * 60 * 1000) {
+        if (now - codeSentTime > 5 * 60 * 1000) {
             redirectAttributes.addFlashAttribute("error", "Reset code has expired. Please resend.");
             return "redirect:/verify-reset-code";
         }

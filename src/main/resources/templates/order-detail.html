@@ -82,7 +82,7 @@
                                 </div>
                                 <div>
                                     <span th:text="${detail.unitPrice + ' x ' + detail.quantity}"></span>
-<!--                                        2 x 49.99 $-->
+                                    <!--                                        2 x 49.99 $-->
                                     </span>
                                 </div>
                             </div>
@@ -115,7 +115,8 @@
                         <div id="orderSummary">
                             <p>Total: <span th:text="${order.totalAmountBeforeDiscount} + ' $'">99.98 $</span></p>
                             <p>Total(After discount): <span th:text="${order.totalAmount} + ' $'">99.98 $</span></p>
-                            <p th:if="${order.discount != null}">Discount: <span th:text="${order.discount.discountPercentage} + '%'">10%</span></p>
+                            <p th:if="${order.discount != null}">Discount: <span
+                                    th:text="${order.discount.discountPercentage} + '%'">10%</span></p>
                         </div>
 
                     </div>
@@ -129,7 +130,7 @@
                     <div class="card-body">
                         <div id="shippingInfo">
                             <p>Phone Number: <span th:text="${order.phoneNumber}">99.98 $</span></p>
-                            <p>Address: <span th:text="${order.shippingAddress}"></span></p>                        </div>
+                            <p>Address: <span th:text="${order.shippingAddress}"></span></p></div>
                     </div>
                 </div>
 
@@ -169,14 +170,16 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-center">
+                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}" class="d-flex align-items-center">
                             <i class="bi bi-arrow-return-left fs-4 text-warning me-3"></i>
                             <div>
                                 <h6 class="mb-1">Return Items</h6>
                                 <p class="text-muted small mb-0">Start a return request</p>
                             </div>
-                            <button class="btn btn-outline-warning btn-sm ms-auto" onclick="initiateReturn()"
-                                    id="returnBtn">
+                            <button type="button"
+                                    class="btn btn-outline-warning btn-sm ms-auto"
+                                    th:attr="data-order-id=${order.id}"
+                                    onclick="cancelOrderFromAttr(this)">
                                 Return
                             </button>
                         </div>
@@ -186,6 +189,19 @@
         </div>
     </div>
 </section>
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999" th:if="${toastMessage}">
+    <div th:id="'toast'" th:class="'toast align-items-center text-bg-' + ${toastType} + ' border-0'" role="alert"
+         aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${toastMessage}">
+                <!-- Nội dung toast -->
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
@@ -197,6 +213,65 @@
 <!-- Custom JS -->
 <script src="/js/script.js"></script>
 <script>
+    function cancelOrderFromAttr(button) {
+        const orderId = button.getAttribute('data-order-id');
+        const cancelDiv = button.closest('#cancelButton');
+        cancelOrder(orderId, cancelDiv);
+    }
+
+
+    function cancelOrder(orderId, cancelDiv) {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+
+        fetch(`/order/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.message, 'success');
+
+                const statusDiv = document.getElementById("orderStatus");
+                if (statusDiv) {
+                    statusDiv.innerHTML = "<p class='text-danger fw-bold'>Cancelled</p>";
+                }
+
+                // Ẩn cả div chứa nút
+                if (cancelDiv) {
+                    cancelDiv.remove();
+                }
+            })
+            .catch(err => {
+                showToast("Failed to cancel order", 'danger');
+                console.error(err);
+            });
+    }
+
+
+    function showToast(message, type = 'success') {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+
+        toastContainer.innerHTML = `
+            <div class="toast align-items-center text-bg-${type} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(toastContainer);
+
+        const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+        toast.show();
+
+        // Tự động xóa toast sau 5s
+        setTimeout(() => toastContainer.remove(), 5000);
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         let lastScroll = 0;
         const navbar = document.getElementById('mainNavbar');

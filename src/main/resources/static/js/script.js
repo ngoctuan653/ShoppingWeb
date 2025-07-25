@@ -465,7 +465,7 @@ const handleSearch = () => {
                     <div class="col-md-4 mb-4 fade-in">
                         <div class="card h-100 shadow-sm">
                             <a href="/products/${product.id}">
-                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" />
+                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;"/>
                             </a>
                             <div class="card-body d-flex flex-column">
                                 <a href="/products/${product.id}" class="text-decoration-none text-dark">
