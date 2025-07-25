@@ -3,247 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <title>StyleLegacy - Home</title>
-
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
-
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
-
     <style>
         .swiper {
-            padding: 10px 0;
+            padding: 10px 0 50px 0; /* Đảm bảo đủ chỗ cho pagination */
+            position: relative;
         }
-
         .swiper-slide {
             height: 100%;
         }
-
         .product-card {
             height: 100%;
         }
-
         /* Custom progress bar style for swiper */
         .swiper-pagination-progressbar {
             background: #dee2e6;
             height: 4px;
-            margin-top: 15px;
+            margin-top: 20px;
+            position: relative;
+            bottom: 0;
         }
-
         .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
             background: #000;
         }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <div th:replace="fragments/header-navbar :: navbar"></div>
 
-<!-- Navbar -->
-<div th:replace="fragments/header-navbar :: navbar"></div>
-
-<!-- Hero Section -->
-<!-- Hero Section -->
-<section class="hero-section position-relative">
-    <!-- Carousel background -->
-    <div id="heroCarousel"
-         class="carousel slide carousel-fade position-absolute top-0 start-0 w-100 h-100"
-         data-bs-ride="carousel"
-         data-bs-interval="2500">
-        <div class="carousel-inner h-100">
-            <div class="carousel-item active h-100">
-                <img src="https://www.louisvuitton.com/images/is/image/lv/WSLG_POCHETTE-EVA-MNG_JUNE25_DII.jpg?wid=2400"
-                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 1">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="https://www.louisvuitton.com/images/is/image/lv/W_BC_SNEAKERINA_July25_DI3.jpg?wid=2400"
-                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 2">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-adilette-22-banner.jpg?w=1920"
-                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 3">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="https://vn.louisvuitton.com/images/is/image//content/dam/lv/editorial-content/brand-content-coremedia/women/2025/category/slg/WSLG_PO_LVBLOOM_DI3.jpg?wid=2400"
-                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 4">
-            </div>
-            <div class="carousel-item h-100">
-                <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg"
-                     class="d-block w-100 h-100 object-fit-cover" alt="Slide 5">
-            </div>
-        </div>
-    </div>
-
-    <!-- Overlay content -->
-    <div class="container position-relative z-2 text-white">
-        <div class="row align-items-center min-vh-75">
-            <div class="col-lg-6">
-                <h1 class="display-3 fw-bold mb-4">
-                    It's not just fashion—it's <em>legacy</em>
-                </h1>
-                <p class="lead mb-4 text-white-50">
-                    Discover timeless pieces that define your style and create lasting impressions.
-                    Fashion that transcends trends and becomes part of your story.
-                </p>
-                <div class="d-flex flex-column flex-sm-row gap-3">
-                    <button class="btn btn-dark btn-lg px-4">Shop Collection</button>
-                    <button class="btn btn-outline-light btn-lg px-4">Explore Trends</button>
+    <!-- Hero Section -->
+    <section class="hero-section position-relative">
+        <!-- Carousel background -->
+        <div id="heroCarousel" class="carousel slide carousel-fade position-absolute top-0 start-0 w-100 h-100" data-bs-ride="carousel" data-bs-interval="2500">
+            <div class="carousel-inner h-100">
+                <div class="carousel-item active h-100">
+                    <img src="https://www.louisvuitton.com/images/is/image/lv/WSLG_POCHETTE-EVA-MNG_JUNE25_DII.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 1">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="https://www.louisvuitton.com/images/is/image/lv/W_BC_SNEAKERINA_July25_DI3.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 2">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-adilette-22-banner.jpg?w=1920" class="d-block w-100 h-100 object-fit-cover" alt="Slide 3">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="https://vn.louisvuitton.com/images/is/image//content/dam/lv/editorial-content/brand-content-coremedia/women/2025/category/slg/WSLG_PO_LVBLOOM_DI3.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 4">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Slide 5">
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Optional: dark overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-</section>
-
-
-<!-- New Arrivals -->
-<!-- New Arrivals Section - Full Width -->
-<section class="new-arrivals-section my-5 px-0">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3 px-4">
-            <h2 class="fw-bold">New Arrivals</h2>
-            <a th:href="@{/shop}" class="btn btn-outline-dark btn-sm">View All</a>
-        </div>
-
-        <!-- Swiper -->
-        <div class="swiper mySwiper px-4">
-            <div class="swiper-wrapper">
-                <div class="swiper-slide" th:each="product : ${products}">
-                    <div class="card product-card h-100">
-                        <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                            <img th:if="${product.image != null}"
-                                 th:src="@{'/products/image/' + ${product.id}}"
-                                 class="card-img-top"
-                                 alt="Product Image">
-                            <img th:if="${product.image == null}"
-                                 th:src="@{/images/default.png}"
-                                 class="card-img-top"
-                                 alt="Default Product Image">
-                        </a>
-                        <div class="card-body">
-                            <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                                <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
-                            </a>
-                            <p class="card-text text-muted" th:text="${product.description}">Product description</p>
-                            <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
-                        </div>
+        <!-- Overlay content -->
+        <div class="container position-relative z-2 text-white">
+            <div class="row align-items-center min-vh-75">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">
+                        It's not just fashion—it's <em>legacy</em>
+                    </h1>
+                    <p class="lead mb-4 text-white-50">
+                        Discover timeless pieces that define your style and create lasting impressions.
+                        Fashion that transcends trends and becomes part of your story.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <button class="btn btn-dark btn-lg px-4">Shop Collection</button>
+                        <button class="btn btn-outline-light btn-lg px-4">Explore Trends</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Progressbar Pagination -->
-            <div class="swiper-pagination swiper-pagination-progressbar mt-3"></div>
         </div>
-    </div>
-</section>
+        <!-- Optional: dark overlay -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+    </section>
 
-
-<!-- Promo Banners -->
-<section class="container-fluid my-5">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="ratio ratio-16x9 rounded overflow-hidden">
-                <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/6_MEN_SS26_SHOW_STILL_LIFE_VISUALS_SACS_DUO_0558_BASE_V2_LV-COM_DI3_2048x1152.jpg?imwidth=2400"
-                     class="w-100 h-100 object-fit-cover" alt="">
+    <!-- New Arrivals -->
+    <section class="new-arrivals-section my-5 px-0">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-3 px-4">
+                <h2 class="fw-bold">New Arrivals</h2>
+                <a th:href="@{/shop}" class="btn btn-outline-dark btn-sm">View All</a>
+            </div>
+            <!-- Swiper -->
+            <div class="swiper mySwiper px-4">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" th:each="product : ${products}">
+                        <div class="card product-card h-100">
+                            <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                                <img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}" class="card-img-top" alt="Product Image">
+                                <img th:if="${product.image == null}" th:src="@{/images/default.png}" class="card-img-top" alt="Default Product Image">
+                            </a>
+                            <div class="card-body">
+                                <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
+                                    <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
+                                </a>
+                                <p class="card-text text-muted" th:text="${product.description}">Product description</p>
+                                <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Progressbar Pagination -->
+                <div class="swiper-pagination new-arrivals-swiper-pagination swiper-pagination-progressbar mt-3"></div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="ratio ratio-16x9 rounded overflow-hidden">
-                <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/13_MEN_SS26_SHOW_BACKSTAGE_DETAILS_VISUALS_LOOK_10_GIDEON_0299_LV-COM_DI2_2000x2000.jpg?imwidth=2400"
-                     class="w-100 h-100 object-fit-cover" alt="">
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="ratio ratio-16x9 rounded overflow-hidden">
-                <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/2_MEN_SS26_SHOW_STILL_LIFE_VISUALS_CHESS_TRUNK_0605_PLATE_GOLD_NETTETE_DEVANT_LV-COM_DI2_2000x2000.jpg?imwidth=2400"
-                     class="w-100 h-100 object-fit-cover" alt="">
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
+    <!-- Promo Banners -->
+    <section class="promo-banners-section my-5 px-0">
+        <div class="container-fluid">          
+            <!-- Swiper -->
+            <div class="swiper promoSwiper px-4">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/6_MEN_SS26_SHOW_STILL_LIFE_VISUALS_SACS_DUO_0558_BASE_V2_LV-COM_DI3_2048x1152.jpg?imwidth=2400" class="w-100 h-100 object-fit-cover" alt="Promo 1">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/13_MEN_SS26_SHOW_BACKSTAGE_DETAILS_VISUALS_LOOK_10_GIDEON_0299_LV-COM_DI2_2000x2000.jpg?imwidth=2400" class="w-100 h-100 object-fit-cover" alt="Promo 2">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/2_MEN_SS26_SHOW_STILL_LIFE_VISUALS_CHESS_TRUNK_0605_PLATE_GOLD_NETTETE_DEVANT_LV-COM_DI2_2000x2000.jpg?imwidth=2400" class="w-100 h-100 object-fit-cover" alt="Promo 3">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://www.hollywoodreporter.com/wp-content/uploads/2024/08/Karina_PRADA-H-2024.jpg?w=1296&h=730&crop=1" class="w-100 h-100 object-fit-cover" alt="Promo 4">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg" class="w-100 h-100 object-fit-cover" alt="Promo 5">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://www.louisvuitton.com/images/is/image/lv/WSLG_POCHETTE-EVA-MNG_JUNE25_DII.jpg?wid=2400" class="w-100 h-100 object-fit-cover" alt="Promo 6">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden">
+                            <img src="https://sneakernews.com/wp-content/uploads/2023/05/adidas-may-2023-adilette-22-banner.jpg?w=1920" class="w-100 h-100 object-fit-cover" alt="Promo 7">
+                        </div>
+                    </div>
+                </div>
+                <!-- Progressbar Pagination -->
+                <div class="swiper-pagination promo-swiper-pagination swiper-pagination-progressbar mt-3"></div>
+            </div>
+        </div>
+    </section>
 
-<!-- Club Kits -->
-<section class="container-fluid text-center my-5">
-    <h2 class="fw-bold mb-4">Iconic Kits. Timeless Legacy.</h2>
-    <div class="row row-cols-2 row-cols-md-4 g-4 justify-content-center">
-        <div class="col">
-            <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
-                <img src="https://vn.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-dopp-kit--N40800_PM1_Worn%20view.png?wid=490&hei=490"
-                     class="w-100 h-100 object-fit-cover" alt="Man Utd">
+    <!-- Club Kits -->
+    <section class="club-kits-section my-5 px-0 text-center">
+        <div class="container-fluid">
+            <h2 class="fw-bold mb-4">Iconic Kits. Timeless Legacy.</h2>
+            <!-- Swiper -->
+            <div class="swiper clubSwiper px-4">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://vn.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-dopp-kit--N40800_PM1_Worn%20view.png?wid=490&hei=490" class="w-100 h-100 object-fit-cover" alt="Man Utd">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://www.louisvuitton.com/images/is/image/lv/M_BC_SHOWFW25_JUL25_20_DII.jpg?wid=2400" class="w-100 h-100 object-fit-cover" alt="Bayern">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://www.louisvuitton.com/images/is/image/lv/M_BC_SHOWFW25_JUL25_21_DII.jpg?wid=2400" class="w-100 h-100 object-fit-cover" alt="Real">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/4_MEN_SS26_SHOW_BACKSTAGE_DETAILS_VISUALS_LOOK_23_MATTHEW_0660_LV-COM_DI2_2000x2000.jpg?imwidth=2400" class="w-100 h-100 object-fit-cover" alt="Arsenal">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://www.louisvuitton.com/images/is/image/lv/W_BC_SNEAKERINA_July25_DI3.jpg?wid=2400" class="w-100 h-100 object-fit-cover" alt="Chelsea">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://vn.louisvuitton.com/images/is/image//content/dam/lv/editorial-content/brand-content-coremedia/women/2025/category/slg/WSLG_PO_LVBLOOM_DI3.jpg?wid=2400" class="w-100 h-100 object-fit-cover" alt="Liverpool">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://www.hollywoodreporter.com/wp-content/uploads/2024/08/Karina_PRADA-H-2024.jpg?w=1296&h=730&crop=1" class="w-100 h-100 object-fit-cover" alt="Juventus">
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            <img src="https://www.chanel.com/puls-img/c_limit,w_1920/q_auto:good,dpr_auto,f_auto/1751275456896-homepagecorpoonedesktop36jpg_2510x5760.jpg" class="w-100 h-100 object-fit-cover" alt="PSG">
+                        </div>
+                    </div>
+                </div>
+                <!-- Progressbar Pagination -->
+                <div class="swiper-pagination club-swiper-pagination swiper-pagination-progressbar mt-3"></div>
             </div>
         </div>
-        <div class="col">
-            <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
-                <img src="https://www.louisvuitton.com/images/is/image/lv/M_BC_SHOWFW25_JUL25_20_DII.jpg?wid=2400"
-                     class="w-100 h-100 object-fit-cover" alt="Bayern">
-            </div>
-        </div>
-        <div class="col">
-            <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
-                <img src="https://www.louisvuitton.com/images/is/image/lv/M_BC_SHOWFW25_JUL25_21_DII.jpg?wid=2400"
-                     class="w-100 h-100 object-fit-cover" alt="Real">
-            </div>
-        </div>
-        <div class="col">
-            <div class="rounded shadow-sm overflow-hidden" style="aspect-ratio: 1 / 1;">
-                <img src="https://vn.louisvuitton.com/content/dam/lv/online/high-end/men/fashion_show/M_Fa_Show_MenSS26.html/jcr:content/assets/details/4_MEN_SS26_SHOW_BACKSTAGE_DETAILS_VISUALS_LOOK_23_MATTHEW_0660_LV-COM_DI2_2000x2000.jpg?imwidth=2400"
-                     class="w-100 h-100 object-fit-cover" alt="Arsenal">
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
-
-<!-- Scripts -->
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const swiper = new Swiper(".mySwiper", {
-            slidesPerView: 5,
-            spaceBetween: 20,
-            loop: true,
-            autoplay: {
-                delay: 3000,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                type: "progressbar",
-                clickable: false,
-            },
-            breakpoints: {
-                320: {
-                    slidesPerView: 2,
-                    spaceBetween: 10
+    <!-- Scripts -->
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // New Arrivals Swiper
+            const swiperNewArrivals = new Swiper(".mySwiper", {
+                slidesPerView: 5,
+                spaceBetween: 20,
+                loop: true,
+                loopAdditionalSlides: 1,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: false,
                 },
-                576: {
-                    slidesPerView: 3,
-                    spaceBetween: 15
+                pagination: {
+                    el: ".mySwiper .new-arrivals-swiper-pagination",
+                    type: "progressbar",
+                    clickable: false,
                 },
-                768: {
-                    slidesPerView: 4,
-                    spaceBetween: 20
-                },
-                992: {
-                    slidesPerView: 5,
-                    spaceBetween: 20
+                breakpoints: {
+                    320: { slidesPerView: 2, spaceBetween: 10 },
+                    576: { slidesPerView: 3, spaceBetween: 15 },
+                    768: { slidesPerView: 4, spaceBetween: 20 },
+                    992: { slidesPerView: 5, spaceBetween: 20 }
                 }
-            }
+            });
+
+            // Promo Banners Swiper
+            const swiperPromo = new Swiper(".promoSwiper", {
+                slidesPerView: 3,
+                spaceBetween: 20,
+                loop: true,
+                loopAdditionalSlides: 1,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: false,
+                },
+                pagination: {
+                    el: ".promoSwiper .promo-swiper-pagination",
+                    type: "progressbar",
+                    clickable: false,
+                },
+                breakpoints: {
+                    320: { slidesPerView: 1, spaceBetween: 10 },
+                    576: { slidesPerView: 2, spaceBetween: 15 },
+                    768: { slidesPerView: 3, spaceBetween: 20 }
+                }
+            });
+
+            // Club Kits Swiper
+            const swiperClub = new Swiper(".clubSwiper", {
+                slidesPerView: 4,
+                spaceBetween: 20,
+                loop: true,
+                loopAdditionalSlides: 1,
+                autoplay: {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: false,
+                },
+                pagination: {
+                    el: ".clubSwiper .club-swiper-pagination",
+                    type: "progressbar",
+                    clickable: false,
+                },
+                breakpoints: {
+                    320: { slidesPerView: 2, spaceBetween: 10 },
+                    576: { slidesPerView: 3, spaceBetween: 15 },
+                    768: { slidesPerView: 4, spaceBetween: 20 }
+                }
+            });
+
+            // Kiểm tra lỗi autoplay
+            swiperPromo.on('autoplayStop', function () {
+                console.log('Promo Swiper stopped');
+            });
+            swiperClub.on('autoplayStop', function () {
+                console.log('Club Swiper stopped');
+            });
         });
-    });
-</script>
-<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
-<div th:replace="fragments/footer :: footer"></div>
-<div th:replace="fragments/cart :: cart"></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/script.js"></script>
+    </script>
+    <div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+    <div th:replace="fragments/footer :: footer"></div>
+    <div th:replace="fragments/cart :: cart"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/script.js"></script>
 </body>
 </html>
