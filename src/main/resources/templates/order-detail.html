@@ -20,6 +20,7 @@
                         <p><strong>Order Date:</strong> <span th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"></span></p>
                         <p><strong>Total Amount:</strong> <span th:text="${#numbers.formatDecimal(order.totalAmount, 2, 'POINT', 0, 'COMMA')} + ' $' ?: 'N/A'"></span></p>
                         <p><strong>Status:</strong> <span th:text="${order.status.statusName} ?: 'N/A'"></span></p>
+						<p><strong>Discount Code:</strong> <span th:text="${order.discount?.code} ?: 'None'"></span></p>
                     </div>
                     <div class="col-md-6">
                         <p><strong>Customer Name:</strong> <span th:text="${order.user.fullName} ?: 'N/A'"></span></p>
