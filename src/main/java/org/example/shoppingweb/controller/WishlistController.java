@@ -34,6 +34,16 @@ public class WishlistController {
         wishlistService.removeFromWishlist(user.getId(), productId);
         return "redirect:/wishlist";
     }
+    
+    @PostMapping("/move-to-cart/{productId}")
+    public String moveToCart(@PathVariable("productId") Integer productId, HttpSession session) {
+        User user = (User) session.getAttribute("currentUser");
+        if (user == null) return "redirect:/login";
+
+        wishlistService.moveToCart(user.getId(), productId); 
+        return "redirect:/wishlist";
+    }
+    
 
     @PostMapping("/move-all-to-cart")
     public String moveAllToCart(HttpSession session) {

@@ -31,6 +31,26 @@ public class WishlistService {
     public void removeFromWishlist(Integer userId, Integer productId) {
         wishlistRepository.deleteByUserIdAndProductId(userId, productId);
     }
+    
+    
+    public void moveToCart(Integer userId, Integer productId) {
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Product> product = productRepository.findById(productId);
+        if (user.isPresent() && product.isPresent()) {
+            Optional<Wishlist> wishlistItem = wishlistRepository.findByUserIdAndProductId(userId, productId);
+            if (wishlistItem.isPresent()) {             
+                if (cartRepository.findByUserAndProduct(user.get(), product.get()).isEmpty()) {
+                    Cart cartItem = new Cart();
+                    cartItem.setUser(user.get());
+                    cartItem.setProduct(product.get());
+                    cartItem.setQuantity(1);
+                    cartItem.setCreatedAt(Instant.now());
+                    cartRepository.save(cartItem);
+                }
+                wishlistRepository.delete(wishlistItem.get());
+            }
+        }
+    }
 
     public void moveAllToCart(User user) {
         List<Wishlist> wishlistItems = wishlistRepository.findByUserId(user.getId());
