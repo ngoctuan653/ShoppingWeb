@@ -33,6 +33,48 @@
         .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
             background: #000;
         }
+        /* Updated hero section styles */
+        .hero-section {
+            position: relative;
+            min-height: 75vh;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10; 
+        }
+        .hero-content h1, .hero-content p {
+            color: #ffffff; 
+        }
+        .hero-content .btn-dark {
+            color: #ffffff; 
+            background-color: #000000;
+            border-color: #000000;
+        }
+        .hero-content .btn-outline-dark {
+            color: #ffffff; 
+            border-color: #ffffff;
+        }
+        .hero-content .btn-outline-dark:hover {
+            background-color: #ffffff; 
+            color: #000000; 
+        }
+        .hero-carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; 
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 5; 
+        }
     </style>
 </head>
 <body>
@@ -41,8 +83,25 @@
 
     <!-- Hero Section -->
     <section class="hero-section position-relative">
+        <div class="container hero-content">
+            <div class="row align-items-center min-vh-75">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">
+                        It's not just fashion—it's <em>legacy</em>
+                    </h1>
+                    <p class="lead mb-4">
+                        Discover timeless pieces that define your style and create lasting impressions.
+                        Fashion that transcends trends and becomes part of your story.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <button class="btn btn-dark btn-lg px-4">Shop Collection</button>
+                        <button class="btn btn-outline-dark btn-lg px-4">Explore Trends</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Carousel background -->
-        <div id="heroCarousel" class="carousel slide carousel-fade position-absolute top-0 start-0 w-100 h-100" data-bs-ride="carousel" data-bs-interval="2500">
+        <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel" data-bs-interval="2500">
             <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
                     <img src="https://www.louisvuitton.com/images/is/image/lv/WSLG_POCHETTE-EVA-MNG_JUNE25_DII.jpg?wid=2400" class="d-block w-100 h-100 object-fit-cover" alt="Slide 1">
@@ -61,54 +120,8 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Optional: dark overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-</section>
-
-
-<!-- New Arrivals -->
-<!-- New Arrivals Section - Full Width -->
-<section class="new-arrivals-section my-5 px-0">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3 px-4">
-            <h2 class="fw-bold">New Arrivals</h2>
-            <a th:href="@{/shop}" class="btn btn-outline-dark btn-sm">View All</a>
-        </div>
-
-        <!-- Swiper -->
-        <div class="swiper mySwiper px-4">
-            <div class="swiper-wrapper">
-                <div class="swiper-slide" th:each="product : ${products}">
-                    <div class="card product-card h-100">
-                        <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                            <img th:if="${product.image != null}"
-                                 th:src="@{'/products/image/' + ${product.id}}"
-                                 class="card-img-top"
-                                 alt="Product Image"
-                                 style="height: 350px; object-fit: cover;">
-                            <img th:if="${product.image == null}"
-                                 th:src="@{/images/default.png}"
-                                 class="card-img-top"
-                                 alt="Default Product Image"
-                                 style="height: 350px; object-fit: cover;">
-                        </a>
-                        <div class="card-body">
-                            <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                                <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
-                            </a>
-                            <p class="card-text text-muted" th:text="${product.subcategory.subcategoryName}">Product description</p>
-                                <p class="card-text text-muted" th:text="${product.category.categoryName}">Product description</p>
-                            <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Optional: dark overlay -->
-        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+        <!-- Dark overlay -->
+        <div class="hero-overlay"></div>
     </section>
 
     <!-- New Arrivals -->
@@ -145,7 +158,7 @@
 
     <!-- Promo Banners -->
     <section class="promo-banners-section my-5 px-0">
-        <div class="container-fluid">          
+        <div class="container-fluid">
             <!-- Swiper -->
             <div class="swiper promoSwiper px-4">
                 <div class="swiper-wrapper">
@@ -314,16 +327,17 @@
                     clickable: false,
                 },
                 breakpoints: {
-                    320: { slidesPerView: 2, spaceBetween: 10 },
+                    320: { slidesPerView: 2, spaceBetween: 1 },
                     576: { slidesPerView: 3, spaceBetween: 15 },
                     768: { slidesPerView: 4, spaceBetween: 20 }
                 }
             });
 
-            // Kiểm tra lỗi autoplay
+            
             swiperPromo.on('autoplayStop', function () {
                 console.log('Promo Swiper stopped');
             });
+
             swiperClub.on('autoplayStop', function () {
                 console.log('Club Swiper stopped');
             });
