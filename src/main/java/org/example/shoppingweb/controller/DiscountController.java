@@ -1,25 +1,33 @@
 package org.example.shoppingweb.controller;
 
+import org.example.shoppingweb.entity.Discount;
 import org.example.shoppingweb.repository.DiscountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/discounts")
+@Controller
 public class DiscountController {
 
     @Autowired
     private DiscountRepository discountRepository;
 
-    @GetMapping("/validate")
+    @GetMapping("/discount-manage")
+    public String discountManagePage(Model model){
+        List<Discount> discounts = discountRepository.findAll();
+        model.addAttribute("discounts", discounts);
+        return "discount-managements";
+    }
+
+    @GetMapping("/api/discounts/validate")
+    @ResponseBody
     public ResponseEntity<?> validateDiscount(@RequestParam String code) {
         return discountRepository.findByCodeIgnoreCase(code.trim())
                 .map(discount -> {

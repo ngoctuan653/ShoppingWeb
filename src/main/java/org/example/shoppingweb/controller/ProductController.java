@@ -109,7 +109,7 @@ public class ProductController {
         return "Home";
     }
 
-    @GetMapping("/products")
+    @GetMapping("/product-manage")
     public String showProducts(Model model) {
         model.addAttribute("products", productService.getAllProduct());
         model.addAttribute("categories", productService.getAllCategories());
@@ -133,7 +133,7 @@ public class ProductController {
             product.setImage(imageFile.getBytes());
         }
         productService.saveProduct(product);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @GetMapping("/products/edit/{id}")
@@ -147,7 +147,7 @@ public class ProductController {
     @PostMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable("id") Integer id) {
         productService.deleteProduct(id);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/update")
@@ -162,7 +162,7 @@ public class ProductController {
         }
 
         productService.updateProduct(product);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/add")
@@ -209,7 +209,7 @@ public class ProductController {
     @PostMapping("/products/hide/{id}")
     public String softDeleteProduct(@PathVariable("id") Integer id) {
         productService.updateStatus(id, "Inactive");
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @GetMapping("/products/{id}")

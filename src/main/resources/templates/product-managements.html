@@ -271,17 +271,17 @@
 
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
+    let editDescriptionEditor;
+
     ClassicEditor
-        .create(document.querySelector('#description'))
+        .create(document.querySelector('#edit-description'))
+        .then(editor => {
+            editDescriptionEditor = editor;
+        })
         .catch(error => {
             console.error(error);
         });
 
-    ClassicEditor
-        .create(document.querySelector('#edit-description'))
-        .catch(error => {
-            console.error(error);
-        });
 </script>
 <script src="/js/add-product.js"></script>
 <script src="/js/update-product.js"></script>

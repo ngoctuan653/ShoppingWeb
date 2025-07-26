@@ -1,71 +1,85 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quản lý đơn hàng - Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Order Managements</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="bg-light">
 
-  <!-- Header -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="#">Admin Dashboard</a>
-    <div class="ms-auto text-white">Xin chào, Admin</div>
-  </nav>
+<body style="padding-top: 50px;">
+<!-- Navbar -->
+<div th:replace="fragments/admin-header-navbar :: navbar"></div>
 
-  <!-- Page Content -->
-  <div class="container py-5">
-    <h2 class="mb-4 text-center">Quản lý đơn hàng</h2>
-
-    <div class="table-responsive">
-      <table class="table table-hover table-bordered align-middle text-center">
-        <thead class="table-dark">
-          <tr>
-            <th>Mã đơn</th>
-            <th>Khách hàng</th>
-            <th>Ngày đặt</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Chi tiết</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>ORD-000123</td>
-            <td>Nguyễn Văn A</td>
-            <td>24/07/2025 09:30</td>
-            <td>1.200 $</td>
-            <td><span class="badge bg-warning text-dark">Đang xử lý</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Xem</a></td>
-          </tr>
-          <tr>
-            <td>ORD-000124</td>
-            <td>Trần Thị B</td>
-            <td>24/07/2025 11:00</td>
-            <td>950 $</td>
-            <td><span class="badge bg-success">Đã giao</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Xem</a></td>
-          </tr>
-          <tr>
-            <td>ORD-000125</td>
-            <td>Lê Văn C</td>
-            <td>25/07/2025 08:45</td>
-            <td>2.100 $</td>
-            <td><span class="badge bg-danger">Đã hủy</span></td>
-            <td><a href="#" class="btn btn-sm btn-outline-primary">Xem</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<div class="container mt-5">
+  <div>
+    <h2 class="fw-bold mb-0">Order Management</h2>
+    <p class="text-muted">Manage your store's orders</p>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-dark text-white text-center py-3 mt-5">
-    © 2025 StyleLegacy Admin Panel
-  </footer>
+  <table class="table table-bordered table-hover align-middle text-center">
+    <thead class="table-dark">
+    <tr>
+      <th>Order ID</th>
+      <th>Customer</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${orders}">
+      <td th:text="${order.id}">#1024</td>
+      <td th:text="${order.user.fullName}">John Doe</td>
+      <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">2025-07-20</td>
+      <td ><span th:text="${order.status.statusName}" class="badge bg-warning text-dark">Pending</span></td>
+      <td>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                onclick="loadOrderDetails(1024)">Confirm</button>
+      </td>
+    </tr>
+    <!-- Add more rows here -->
+    </tbody>
+  </table>
+</div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Order details go here -->
+        <p><strong>Order ID:</strong> <span id="orderId">...</span></p>
+        <p><strong>Customer:</strong> John Doe</p>
+        <p><strong>Shipping Address:</strong> 123 Sample St, Hanoi</p>
+        <p><strong>Items:</strong></p>
+        <ul>
+          <li>White T-shirt x1 - $19.99</li>
+          <li>Black Jeans x2 - $49.99</li>
+        </ul>
+        <p><strong>Total:</strong> $119.97</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success">Confirm Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function loadOrderDetails(orderId) {
+    // You could load real data here via JS if needed
+    document.getElementById("orderId").innerText = "#" + orderId;
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
