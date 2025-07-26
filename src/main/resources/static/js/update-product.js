@@ -173,14 +173,42 @@ document.getElementById("updateForm").addEventListener("submit", async function 
         try {
             const json = JSON.parse(text);
             console.log("[DEBUG] Server JSON response:", json);
-            alert("Update successfully!");
-            window.location.reload();
+
+            // ❗ TẮT MODAL bằng Bootstrap API
+            const modalElement = document.getElementById("editProductModal");
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            // ✅ Hiện toast thông báo
+            Swal.fire({
+                icon: 'success',
+                title: 'Update sucessfully !',
+                showConfirmButton: false,
+                timer: 2000,
+                toast: true,
+                position: 'top'
+            });
+
+            // 🔁 Reload sau khi toast xong
+            setTimeout(() => window.location.reload(), 2000);
+
         } catch (jsonError) {
             console.error("[ERROR] Response không phải JSON:\n", text);
-            alert("Lỗi từ server: " + text);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi máy chủ!',
+                text: text,
+            });
         }
     } catch (err) {
         console.error("[ERROR] Lỗi fetch:", err);
-        alert("Lỗi: " + err.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi mạng!',
+            text: err.message,
+        });
     }
+
 });

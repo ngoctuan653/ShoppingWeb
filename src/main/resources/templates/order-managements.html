@@ -35,7 +35,7 @@
       <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">2025-07-20</td>
       <td ><span th:text="${order.status.statusName}" class="badge bg-warning text-dark">Pending</span></td>
       <td>
-        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal"
+        <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#confirmModal"
                 onclick="loadOrderDetails(1024)">Confirm</button>
       </td>
     </tr>

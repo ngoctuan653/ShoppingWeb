@@ -79,7 +79,7 @@ public class ProductController {
 
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<Product> searchProducts(@RequestParam(required = false) String keyword,
+    public Page<Product> searchProducts(@RequestParam(required = false) String keyword,
                                         @RequestParam(required = false) Double minPrice,
                                         @RequestParam(required = false) Double maxPrice,
                                         @RequestParam(required = false) List<Long> categories,
@@ -218,18 +218,6 @@ public class ProductController {
         model.addAttribute("product", product);
         return "product-detail"; // -> product-detail.html
     }
-
-//    @GetMapping("/{productId}/sizes")
-//    @ResponseBody
-//    public ResponseEntity<List<SizeDTO>> getSizesByProduct(@PathVariable Integer productId) {
-//        List<Size> sizes = productService.getSizesByProductId(productId);
-//
-//        List<SizeDTO> result = sizes.stream()
-//                .map(size -> new SizeDTO(size.getId(), size.getSizeLabel()))
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(result);
-//    }
 
     @GetMapping("/{id}/sizes")
     public ResponseEntity<List<SizeDTO>> getProductSizes(@PathVariable Integer id) {

@@ -200,10 +200,6 @@
     let currentPage = 1;
     const pageSize = 6;
     const loadMoreBtn = document.getElementById("loadMoreBtn");
-    // const searchInput = document.getElementById("searchInput");
-    // const productGrid = document.getElementById("productGrid");
-    // const minPriceInput = document.getElementById("minPrice");
-    // const maxPriceInput = document.getElementById("maxPrice");
 
     // 🔧 Helper
     function getCheckedValues(selector) {
@@ -222,7 +218,7 @@
         const selectedBrands = getCheckedValues(".brand-filter");
 
         const params = new URLSearchParams();
-        params.append("page", currentPage);
+        params.append("page", currentPage); // dùng đúng currentPage hiện tại
         params.append("size", pageSize);
         if (keyword) params.append("keyword", keyword);
         if (minPrice) params.append("minPrice", minPrice);
@@ -231,10 +227,12 @@
         selectedSubcategories.forEach(id => params.append("subcategories", id));
         selectedBrands.forEach(id => params.append("brands", id));
 
-        // 📦 Gọi API load thêm
         fetch(`/search?${params.toString()}`)
             .then(res => res.json())
-            .then(products => {
+            .then(pageData => {
+                const products = pageData.content; // content là danh sách sản phẩm
+                const isLast = pageData.last;      // kiểm tra trang cuối
+
                 if (!Array.isArray(products) || products.length === 0) {
                     loadMoreBtn.style.display = "none";
                     return;
@@ -242,43 +240,39 @@
 
                 products.forEach(product => {
                     const productImage = product.image ? `data:image/jpeg;base64,${product.image}` : '/images/default.png';
-
                     const productCard = `
-                    <div class="col-md-4 mb-4 fade-in">
-                        <div class="card h-100 shadow-sm">
-                            <a href="/products/${product.id}">
-                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
+                <div class="col-md-4 mb-4 fade-in">
+                    <div class="card h-100 shadow-sm">
+                        <a href="/products/${product.id}">
+                            <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <a href="/products/${product.id}" class="text-decoration-none text-dark">
+                                <h5 class="card-title">${product.productName}</h5>
                             </a>
-                            <div class="card-body d-flex flex-column">
-                                <a href="/products/${product.id}" class="text-decoration-none text-dark">
-                                    <h5 class="card-title">${product.productName}</h5>
-                                </a>
-                                <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
-                                <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
-                                <div class="mt-auto">
-                                    <p class="fw-bold">$${product.price}</p>
-                                </div>
+                            <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
+                            <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
+                            <div class="mt-auto">
+                                <p class="fw-bold">$${product.price}</p>
                             </div>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
                     productGrid.insertAdjacentHTML("beforeend", productCard);
                 });
 
                 currentPage++;
-                loadMoreBtn.disabled = false;
-                loadMoreBtn.textContent = "Load More Products";
-
-                if (products.length < pageSize) {
+                if (isLast) {
                     loadMoreBtn.style.display = "none";
+                } else {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = "Load More Products";
                 }
-            })
-            .catch(err => {
-                console.error("❌ Error loading products:", err);
-                loadMoreBtn.textContent = "Load More Products";
-                loadMoreBtn.disabled = false;
             });
+
     };
+
 
     loadMoreBtn?.addEventListener("click", loadMoreProducts);
 
