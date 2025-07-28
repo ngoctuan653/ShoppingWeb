@@ -1,82 +1,72 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-
 	<meta charset="UTF-8">
-	<title>Order History</title>
+	<title>Order History - StyleLegacy</title>
+
+	<!-- Bootstrap 5 CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Bootstrap Icons -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+	<!-- Custom CSS -->
+	<link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body style="padding-top: 50px;">
-	
+<!-- Navigation Bar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
 
-	<!-- Navigation Bar -->
-	<div th:replace="fragments/header-navbar :: navbar"></div>
-
-	<div class="container my-5">
-		<h2 class="fw-bold text-center mb-4">Order History</h2>
-
-		<div class="mb-4 text-center">
-			<input type="text" class="form-control w-50 d-inline-block me-2"
-				placeholder="Search by order ID or product...">
-			<button class="btn btn-dark">Search</button>
+<section class="py-5">
+	<div class="container">
+		<h1 class="fw-bold mb-2">Order History</h1>
+		<div class="row">
+			<div class="col-12">
+				<div class="card shadow">
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table table-bordered align-middle text-center">
+								<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Date</th>
+									<th>Total</th>
+									<th>Status</th>
+									<th>Detail</th>
+								</tr>
+								</thead>
+								<tbody>
+								<tr th:each="orderDTO : ${orders}">
+									<td th:text="${orderDTO.order.displayCode}">OD00000023</td>
+									<td th:text="${#dates.format(orderDTO.order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">
+										01/01/2025
+									</td>
+									<td th:text="${#numbers.formatDecimal(orderDTO.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">
+										100000
+									</td>
+									<td th:text="${orderDTO.order.status.statusName}">Delivered</td>
+									<td>
+										<a th:href="@{/order/detail/{id}(id=${orderDTO.order.id})}" class="btn btn-sm btn-outline-dark">
+											<i class="bi bi-eye"></i> View
+										</a>
+									</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+	</div>
+</section>
 
-		<div class="table-responsive">
-			<table class="table table-bordered align-middle">
-				<thead class="table-dark text-center">
-					<tr>
-						<th>Order ID</th>
-						<th>Order Date</th>
-						<th>Total</th>
-						<th>Status</th>
-						<th>Products</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				 <tbody class="text-center">
-				                    <tr th:each="order : ${orders}">
-				                        <td th:text="${order.formattedId}">OD00000101</td>
-				                        <td th:text="${#dates.format(order.order.orderDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
-				                        <td th:text="${#numbers.formatDecimal(order.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">100 $</td>
-				                        <td>
-				                            <span class="badge bg-success" th:if="${order.order.status.statusName == 'Đã giao'}"
-				                                  th:text="${order.order.status.statusName}"></span>
-				                            <span class="badge bg-warning text-dark" th:if="${order.order.status.statusName == 'Đang xử lý'}"
-				                                  th:text="${order.order.status.statusName}"></span>
-				                            <span class="badge bg-secondary"
-				                                  th:if="${order.order.status.statusName != 'Đã giao' and order.order.status.statusName != 'Đang xử lý'}"
-				                                  th:text="${order.order.status.statusName}"></span>
-				                        </td>
-				                        <td>
-				                            <ul class="list-unstyled mb-0" th:each="detail : ${orderDetailsMap[order.order.id]}">
-				                                <li>
-				                                    <span th:text="${detail.product.productName}">Shirt</span>
-				                                    (<span th:text="${detail.size.sizeLabel}">M</span>) x
-				                                    <span th:text="${detail.quantity}">2</span>
-				                                </li>
-				                            </ul>
-				                        </td>
-				                        <td>
-				                            <a th:href="@{/orders/view/{id}(id=${order.order.id})}"
-				                               class="btn btn-primary btn-sm me-1">View</a>
-				                            <a th:href="@{/orders/delete/{id}(id=${order.order.id})}"
-				                               class="btn btn-danger btn-sm">Delete</a>
-				                        </td>
-				                    </tr>
-				                </tbody>
-				            </table>
-				        </div>
-				        <div th:if="${orders == null or #lists.isEmpty(orders)}">
-				            <p class="text-muted text-center">No order</p>
-				        </div>
-				    </div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="fragments/cart :: cart"></div>
 
-				    <!-- Footer -->
-				    <div th:replace="~{fragments/footer :: footer}"></div>
-
-				    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-				</body>
-				</html>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="/js/script.js"></script>
+</body>
+</html>
