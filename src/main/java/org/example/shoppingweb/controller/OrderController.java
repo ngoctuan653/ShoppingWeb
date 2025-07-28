@@ -70,24 +70,7 @@ public class OrderController {
     }
 
     
-    @GetMapping("/orders/view/{id}")
-    public String viewOrderDetail(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        User currentUser = userDetails.getUser();
-        Order order = orderRepository.findById(id).orElse(null);
-
-        System.out.println("Current User ID: " + currentUser.getId() + ", Checking order ID: " + id);
-        System.out.println("Order found: " + (order != null ? order.getId() : "null"));
-        System.out.println("Order User ID: " + (order != null ? order.getUser().getId() : "null"));
-        System.out.println("Order User FullName: " + (order != null && order.getUser() != null ? order.getUser().getFullName() : "null"));
-        System.out.println("Order Status ID: " + (order != null ? order.getStatus().getId() : "null"));
-        System.out.println("Order Status Name: " + (order != null && order.getStatus() != null ? order.getStatus().getStatusName() : "null"));
-        System.out.println("Order Details size: " + (order != null ? orderDetailRepository.findByOrder(order).size() : 0));
-        if (order != null) {
-            for (Orderdetail detail : orderDetailRepository.findByOrder(order)) {
-                System.out.println("OrderDetail ID: " + detail.getId() + ", Quantity: " + detail.getQuantity() + ", UnitPrice: " + detail.getUnitPrice());
-            }
-        }
-    }
+   
 
     @PostMapping("/order/{orderId}/confirm")
     @ResponseBody
