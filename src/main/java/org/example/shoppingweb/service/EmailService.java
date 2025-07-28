@@ -21,7 +21,7 @@ public class EmailService {
 
     public void sendOrderConfirmation(String toEmail, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("anhldhe180218@fpt.edu.vn");
+        message.setFrom("viethoang2454@gmail.com");
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(body);
@@ -30,7 +30,7 @@ public class EmailService {
     }
 
     public void sendContactEmail(Contact contact) {
-        String to = "anhldhe180218@fpt.edu.vn";
+        String to = "viethoang2454@gmail.com";
         String subject = "New Contact: " + contact.getSubject();
         String content = "From: " + contact.getFullName() + "\n"
                 + "Email: " + contact.getEmail() + "\n"

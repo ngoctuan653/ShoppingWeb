@@ -26,7 +26,8 @@ public class WishlistController {
     private HttpSession session; // Thêm để fallback nếu cần
 
     @GetMapping
-    public String showWishlist(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String showWishlist(Model model,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = null;
         if (userDetails != null) {
             currentUser = userDetails.getUser();
