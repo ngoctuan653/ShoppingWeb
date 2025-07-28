@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,90 +9,351 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .hero-contact {
+            /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+            background: black;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-contact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            opacity: 0.5;
+        }
+
+        .contact-hero-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-top: -120px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .contact-info-card {
+            transition: all 0.3s ease;
+            border: none;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 30px 20px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .contact-info-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .contact-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-info-card:hover .contact-icon::after {
+            opacity: 1;
+        }
+
+        .contact-form {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: #fff;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .map-container {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 1;
+        }
+
+        .faq-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .accordion-item {
+            border: none;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .accordion-button {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: none;
+            font-weight: 600;
+            padding: 20px 25px;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: none;
+        }
+
+        .accordion-button::after {
+            transition: transform 0.3s ease;
+        }
+
+        .fade-up {
+            animation: fadeUp 0.6s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(2) {
+            animation-delay: -2s;
+            background: rgba(118, 75, 162, 0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+            margin: 60px 0;
+        }
+    </style>
 </head>
 <body>
 <!-- Navigation Bar -->
 <div th:replace="fragments/header-navbar :: navbar"></div>
 
 <!-- Hero Section -->
-<section class="contact-hero">
-    <div class="container">
-        <div class="row align-items-center min-vh-50">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Get in Touch</h1>
-                <p class="lead text-muted mb-4">
-                    We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+<section class="hero-contact d-flex align-items-center position-relative">
+    <div class="floating-element" style="top: 20%; left: 10%;"></div>
+    <div class="floating-element" style="top: 60%; right: 15%;"></div>
+    <div class="container position-relative z-2">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-3 fw-bold mb-4">
+                    Let's Connect
+                </h1>
+                <p class="lead mb-4 opacity-75">
+                    Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
                 </p>
-                <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-clock text-dark me-3 fs-5"></i>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                        <i class="fas fa-clock text-white fs-4"></i>
+                    </div>
                     <div>
-                        <strong>Response Time:</strong>
-                        <span class="text-muted">Usually within 24 hours</span>
+                        <h6 class="mb-1 fw-bold">Quick Response</h6>
+                        <small class="opacity-75">Usually within 24 hours</small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                     alt="Contact Us" class="img-fluid rounded shadow">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                         alt="Contact Us" class="img-fluid rounded-4 shadow-lg" style="border-radius: 20px;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient rounded-4" style="background: linear-gradient(45deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));"></div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Contact Information -->
-<section class="py-5 bg-light">
+<!-- Contact Information Cards -->
+<section class="py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card text-center h-100">
-                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 80px; height: 80px;">
-                        <i class="bi bi-geo-alt fs-3"></i>
+        <div class="contact-hero-card shadow-lg p-5">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="contact-info-card text-center fade-up">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt text-white fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Visit Our Store</h4>
+                        <p class="text-muted mb-3">
+                            123 Fashion Street<br>
+                            Hoa Lac, Ha Noi<br>
+                            Viet Nam
+                        </p>
+                        <a href="#map-section" class="btn btn-outline-primary rounded-pill">
+                            <i class="fas fa-directions me-2"></i>Get Directions
+                        </a>
                     </div>
-                    <h4 class="fw-bold">Visit Our Store</h4>
-                    <p class="text-muted">
-                        123 Fashion Street<br>
-                        Hoa Lac, Ha Noi<br>
-                        Viet Nam
-                    </p>
-                    <a href="#" class="btn btn-outline-dark btn-sm">Get Directions</a>
                 </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card text-center h-100">
-                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 80px; height: 80px;">
-                        <i class="bi bi-telephone fs-3"></i>
+                <div class="col-lg-4">
+                    <div class="contact-info-card text-center fade-up" style="animation-delay: 0.2s;">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone text-white fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Call Us</h4>
+                        <p class="text-muted mb-3">
+                            Customer Service:<br>
+                            <strong class="text-primary">+1 (555) 123-4567</strong><br>
+                            Mon-Fri 9AM-6PM EST
+                        </p>
+                        <a href="tel:+15551234567" class="btn btn-outline-success rounded-pill">
+                            <i class="fas fa-phone me-2"></i>Call Now
+                        </a>
                     </div>
-                    <h4 class="fw-bold">Call Us</h4>
-                    <p class="text-muted">
-                        Customer Service:<br>
-                        <strong>+1 (555) 123-4567</strong><br>
-                        Mon-Fri 9AM-6PM EST
-                    </p>
-                    <a href="tel:+15551234567" class="btn btn-outline-dark btn-sm">Call Now</a>
                 </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card text-center h-100">
-                    <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 80px; height: 80px;">
-                        <i class="bi bi-envelope fs-3"></i>
+                <div class="col-lg-4">
+                    <div class="contact-info-card text-center fade-up" style="animation-delay: 0.4s;">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope text-white fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Email Us</h4>
+                        <p class="text-muted mb-3">
+                            General Inquiries:<br>
+                            <strong class="text-primary">info@stylelegacy.com</strong><br>
+                            Support: support@stylelegacy.com
+                        </p>
+                        <a href="mailto:info@stylelegacy.com" class="btn btn-outline-info rounded-pill">
+                            <i class="fas fa-envelope me-2"></i>Send Email
+                        </a>
                     </div>
-                    <h4 class="fw-bold">Email Us</h4>
-                    <p class="text-muted">
-                        General Inquiries:<br>
-                        <strong>info@stylelegacy.com</strong><br>
-                        Support: support@stylelegacy.com
-                    </p>
-                    <a href="mailto:info@stylelegacy.com" class="btn btn-outline-dark btn-sm">Send Email</a>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<div class="section-divider"></div>
 
 <!-- Contact Form -->
 <section class="py-5">
@@ -100,89 +361,97 @@
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="text-center mb-5">
-                    <h2 class="fw-bold">Send Us a Message</h2>
-                    <p class="text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
+                    <h2 class="display-5 fw-bold mb-3">Send Us a Message</h2>
+                    <p class="lead text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
                 </div>
-                <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="firstName" class="form-label">First Name *</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName" required>
-                            <div class="invalid-feedback">Please provide your first name.</div>
+                <div class="contact-form">
+                    <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>First Name *
+                                </label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                <div class="invalid-feedback">Please provide your first name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Last Name *
+                                </label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                <div class="invalid-feedback">Please provide your last name.</div>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="lastName" class="form-label">Last Name *</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" required>
-                            <div class="invalid-feedback">Please provide your last name.</div>
+
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email Address *
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">Please provide a valid email address.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label fw-semibold">
+                                    <i class="fas fa-phone me-2 text-primary"></i>Phone Number
+                                </label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email Address *</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div class="invalid-feedback">Please provide a valid email address.</div>
+                        <div class="mt-4">
+                            <label for="subject" class="form-label fw-semibold">
+                                <i class="fas fa-tag me-2 text-primary"></i>Subject *
+                            </label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">Choose a subject...</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="order">Order Support</option>
+                                <option value="return">Returns & Exchanges</option>
+                                <option value="product">Product Question</option>
+                                <option value="complaint">Complaint</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a subject.</div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone">
+
+                        <div class="mt-4">
+                            <label for="message" class="form-label fw-semibold">
+                                <i class="fas fa-comment me-2 text-primary"></i>Message *
+                            </label>
+                            <textarea class="form-control" id="message" name="message" rows="6" required
+                                      placeholder="Please provide details about your inquiry..."></textarea>
+                            <div class="invalid-feedback">Please provide your message.</div>
                         </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="subject" class="form-label">Subject *</label>
-                        <select class="form-select" id="subject" name="subject" required>
-                            <option value="">Choose a subject...</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="order">Order Support</option>
-                            <option value="return">Returns & Exchanges</option>
-                            <option value="product">Product Question</option>
-                            <option value="complaint">Complaint</option>
-                            <option value="other">Other</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a subject.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Message *</label>
-                        <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Please provide details about your inquiry..."></textarea>
-                        <div class="invalid-feedback">Please provide your message.</div>
-                    </div>
-
-<!--                    <div class="mb-3 form-check">-->
-<!--                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">-->
-<!--                        <label class="form-check-label" for="newsletter">-->
-<!--                            I would like to receive updates and promotional emails-->
-<!--                        </label>-->
-<!--                    </div>-->
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-dark btn-lg px-5">
-                            <i class="bi bi-send me-2"></i>Send Message
-                        </button>
-                    </div>
-                </form>
-
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-submit text-white btn-lg px-5">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
+<div class="section-divider"></div>
+
 <!-- Map Section -->
-<section class="py-5 bg-light">
+<section class="py-5" id="map-section">
     <div class="container">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Find Our Store</h2>
-            <p class="text-muted">Visit us at our flagship location in the heart of Hoa Lac</p>
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Find Our Store</h2>
+            <p class="lead text-muted">Visit us at our flagship location in the heart of Hoa Lac</p>
         </div>
         <div class="row">
             <div class="col-12">
-                <div class="map-container rounded shadow">
-                    <!-- Embedded Google Map -->
+                <div class="map-container">
                     <iframe
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878459418!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1635959542132!5m2!1sen!2s"
                             width="100%"
-                            height="400"
+                            height="450"
                             style="border:0;"
                             allowfullscreen=""
                             loading="lazy">
@@ -194,11 +463,11 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="py-5">
+<section class="py-5 faq-section">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Frequently Asked Questions</h2>
-            <p class="text-muted">Quick answers to common questions</p>
+            <h2 class="display-5 fw-bold mb-3">Frequently Asked Questions</h2>
+            <p class="lead text-muted">Quick answers to common questions</p>
         </div>
         <div class="row">
             <div class="col-lg-8 mx-auto">
@@ -207,13 +476,13 @@
                         <h2 class="accordion-header" id="faq1">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse1">
-                                What are your store hours?
+                                <i class="fas fa-clock me-3"></i>What are your store hours?
                             </button>
                         </h2>
                         <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 Our store is open Monday through Friday from 9:00 AM to 6:00 PM EST.
-                                We're closed on weekends and major holidays.
+                                We're closed on weekends and major holidays. Online shopping is available 24/7.
                             </div>
                         </div>
                     </div>
@@ -221,13 +490,13 @@
                         <h2 class="accordion-header" id="faq2">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse2">
-                                How long does shipping take?
+                                <i class="fas fa-shipping-fast me-3"></i>How long does shipping take?
                             </button>
                         </h2>
                         <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 Standard shipping takes 3-5 business days. Express shipping (1-2 business days)
-                                and overnight shipping options are also available at checkout.
+                                and overnight shipping options are also available at checkout for additional fees.
                             </div>
                         </div>
                     </div>
@@ -235,13 +504,13 @@
                         <h2 class="accordion-header" id="faq3">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse3">
-                                What is your return policy?
+                                <i class="fas fa-undo me-3"></i>What is your return policy?
                             </button>
                         </h2>
                         <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 We offer a 30-day return policy for unworn items with original tags.
-                                Items must be in original condition for a full refund.
+                                Items must be in original condition for a full refund. Return shipping is free for exchanges.
                             </div>
                         </div>
                     </div>
@@ -249,13 +518,13 @@
                         <h2 class="accordion-header" id="faq4">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse4">
-                                Do you offer international shipping?
+                                <i class="fas fa-globe me-3"></i>Do you offer international shipping?
                             </button>
                         </h2>
                         <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 Yes, we ship to over 25 countries worldwide. International shipping rates
-                                and delivery times vary by destination.
+                                and delivery times vary by destination. Customs fees may apply.
                             </div>
                         </div>
                     </div>
@@ -265,7 +534,7 @@
     </div>
 </section>
 
-<!--Toast-->
+<!-- Toast Notification -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
     <div id="contactToast" class="toast align-items-center text-bg-success border-0" role="alert"
          aria-live="assertive" aria-atomic="true">
@@ -279,10 +548,31 @@
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
-
 <div th:replace="fragments/cart :: cart"></div>
 
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
+
 <script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Toast notification
     window.addEventListener('DOMContentLoaded', function () {
         const toastEl = document.getElementById('contactToast');
         if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
@@ -290,12 +580,39 @@
             toast.show();
         }
     });
-</script>
 
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom JS -->
-<script src="contact.js"></script>
-<script src="/js/script.js"></script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-up');
+            }
+        });
+    }, observerOptions);
+
+    // Observe elements for animation
+    document.querySelectorAll('.contact-info-card, .contact-form').forEach(el => {
+        observer.observe(el);
+    });
+</script>
 </body>
 </html>

@@ -64,7 +64,7 @@
 				<h1 class="display-6 fw-bold mb-3" th:text="${product.productName}">Product Name</h1>
 				<p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
 				<p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
-				<p class="mb-4 fs-5" th:text="${product.description}">Product description</p>
+				<p class="mb-4 fs-5" th:utext="${product.description}">Product description</p>
 				<div class="price-tag mb-4" th:text="'$' + ${product.price}">$0.00</div>
 
 
@@ -88,11 +88,11 @@
 						th:attr="data-id=${product.id}">
 						<i class="bi bi-cart-plus me-2"></i>Add to Cart
 					</button>
-					<button class="btn btn-outline-dark btn-lg add-to-wishlist-btn" 
-						th:attr="data-id=${product.id}">
-						<i class="bi bi-heart me-2"></i>Add to Wishlist
+					<button th:class="'btn btn-lg add-to-wishlist-btn ' + (${inWishlist} ? 'btn-dark' : 'btn-outline-dark')"
+							th:attr="data-id=${product.id}">
+						<i class="bi" th:classappend="${inWishlist} ? 'bi-heart-fill me-2' : 'bi-heart me-2'"></i>
+						<span th:text="${inWishlist} ? 'Remove from Wishlist' : 'Add to Wishlist'">Add to Wishlist</span>
 					</button>
-					
 					<a th:href="@{/shop}" class="btn btn-outline-secondary btn-lg">Back to Shop</a>
 				</div>
 			</div>
@@ -109,9 +109,6 @@
 	
 	<div th:replace="fragments/cart :: cart"></div>
 	<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
-	
-	
-
 </body>
 
 </html>

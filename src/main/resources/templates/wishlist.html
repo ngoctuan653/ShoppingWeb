@@ -3,115 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist | Clothes Shopping</title>
+    <title>My Wishlist | StyleLegacy</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        body {
-            padding-top: 50px; /* Giống các trang khác */
-        }
-        .product-card:hover .product-actions {
-            opacity: 1;
-        }
-        .product-actions {
-            opacity: 0.9;
-            display: flex;
-            gap: 8px;
-        }
-        .product-card .product-actions button {
-            background-color: #fff;
-            border: 1px solid #e5e7eb;
-            padding: 8px;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s;
-        }
-        .product-card .product-actions button:hover {
-            background-color: #f3f4f6;
-        }
-        .empty-wishlist {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23e5e7eb" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 20%;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/wishlist-styles.css">
+
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <div th:replace="fragments/header-navbar :: navbar"></div>
+<!-- Navigation Bar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
 
-    <main class="container mx-auto px-4 py-8">
-        <!-- Wishlist Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">My Wishlist</h1>
-                <p class="text-gray-600 mt-2">Saved items you love</p>
+<!-- Hero Section -->
+<section class="hero-wishlist d-flex align-items-center">
+    <div class="container position-relative z-2">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-heart me-3 text-pink"></i>Wishlist
+                </h1>
+                <p class="lead mb-0 opacity-75">
+                    Your collection of favorite items, saved for later
+                </p>
             </div>
-            <div class="mt-4 md:mt-0 flex items-center space-x-4">
-                <div class="relative">
-                    <select class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-4 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500">
-                        <option>Sort by: Recently Added</option>
-                        <option>Sort by: Price Low to High</option>
-                        <option>Sort by: Price High to Low</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                        <i class="fas fa-chevron-down text-gray-500"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <!-- Wishlist Header Card -->
+    <div class="card wishlist-header shadow-lg border-0 mb-5">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-card rounded-circle p-3 me-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-heart text-danger fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">Saved Items</h4>
+                            <p class="text-muted mb-0" th:text="|${#lists.size(wishlistItems)} items in your wishlist|">0 items in your wishlist</p>
+                        </div>
                     </div>
                 </div>
-                <span class="text-gray-700 font-medium" th:text="|${#lists.size(wishlistItems)} items|">0 items</span>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-md-end">
+                        <select class="form-select form-select-sm" id="sort-select" style="max-width: 200px;">
+                            <option value="recent">Sort by: Recently Added</option>
+                            <option value="priceAsc">Sort by: Price Low to High</option>
+                            <option value="priceDesc">Sort by: Price High to Low</option>
+                            <option value="nameAsc">Sort by: Name A-Z</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Content -->
+    <div class="row">
+        <!-- Empty Wishlist State -->
+        <div class="col-12" th:if="${#lists.isEmpty(wishlistItems)}">
+            <div class="empty-state d-flex align-items-center justify-content-center position-relative">
+                <div class="text-center position-relative z-2 p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-heart-broken text-muted" style="font-size: 5rem; opacity: 0.3;"></i>
+                    </div>
+                    <h3 class="fw-bold text-muted mb-3">Your wishlist is empty</h3>
+                    <p class="text-muted mb-4 lead">
+                        Discover amazing products and save your favorites here
+                    </p>
+                    <a th:href="@{/shop}" class="btn btn-dark btn-lg px-4">
+                        <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Wishlist Content -->
-        <div class="wishlist-content">
-            <!-- Wishlist Items Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Empty Wishlist State -->
-                <div class="empty-wishlist flex flex-col items-center justify-center py-16 bg-gray-50 rounded-lg mt-8" th:classappend="${#lists.isEmpty(wishlistItems)} ? '' : 'hidden'">
-                    <div class="text-center max-w-md mx-auto">
-                        <i class="fas fa-heart text-gray-300 text-6xl mb-4"></i>
-                        <h3 class="text-2xl font-bold text-gray-700 mb-2">Your wishlist is empty</h3>
-                        <p class="text-gray-500 mb-6">Save your favorite items here to keep track of what you love</p>
-                        <a th:href="@{/shop}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-6 rounded-md transition-colors">Start Shopping</a>
-                    </div>
-                </div>
+        <!-- Wishlist Items Grid -->
+        <div th:unless="${#lists.isEmpty(wishlistItems)}">
+            <div class="row g-4" id="wishlist-items-container">
+                <div class="col-lg-3 col-md-4 col-sm-6" th:each="item : ${wishlistItems}">
+                    <div class="card product-card h-100 position-relative fade-in">
+                        <!-- Product Actions -->
+                        <div class="product-actions">
+                            <form class="wishlist-remove-form" th:action="@{/wishlist/remove}" method="post">
+                                <input type="hidden" name="productId" th:value="${item.product.id}">
+                                <button type="submit" class="action-btn remove" title="Remove from wishlist">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
 
-                <div th:each="item : ${wishlistItems}" class="product-card bg-white border rounded-lg p-4 relative">
-                    <img th:src="@{'/product/image/' + ${item.product.id}}" alt="Product Image" class="w-full h-48 object-cover rounded-md mb-4">
-                    <h3 th:text="${item.product.productName}" class="text-lg font-semibold text-gray-800"></h3>
-                    <p th:text="'$' + ${item.product.price}" class="text-gray-600"></p>
-                    <div class="product-actions absolute top-2 right-2 opacity-0.9 display: flex; gap: 8px;">
-                        <form th:action="@{/wishlist/remove}" method="post">
-                            <input type="hidden" name="productId" th:value="${item.product.id}">
-                            <button class="remove-wishlist bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-trash text-gray-500"></i>
-                            </button>
-                        </form>
-                        <form th:action="@{/wishlist/move-to-cart/{productId}(productId=${item.product.id})}" method="post">
-                            <button class="move-to-cart bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-shopping-cart text-gray-500"></i>
-                            </button>
-                        </form>
+                        <!-- Product Link -->
+                        <a th:href="@{'/products/' + ${item.product.id}}" class="text-decoration-none text-dark">
+                            <img th:if="${item.product.image != null}"
+                                 th:src="@{'/products/image/' + ${item.product.id}}"
+                                 class="card-img-top"
+                                 alt="Product Image"
+                                 style="height: 350px; object-fit: cover;">
+                            <img th:if="${item.product.image == null}"
+                                 th:src="@{/images/default.png}"
+                                 class="card-img-top"
+                                 alt="Default Product Image"
+                                 style="height: 350px; object-fit: cover;">
+                        </a>
+
+                        <div class="card-body d-flex flex-column">
+                            <a th:href="@{'/products/' + ${item.product.id}}" class="text-decoration-none text-dark">
+                                <h5 class="card-title mb-2" th:text="${item.product.productName}">Product Name</h5>
+                            </a>
+                            <p class="card-text text-muted small mb-2" th:text="${item.product.subcategory?.subcategoryName}">Subcategory</p>
+                            <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">Category</p>
+                            <div class="mt-auto">
+                                <p class="fw-bold mb-0 fs-5" th:text="'$' + ${item.product.price}">$0.00</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-end" th:classappend="${#lists.isEmpty(wishlistItems)} ? 'hidden' : ''">
-                <form th:action="@{/wishlist/move-all-to-cart}" method="post">
-                    <button type="submit" class="move-all-to-cart bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-6 rounded-md transition-colors flex items-center">
-                        <i class="fas fa-shopping-cart mr-2"></i>Move All to Cart
-                    </button>
-                </form>
+            <!-- Bottom Actions -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center p-4">
+                            <h5 class="mb-3">Ready to make a purchase?</h5>
+                            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                                <a th:href="@{/shop}" class="btn btn-outline-dark btn-lg px-4">
+                                    <i class="fas fa-plus me-2"></i>Continue Shopping
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
+</div>
+<script src="/js/script.js"></script>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="fragments/cart :: cart"></div>
+<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <div th:replace="fragments/footer :: footer"></div>
+<script>
+    // Add smooth animations on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.wishlist-remove-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                const productId = form.querySelector('input[name="productId"]').value;
+                const productCard = form.closest('.col-lg-3');
+
+                fetch('/wishlist/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `productId=${productId}`
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Xóa thất bại");
+                        return response.text();
+                    })
+                    .then(() => {
+                        productCard.remove();
+                        showToast("Removed from wishlist", "danger");
+
+                        if (document.querySelectorAll('.product-card').length === 0) {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500); // chờ để toast hiện xong
+                        }
+                    })
+                        .catch(err => {
+                        console.error("❌ Lỗi khi xóa khỏi wishlist:", err);
+                        showToast("Xóa thất bại!", "warning");
+                    });
+            });
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sortSelect = document.getElementById('sort-select');
+
+        sortSelect.addEventListener('change', function () {
+            const sortBy = this.value;
+
+            fetch(`/wishlist/sort?sortBy=${sortBy}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi khi lấy dữ liệu sắp xếp");
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("wishlist-items-container").innerHTML = html;
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi sắp xếp:", err);
+                    showToast("Sắp xếp thất bại!", "warning");
+                });
+        });
+    });
+</script>
+
 </body>
 </html>

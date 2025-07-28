@@ -7,6 +7,7 @@ import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.ProductSizeRepository;
 import org.example.shoppingweb.repository.SizeRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +48,8 @@ public class ProductController {
     private SubCategoryService subCategoryService;
     @Autowired
     private ProductSizeService productSizeService;
+    @Autowired
+    private WishlistService wishlistService;
 
     @GetMapping("/shop")
     public String showProduct(Model model) {
@@ -213,11 +217,22 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public String getProductDetail(@PathVariable Integer id, Model model) {
+    public String getProductDetail(@PathVariable Integer id,
+                                   Model model,
+                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
         Product product = productService.findById(id);
         model.addAttribute("product", product);
-        return "product-detail"; // -> product-detail.html
+
+        boolean inWishlist = false;
+        if (userDetails != null) {
+            User currentUser = userDetails.getUser();
+            inWishlist = wishlistService.existsInWishlist(currentUser.getId(), id);
+        }
+
+        model.addAttribute("inWishlist", inWishlist);
+        return "product-detail";
     }
+
 
     @GetMapping("/{id}/sizes")
     public ResponseEntity<List<SizeDTO>> getProductSizes(@PathVariable Integer id) {

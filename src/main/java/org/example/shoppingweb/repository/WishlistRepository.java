@@ -1,5 +1,7 @@
 package org.example.shoppingweb.repository;
 
+import org.example.shoppingweb.entity.Product;
+import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.entity.Wishlist;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +16,7 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
     void deleteAllByUserId(Integer userId);
 
     Optional<Wishlist> findByUserIdAndProductId(Integer userId, Integer productId);
+
+    boolean existsByUserIdAndProductId(Integer userId, Integer productId);
+
 }

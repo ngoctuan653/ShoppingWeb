@@ -137,14 +137,15 @@
                     <div class="swiper-slide" th:each="product : ${products}">
                         <div class="card product-card h-100">
                             <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
-                                <img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}" class="card-img-top" alt="Product Image">
-                                <img th:if="${product.image == null}" th:src="@{/images/default.png}" class="card-img-top" alt="Default Product Image">
+                                <img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}" style="height: 350px; object-fit: cover;" class="card-img-top" alt="Product Image">
+                                <img th:if="${product.image == null}" th:src="@{/images/default.png}" style="height: 350px; object-fit: cover;" class="card-img-top" alt="Default Product Image">
                             </a>
                             <div class="card-body">
                                 <a th:href="@{'/products/' + ${product.id}}" class="text-decoration-none text-dark">
                                     <h5 class="card-title" th:text="${product.productName}">Product Name</h5>
                                 </a>
-                                <p class="card-text text-muted" th:text="${product.description}">Product description</p>
+                                <p class="card-text text-muted" th:text="${product.subcategory.subcategoryName}"></p>
+                                <p class="card-text text-muted" th:text="${product.category.categoryName}"></p>
                                 <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
                             </div>
                         </div>

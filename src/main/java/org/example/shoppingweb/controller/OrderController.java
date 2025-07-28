@@ -14,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +67,19 @@ public class OrderController {
         return "order-history";
     }
 
-    
-   
+
+    @PostMapping("/order/{orderId}/cancel")
+    @ResponseBody
+    public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            orderService.cancelOrder(orderId, userDetails.getUser());
+            return ResponseEntity.ok().body(Map.of("message", "Order cancelled successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Order cannot be cancelled!"));
+        }
+    }
+
 
     @PostMapping("/order/{orderId}/confirm")
     @ResponseBody
@@ -91,7 +100,5 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, newStatus);
         return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
     }
-
-
 
 }
