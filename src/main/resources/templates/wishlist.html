@@ -55,10 +55,10 @@
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
                     <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-md-end">
                         <select class="form-select form-select-sm" id="sort-select" style="max-width: 200px;">
-                            <option value="recent">Sort by: Recently Added</option>
-                            <option value="priceAsc">Sort by: Price Low to High</option>
-                            <option value="priceDesc">Sort by: Price High to Low</option>
-                            <option value="nameAsc">Sort by: Name A-Z</option>
+                            <option value="recent">Recently Added</option>
+                            <option value="priceAsc">Price Low to High</option>
+                            <option value="priceDesc">Price High to Low</option>
+                            <option value="nameAsc">Name A-Z</option>
                         </select>
                     </div>
                 </div>
@@ -222,7 +222,7 @@
                 })
                 .catch(err => {
                     console.error("❌ Lỗi khi sắp xếp:", err);
-                    showToast("Sắp xếp thất bại!", "warning");
+                    showToast("Wishlist is empty!", "warning");
                 });
         });
     });
