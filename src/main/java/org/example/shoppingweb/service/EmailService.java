@@ -87,21 +87,38 @@ public class EmailService {
                 .withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
 
         String orderTimeString = formatter.format(order.getCreatedAt());
-        String confirmedTimeString = formatter.format(order.getUpdatedAt());
+        String statusUpdateTimeString = formatter.format(order.getUpdatedAt());
+        String status = order.getStatus().getStatusName();
 
         StringBuilder emailBody = new StringBuilder();
         emailBody.append("Hello ").append(user.getFullName()).append(",\n\n");
-        emailBody.append("Your order at StyleLegacy has been **confirmed**.\n\n");
-        emailBody.append("Order Code: ").append(order.getDisplayCode()).append("\n");
-        emailBody.append("Created At: ").append(orderTimeString).append("\n");
-        emailBody.append("Confirmed At: ").append(confirmedTimeString).append("\n");
-        emailBody.append("Status: Confirmed\n\n");
-        emailBody.append("We will begin processing your order shortly. You will receive another email when it's shipped.\n\n");
-        emailBody.append("Thank you for shopping with StyleLegacy!\n");
+
+        // Tùy theo trạng thái
+        if ("Confirmed".equalsIgnoreCase(status)) {
+            emailBody.append("✅ Your order at StyleLegacy has been **confirmed**.\n\n");
+        } else if ("Shipped".equalsIgnoreCase(status)) {
+            emailBody.append("🚚 Your order at StyleLegacy has been **shipped**.\n\n");
+        } else {
+            emailBody.append("📦 Your order at StyleLegacy has been updated to status: ")
+                    .append(status).append("\n\n");
+        }
+
+        emailBody.append("🧾 Order Code: ").append(order.getDisplayCode()).append("\n");
+        emailBody.append("📅 Created At: ").append(orderTimeString).append("\n");
+        emailBody.append("⏱ Status Updated At: ").append(statusUpdateTimeString).append("\n");
+        emailBody.append("🔖 Current Status: ").append(status).append("\n\n");
+
+        emailBody.append("We will continue processing your order and keep you updated.\n");
+        emailBody.append("Thank you for shopping with StyleLegacy!\n\n");
         emailBody.append("— StyleLegacy Team");
 
-        sendOrderConfirmation(user.getEmail(), "Your Order Has Been Confirmed - " + order.getDisplayCode(), emailBody.toString());
+        sendOrderConfirmation(
+                user.getEmail(),
+                "Order Update: " + order.getDisplayCode() + " [" + status + "]",
+                emailBody.toString()
+        );
     }
+
 
 
     public void sendResetCode(String toEmail, String resetCode) {

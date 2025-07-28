@@ -2,8 +2,10 @@ package org.example.shoppingweb.controller;
 
 import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Orderdetail;
+import org.example.shoppingweb.entity.Orderstatus;
 import org.example.shoppingweb.repository.OrderDetailRepository;
 import org.example.shoppingweb.repository.OrderRepository;
+import org.example.shoppingweb.repository.OrderStatusRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class OrderDetailController {
     private  OrderRepository orderRepository;
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private OrderStatusRepository orderStatusRepository;
 
     public OrderDetailController(OrderService orderService, OrderRepository orderRepository) {
         this.orderService = orderService;
@@ -59,6 +63,7 @@ public class OrderDetailController {
         data.put("customer", order.getUser().getFullName());
         data.put("shippingAddress", order.getShippingAddress());
         data.put("phoneNumber", order.getPhoneNumber());
+        data.put("status", order.getStatus().getStatusName());
         data.put("total", order.getTotalAmount());
         if(order.getDiscount() != null){
             data.put("discount", order.getDiscount().getCode() + " (" + order.getDiscount().getDiscountPercentage() + "%)");
@@ -76,6 +81,15 @@ public class OrderDetailController {
 
         data.put("items", items);
         return ResponseEntity.ok(data);
+    }
+
+    @GetMapping("/order/statuses")
+    @ResponseBody
+    public List<String> getAllStatuses() {
+        return orderStatusRepository.findAll()
+                .stream()
+                .map(Orderstatus::getStatusName)
+                .toList();
     }
 
 }

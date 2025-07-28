@@ -92,4 +92,13 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/order/{orderId}/status")
+    @ResponseBody
+    public ResponseEntity<?> updateStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> body) {
+        String newStatus = body.get("status");
+        orderService.updateOrderStatus(orderId, newStatus);
+        return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
+    }
+
+
 }
