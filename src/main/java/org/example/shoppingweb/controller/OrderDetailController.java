@@ -44,27 +44,33 @@ public class OrderDetailController {
         return "order-detail";
     }
 
-    @GetMapping("/api/order/detail/{orderId}")
+    @GetMapping("/api/order/{orderId}/details")
     @ResponseBody
-    public ResponseEntity<?> getOrderDetail(@PathVariable Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
+    public ResponseEntity<Map<String, Object>> getOrderDetails(@PathVariable Integer orderId,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Order order = orderService.findByIdAndUser(orderId, userDetails.getUser());
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
         List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("orderId", order.getId());
-        result.put("customer", order.getUser().getFullName());
-        result.put("shippingAddress", order.getShippingAddress());
-        result.put("total", order.getTotalAmount());
-        result.put("items", orderDetails.stream().map(od -> Map.of(
-                "productName", od.getProduct().getProductName(),
-                "size", od.getSize().getSizeLabel(),
-                "quantity", od.getQuantity(),
-                "unitPrice", od.getUnitPrice()
-        )).toList());
+        Map<String, Object> data = new HashMap<>();
+        data.put("orderId", order.getDisplayCode());
+        data.put("customer", order.getUser().getFullName());
+        data.put("shippingAddress", order.getShippingAddress());
+        data.put("total", order.getTotalAmount());
 
-        return ResponseEntity.ok(result);
+        List<Map<String, Object>> items = orderDetails.stream().map(od -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("productName", od.getProduct().getProductName());
+            item.put("size", od.getSize().getSizeLabel());
+            item.put("quantity", od.getQuantity());
+            item.put("unitPrice", od.getUnitPrice());
+            return item;
+        }).toList();
+
+        data.put("items", items);
+        return ResponseEntity.ok(data);
     }
 
 }

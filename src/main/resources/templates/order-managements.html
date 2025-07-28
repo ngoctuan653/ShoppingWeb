@@ -58,14 +58,11 @@
             <div class="modal-body">
                 <!-- Order details go here -->
                 <p><strong>Order ID:</strong> <span id="orderId">...</span></p>
-                <p><strong>Customer:</strong> John Doe</p>
-                <p><strong>Shipping Address:</strong> 123 Sample St, Hanoi</p>
+                <p><strong>Customer:</strong> <span id="customerName">...</span></p>
+                <p><strong>Shipping Address:</strong> <span id="shippingAddress">...</span></p>
                 <p><strong>Items:</strong></p>
-                <ul>
-                    <li>White T-shirt x1 - $19.99</li>
-                    <li>Black Jeans x2 - $49.99</li>
-                </ul>
-                <p><strong>Total:</strong> $119.97</p>
+                <ul id="orderItemsList"></ul>
+                <p><strong>Total:</strong> $<span id="orderTotal">...</span></p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -75,7 +72,6 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     let selectedOrderId = null;
 
@@ -83,32 +79,31 @@
         selectedOrderId = orderId;
 
         try {
-            const response = await fetch(`/api/order/detail/${orderId}`);
-            if (!response.ok) throw new Error("Failed to fetch order details");
+            const response = await fetch(`/api/order/${orderId}/details`);
+            if (!response.ok) throw new Error("Order not found");
+
             const data = await response.json();
 
-            // Gán dữ liệu vào modal
-            document.getElementById("orderId").innerText = "#" + data.orderId;
-            document.querySelector("#confirmModal p strong + span")?.remove(); // remove placeholder span
+            document.getElementById("orderId").textContent = data.orderId;
+            document.getElementById("customerName").textContent = data.customer;
+            document.getElementById("shippingAddress").textContent = data.shippingAddress;
+            document.getElementById("orderTotal").textContent = data.total.toFixed(2);
 
-            document.querySelector("#confirmModal .modal-body").innerHTML = `
-        <p><strong>Order ID:</strong> #${data.orderId}</p>
-        <p><strong>Customer:</strong> ${data.customer}</p>
-        <p><strong>Shipping Address:</strong> ${data.shippingAddress}</p>
-        <p><strong>Items:</strong></p>
-        <ul>
-          ${data.items.map(item => `
-            <li>${item.productName} (Size: ${item.size}) x${item.quantity} - $${item.unitPrice}</li>
-          `).join("")}
-        </ul>
-        <p><strong>Total:</strong> $${data.total}</p>
-      `;
+            const itemsList = document.getElementById("orderItemsList");
+            itemsList.innerHTML = ""; // Clear previous
+
+            data.items.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.productName} (Size: ${item.size}) x${item.quantity} - $${item.unitPrice.toFixed(2)}`;
+                itemsList.appendChild(li);
+            });
         } catch (err) {
-            console.error("Error loading order detail:", err);
-            alert("Failed to load order detail.");
+            console.error("Failed to load order details:", err);
+            showAlert("error", "Could not load order details.");
         }
     }
 </script>
+
 <script>
     document.getElementById("confirmOrderBtn").addEventListener("click", async () => {
         if (!selectedOrderId) return;
