@@ -153,6 +153,8 @@ public class OrderService {
         order.setStatus(confirmedStatus);
         order.setUpdatedAt(Instant.now());
         orderRepository.save(order);
+        emailService.sendOrderConfirmedNotification(order.getUser(), order);
+
     }
 }
 

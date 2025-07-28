@@ -58,7 +58,12 @@ public class OrderDetailController {
         data.put("orderId", order.getDisplayCode());
         data.put("customer", order.getUser().getFullName());
         data.put("shippingAddress", order.getShippingAddress());
+        data.put("phoneNumber", order.getPhoneNumber());
         data.put("total", order.getTotalAmount());
+        if(order.getDiscount() != null){
+            data.put("discount", order.getDiscount().getCode() + " (" + order.getDiscount().getDiscountPercentage() + "%)");
+
+        }
 
         List<Map<String, Object>> items = orderDetails.stream().map(od -> {
             Map<String, Object> item = new HashMap<>();
