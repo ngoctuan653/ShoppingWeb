@@ -32,7 +32,6 @@ public class WishlistService {
         wishlistRepository.deleteByUserIdAndProductId(userId, productId);
     }
     
-    
     public void moveToCart(Integer userId, Integer productId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<Product> product = productRepository.findById(productId);
