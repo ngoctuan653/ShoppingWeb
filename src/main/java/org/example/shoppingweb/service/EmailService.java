@@ -119,8 +119,6 @@ public class EmailService {
         );
     }
 
-
-
     public void sendResetCode(String toEmail, String resetCode) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
