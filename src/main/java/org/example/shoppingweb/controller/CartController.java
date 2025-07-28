@@ -256,7 +256,8 @@ public class CartController {
     @PostMapping("/checkout")
     public String checkout(@RequestParam String shippingAddress,
                            @RequestParam String phone,
-                           @RequestParam(required = false) String discountCode, RedirectAttributes redirectAttributes) {
+                           @RequestParam(required = false) String discountCode,
+                           RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
@@ -268,7 +269,22 @@ public class CartController {
 
         Discount discount = null;
         if (discountCode != null && !discountCode.isEmpty()) {
-            discount = discountRepository.findByCodeIgnoreCase(discountCode.trim()).orElse(null);
+            Optional<Discount> optionalDiscount = discountRepository.findByCodeIgnoreCase(discountCode.trim());
+
+            if (optionalDiscount.isPresent()) {
+                discount = optionalDiscount.get();
+                Instant now = Instant.now();
+
+                if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
+                        (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
+
+                    redirectAttributes.addFlashAttribute("error", "Discount code has expired or is not yet valid.");
+                    return "redirect:/checkout";
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Invalid discount code.");
+                return "redirect:/checkout";
+            }
         }
 
         Order order = orderService.createOrder(user, shippingAddress, phone, discount);
@@ -279,4 +295,5 @@ public class CartController {
 
         return "redirect:/order/success?id=" + order.getId();
     }
+
 }

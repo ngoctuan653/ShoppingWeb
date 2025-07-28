@@ -68,7 +68,7 @@ public class OrderController {
         model.addAttribute("orderDetailsMap", orderDetailsMap);
         return "order-history";
     }
-// <<<<<<< HEAD
+
     
     @GetMapping("/orders/view/{id}")
     public String viewOrderDetail(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
@@ -87,35 +87,28 @@ public class OrderController {
                 System.out.println("OrderDetail ID: " + detail.getId() + ", Quantity: " + detail.getQuantity() + ", UnitPrice: " + detail.getUnitPrice());
             }
         }
+    }
 
-        if (order == null) {
-            model.addAttribute("error", "Order not found with ID: " + id);
-            return "order-history";
-        } else if (!order.getUser().getId().equals(currentUser.getId())) {
-            model.addAttribute("error", "You do not have permission to view this order");
-            return "order-history";
+    @PostMapping("/order/{orderId}/confirm")
+    @ResponseBody
+    public ResponseEntity<?> confirmOrder(@PathVariable Integer orderId) {
+        try {
+            orderService.confirmOrder(orderId);
+            return ResponseEntity.ok().body(Map.of("message", "Order confirmed successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
         }
+    }
 
-        List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
-        model.addAttribute("order", order);
-        model.addAttribute("orderDetails", orderDetails);
+    @PostMapping("/order/{orderId}/status")
+    @ResponseBody
+    public ResponseEntity<?> updateStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> body) {
+        String newStatus = body.get("status");
+        orderService.updateOrderStatus(orderId, newStatus);
+        return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
+    }
 
-        System.out.println("Returning template: order-detail");
-        return "order-detail";
-// =======
 
 
-//     @PostMapping("/order/{orderId}/cancel")
-//     @ResponseBody
-//     public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId,
-//                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
-//         try {
-//             orderService.cancelOrder(orderId, userDetails.getUser());
-//             return ResponseEntity.ok().body(Map.of("message", "Order cancelled successfully!"));
-//         } catch (Exception e) {
-//             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Order cannot be cancelled!"));
-//         }
-// >>>>>>> PhamVietHoang
-//     }
-}
 }

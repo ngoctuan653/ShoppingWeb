@@ -50,12 +50,11 @@ public class EmailService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
                 .withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
 
-        String orderTimeString = formatter.format(order.getCreatedAt());  // dạng "21/07/2025 14:30:00"
-
+        String orderTimeString = formatter.format(order.getCreatedAt());
 
         emailBody.append("Hello ").append(user.getFullName()).append(",\n\n");
         emailBody.append("Thank you for ordering at StyleLegacy!\n");
-        emailBody.append("Order code: ").append(order.getId()).append("\n");
+        emailBody.append("Order code: ").append(order.getDisplayCode()).append("\n");
         emailBody.append("Time to order: ").append(orderTimeString).append("\n\n");
 
         emailBody.append("Order information:\n");
@@ -64,16 +63,63 @@ public class EmailService {
                     .append(" (Size: ").append(detail.getSize().getSizeLabel())
                     .append(") x ").append(detail.getQuantity())
                     .append(" = ").append(detail.getUnitPrice().multiply(BigDecimal.valueOf(detail.getQuantity())))
-                    .append(" $\n");
+                    .append(" đ\n");
         }
 
-        emailBody.append("\nTotal amount: ").append(order.getTotalAmount()).append(" đ\n");
+        if (order.getDiscount() != null) {
+            emailBody.append("\nDiscount applied: ").append(order.getDiscount().getCode())
+                    .append(" (").append(order.getDiscount().getDiscountPercentage()).append("%)\n");
+            emailBody.append("Total before discount: ").append(order.getTotalAmountBeforeDiscount()).append(" đ\n");
+        }
+
+        emailBody.append("Total amount to pay: ").append(order.getTotalAmount()).append(" đ\n");
         emailBody.append("Shipping address: ").append(shippingAddress).append("\n");
         emailBody.append("Phone Number: ").append(phone).append("\n\n");
-        emailBody.append("Thank you for your purchase.!\nStyleLegacy");
 
-        sendOrderConfirmation(user.getEmail(), "Order Confirmation #" + order.getId(), emailBody.toString());
+        emailBody.append("Thank you for your purchase!\nStyleLegacy");
+
+        sendOrderConfirmation(user.getEmail(), "Order Confirmation #" + order.getDisplayCode(), emailBody.toString());
     }
+
+
+    public void sendOrderConfirmedNotification(User user, Order order) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+        String orderTimeString = formatter.format(order.getCreatedAt());
+        String statusUpdateTimeString = formatter.format(order.getUpdatedAt());
+        String status = order.getStatus().getStatusName();
+
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("Hello ").append(user.getFullName()).append(",\n\n");
+
+        // Tùy theo trạng thái
+        if ("Confirmed".equalsIgnoreCase(status)) {
+            emailBody.append("✅ Your order at StyleLegacy has been **confirmed**.\n\n");
+        } else if ("Shipped".equalsIgnoreCase(status)) {
+            emailBody.append("🚚 Your order at StyleLegacy has been **shipped**.\n\n");
+        } else {
+            emailBody.append("📦 Your order at StyleLegacy has been updated to status: ")
+                    .append(status).append("\n\n");
+        }
+
+        emailBody.append("🧾 Order Code: ").append(order.getDisplayCode()).append("\n");
+        emailBody.append("📅 Created At: ").append(orderTimeString).append("\n");
+        emailBody.append("⏱ Status Updated At: ").append(statusUpdateTimeString).append("\n");
+        emailBody.append("🔖 Current Status: ").append(status).append("\n\n");
+
+        emailBody.append("We will continue processing your order and keep you updated.\n");
+        emailBody.append("Thank you for shopping with StyleLegacy!\n\n");
+        emailBody.append("— StyleLegacy Team");
+
+        sendOrderConfirmation(
+                user.getEmail(),
+                "Order Update: " + order.getDisplayCode() + " [" + status + "]",
+                emailBody.toString()
+        );
+    }
+
+
 
     public void sendResetCode(String toEmail, String resetCode) {
         SimpleMailMessage message = new SimpleMailMessage();
