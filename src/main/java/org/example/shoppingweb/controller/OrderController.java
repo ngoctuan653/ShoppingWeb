@@ -79,4 +79,17 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Order cannot be cancelled!"));
         }
     }
+
+    @PostMapping("/order/{orderId}/confirm")
+    @ResponseBody
+    public ResponseEntity<?> confirmOrder(@PathVariable Integer orderId) {
+        try {
+            orderService.confirmOrder(orderId);
+            return ResponseEntity.ok().body(Map.of("message", "Order confirmed successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
 }

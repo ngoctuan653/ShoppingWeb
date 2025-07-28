@@ -178,7 +178,6 @@
 
                 feedback.textContent = `✓ Code "${code}" applied (${percentage}% off)`;
                 feedback.className = "form-text text-success";
-
                 hiddenInput.value = code; // để gửi về backend khi submit
             })
             .catch(() => {
@@ -211,8 +210,6 @@
     document.addEventListener("DOMContentLoaded", () => {
         loadCheckoutCart();
     });
-
-
 </script>
 
 

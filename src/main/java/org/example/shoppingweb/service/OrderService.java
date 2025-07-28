@@ -39,7 +39,6 @@ public class OrderService {
         return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
     }
 
-
     @Transactional
     public Order createOrder(User user, String shippingAddress, String phone, Discount discount) {
         // Lấy giỏ hàng
@@ -139,6 +138,19 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order status 'Cancelled' not found"));
 
         order.setStatus(cancelledStatus);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void confirmOrder(Integer orderId){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if(!order.getStatus().getStatusName().equals("Pending")){
+            throw new RuntimeException("Only pending orders can be confirmed.");
+        }
+
+        Orderstatus confirmedStatus = orderStatusRepository.findByStatusName("Confirmed").orElseThrow(() -> new RuntimeException("Order status 'Confirmed' not found"));
+        order.setStatus(confirmedStatus);
         order.setUpdatedAt(Instant.now());
         orderRepository.save(order);
     }
