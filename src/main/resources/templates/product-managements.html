@@ -10,7 +10,7 @@
 </head>
 <body style="padding-top: 50px;">
 <!-- Navbar -->
-<div th:replace="fragments/header-navbar :: navbar"></div>
+<div th:replace="fragments/admin-header-navbar :: navbar"></div>
 
 <!-- Main Content -->
 <div class="container my-5">
@@ -88,12 +88,6 @@
                             <i class="bi bi-eye-slash"></i>
                         </button>
                     </form>
-<!--                    <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post" class="d-inline">-->
-<!--                        <button class="btn btn-sm btn-outline-danger" type="submit">-->
-<!--                            <i class="bi bi-trash"></i>-->
-<!--                        </button>-->
-<!--                    </form>-->
-
                 </td>
             </tr>
             </tbody>

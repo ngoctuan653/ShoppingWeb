@@ -81,7 +81,6 @@ public class WishlistController {
     public String moveToCart(@PathVariable("productId") Integer productId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails != null ? userDetails.getUser() : (User) session.getAttribute("currentUser");
         if (currentUser == null) return "redirect:/login";
-
         wishlistService.moveToCart(currentUser.getId(), productId);
         return "redirect:/wishlist";
     }
