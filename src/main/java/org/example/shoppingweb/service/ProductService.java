@@ -8,6 +8,7 @@ import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +60,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> searchProducts(String keyword,
+    public Page<Product> searchProducts(String keyword,
                                         Double minPrice,
                                         Double maxPrice,
                                         List<Long> categories,
@@ -90,7 +91,7 @@ public class ProductService {
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
-        }, pageable).getContent();
+        }, pageable);
     }
 
 

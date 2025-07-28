@@ -42,5 +42,7 @@ public class HomePageController {
     public String checkoutPage(){
         return "checkout";
     }
+
+
 }
 

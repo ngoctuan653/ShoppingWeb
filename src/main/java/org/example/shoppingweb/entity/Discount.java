@@ -32,6 +32,11 @@ public class Discount {
     @Column(name = "discount_percentage", precision = 5, scale = 2)
     private BigDecimal discountPercentage;
 
+    @Size(max = 50)
+    @ColumnDefault("'Active'")
+    @Column(name = "status", length = 50)
+    private String status;
+
     @NotNull
     @Column(name = "start_date", nullable = false)
     private Instant startDate;

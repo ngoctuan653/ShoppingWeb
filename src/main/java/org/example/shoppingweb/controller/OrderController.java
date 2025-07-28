@@ -35,6 +35,13 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @GetMapping("/order-manage")
+    public String orderManagePage(Model model){
+        List<Order> orders = orderRepository.findAll();
+        model.addAttribute("orders", orders);
+        return "order-managements";
+    }
+
     @GetMapping("/order/success")
     public String orderSuccess(@RequestParam("id") Integer orderId, Model model) {
         Order order = orderRepository.findById(orderId).orElseThrow();

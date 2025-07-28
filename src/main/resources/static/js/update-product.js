@@ -97,7 +97,9 @@ function openEditModal(product) {
     // Gán thông tin sản phẩm
     document.getElementById("edit-id").value = product.id;
     document.getElementById("edit-productName").value = product.productName;
-    document.getElementById("edit-description").value = product.description;
+    if (editDescriptionEditor) {
+        editDescriptionEditor.setData(product.description);
+    }
     document.getElementById("edit-price").value = product.price;
     document.getElementById("edit-stockQuantity").value = product.stockQuantity;
     document.getElementById("edit-category").value = product.category.id;
@@ -118,38 +120,6 @@ function openEditModal(product) {
     renderSizeListUpdate();
 }
 
-// === Bắt sự kiện nút Edit để mở modal ===
-document.querySelectorAll(".btn-edit").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const productId = btn.getAttribute("data-id");
-
-        let sizes = [];
-        try {
-            const response = await fetch(`/${productId}/sizes`);
-            if (!response.ok) throw new Error("Failed to fetch sizes");
-            sizes = await response.json();
-        } catch (err) {
-            console.error("[ERROR] Không thể load size:", err);
-            alert("Không thể tải size cho sản phẩm này!");
-        }
-
-        const product = {
-            id: productId,
-            productName: btn.getAttribute("data-name"),
-            price: btn.getAttribute("data-price"),
-            stockQuantity: btn.getAttribute("data-quantity"),
-            description: btn.getAttribute("data-description"),
-            category: { id: btn.getAttribute("data-category-id") },
-            subcategory: { id: btn.getAttribute("data-subcategory-id") },
-            brand: { id: btn.getAttribute("data-brand-id") },
-            status: btn.getAttribute("data-status"),
-            sizes: sizes
-        };
-
-        console.log("[DEBUG] Open Edit - Product with sizes:", product);
-        openEditModal(product);
-    });
-});
 
 // === Submit cập nhật sản phẩm ===
 document.getElementById("updateForm").addEventListener("submit", async function (e) {
@@ -203,14 +173,42 @@ document.getElementById("updateForm").addEventListener("submit", async function 
         try {
             const json = JSON.parse(text);
             console.log("[DEBUG] Server JSON response:", json);
-            alert("Update successfully!");
-            window.location.reload();
+
+            // ❗ TẮT MODAL bằng Bootstrap API
+            const modalElement = document.getElementById("editProductModal");
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            // ✅ Hiện toast thông báo
+            Swal.fire({
+                icon: 'success',
+                title: 'Update sucessfully !',
+                showConfirmButton: false,
+                timer: 2000,
+                toast: true,
+                position: 'top'
+            });
+
+            // 🔁 Reload sau khi toast xong
+            setTimeout(() => window.location.reload(), 2000);
+
         } catch (jsonError) {
             console.error("[ERROR] Response không phải JSON:\n", text);
-            alert("Lỗi từ server: " + text);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi máy chủ!',
+                text: text,
+            });
         }
     } catch (err) {
         console.error("[ERROR] Lỗi fetch:", err);
-        alert("Lỗi: " + err.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi mạng!',
+            text: err.message,
+        });
     }
+
 });

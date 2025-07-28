@@ -79,7 +79,7 @@ public class ProductController {
 
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<Product> searchProducts(@RequestParam(required = false) String keyword,
+    public Page<Product> searchProducts(@RequestParam(required = false) String keyword,
                                         @RequestParam(required = false) Double minPrice,
                                         @RequestParam(required = false) Double maxPrice,
                                         @RequestParam(required = false) List<Long> categories,
@@ -109,7 +109,7 @@ public class ProductController {
         return "Home";
     }
 
-    @GetMapping("/products")
+    @GetMapping("/product-manage")
     public String showProducts(Model model) {
         model.addAttribute("products", productService.getAllProduct());
         model.addAttribute("categories", productService.getAllCategories());
@@ -133,7 +133,7 @@ public class ProductController {
             product.setImage(imageFile.getBytes());
         }
         productService.saveProduct(product);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @GetMapping("/products/edit/{id}")
@@ -147,7 +147,7 @@ public class ProductController {
     @PostMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable("id") Integer id) {
         productService.deleteProduct(id);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/update")
@@ -162,7 +162,7 @@ public class ProductController {
         }
 
         productService.updateProduct(product);
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/add")
@@ -209,7 +209,7 @@ public class ProductController {
     @PostMapping("/products/hide/{id}")
     public String softDeleteProduct(@PathVariable("id") Integer id) {
         productService.updateStatus(id, "Inactive");
-        return "redirect:/products";
+        return "redirect:/product-manage";
     }
 
     @GetMapping("/products/{id}")
@@ -218,18 +218,6 @@ public class ProductController {
         model.addAttribute("product", product);
         return "product-detail"; // -> product-detail.html
     }
-
-//    @GetMapping("/{productId}/sizes")
-//    @ResponseBody
-//    public ResponseEntity<List<SizeDTO>> getSizesByProduct(@PathVariable Integer productId) {
-//        List<Size> sizes = productService.getSizesByProductId(productId);
-//
-//        List<SizeDTO> result = sizes.stream()
-//                .map(size -> new SizeDTO(size.getId(), size.getSizeLabel()))
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(result);
-//    }
 
     @GetMapping("/{id}/sizes")
     public ResponseEntity<List<SizeDTO>> getProductSizes(@PathVariable Integer id) {

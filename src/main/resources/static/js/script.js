@@ -420,7 +420,7 @@ const handleSearch = () => {
     const selectedSubcategories = getCheckedValues(".subcategory-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
 
-    // 👇 Reset trước khi tìm kiếm
+    // 👇 Reset trạng thái phân trang
     currentPage = 1;
     loadMoreBtn.style.display = "block";
     loadMoreBtn.disabled = false;
@@ -429,8 +429,8 @@ const handleSearch = () => {
     showLoading();
 
     const params = new URLSearchParams();
-    params.append("page", 0); // Page đầu tiên
-    params.append("size", pageSize); // Dùng lại biến pageSize ở script chính
+    params.append("page", 0); // Trang đầu tiên
+    params.append("size", pageSize);
     if (keyword) params.append("keyword", keyword);
     if (minPrice) params.append("minPrice", minPrice);
     if (maxPrice) params.append("maxPrice", maxPrice);
@@ -449,7 +449,10 @@ const handleSearch = () => {
             }
             return res.json();
         })
-        .then(products => {
+        .then(pageData => {
+            const products = pageData.content;
+            const isLast = pageData.last;
+
             productGrid.innerHTML = "";
 
             if (!Array.isArray(products) || products.length === 0) {
@@ -464,7 +467,7 @@ const handleSearch = () => {
                     <div class="col-md-4 mb-4 fade-in">
                         <div class="card h-100 shadow-sm">
                             <a href="/products/${product.id}">
-                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;"/>
+                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
                             </a>
                             <div class="card-body d-flex flex-column">
                                 <a href="/products/${product.id}" class="text-decoration-none text-dark">
@@ -482,9 +485,11 @@ const handleSearch = () => {
                 productGrid.insertAdjacentHTML("beforeend", productCard);
             });
 
-            // Ẩn nút nếu số sản phẩm < pageSize
-            if (products.length < pageSize) {
+            // ✅ Ẩn nút nếu là trang cuối
+            if (isLast || products.length < pageSize) {
                 loadMoreBtn.style.display = "none";
+            } else {
+                loadMoreBtn.style.display = "block";
             }
         })
         .catch(error => {
