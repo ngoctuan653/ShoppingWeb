@@ -1,0 +1,42 @@
+<div th:fragment="wishlistItemsGrid">
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-4 col-sm-6" th:each="item : ${wishlistItems}">
+            <div class="card product-card h-100 position-relative fade-in">
+                <!-- Product Actions -->
+                <div class="product-actions">
+                    <form class="wishlist-remove-form" th:action="@{/wishlist/remove}" method="post">
+                        <input type="hidden" name="productId" th:value="${item.product.id}">
+                        <button type="submit" class="action-btn remove" title="Remove from wishlist">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Product Link -->
+                <a th:href="@{'/products/' + ${item.product.id}}" class="text-decoration-none text-dark">
+                    <img th:if="${item.product.image != null}"
+                         th:src="@{'/products/image/' + ${item.product.id}}"
+                         class="card-img-top"
+                         alt="Product Image"
+                         style="height: 350px; object-fit: cover;">
+                    <img th:if="${item.product.image == null}"
+                         th:src="@{/images/default.png}"
+                         class="card-img-top"
+                         alt="Default Product Image"
+                         style="height: 350px; object-fit: cover;">
+                </a>
+
+                <div class="card-body d-flex flex-column">
+                    <a th:href="@{'/products/' + ${item.product.id}}" class="text-decoration-none text-dark">
+                        <h5 class="card-title mb-2" th:text="${item.product.productName}">Product Name</h5>
+                    </a>
+                    <p class="card-text text-muted small mb-2" th:text="${item.product.subcategory?.subcategoryName}">Subcategory</p>
+                    <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">Category</p>
+                    <div class="mt-auto">
+                        <p class="fw-bold mb-0 fs-5" th:text="'$' + ${item.product.price}">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 package org.example.shoppingweb.service;
 
+import jakarta.transaction.Transactional;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,44 +29,15 @@ public class WishlistService {
         return wishlistRepository.findByUserId(userId);
     }
 
+    public boolean existsInWishlist(Integer userId, Integer productId) {
+        return wishlistRepository.existsByUserIdAndProductId(userId, productId);
+    }
+
+    @Transactional
     public void removeFromWishlist(Integer userId, Integer productId) {
         wishlistRepository.deleteByUserIdAndProductId(userId, productId);
     }
-    
-    public void moveToCart(Integer userId, Integer productId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Product> product = productRepository.findById(productId);
-        if (user.isPresent() && product.isPresent()) {
-            Optional<Wishlist> wishlistItem = wishlistRepository.findByUserIdAndProductId(userId, productId);
-            if (wishlistItem.isPresent()) {             
-                if (cartRepository.findByUserAndProduct(user.get(), product.get()).isEmpty()) {
-                    Cart cartItem = new Cart();
-                    cartItem.setUser(user.get());
-                    cartItem.setProduct(product.get());
-                    cartItem.setQuantity(1);
-                    cartItem.setCreatedAt(Instant.now());
-                    cartRepository.save(cartItem);
-                }
-                wishlistRepository.delete(wishlistItem.get());
-            }
-        }
-    }
 
-    public void moveAllToCart(User user) {
-        List<Wishlist> wishlistItems = wishlistRepository.findByUserId(user.getId());
-
-        for (Wishlist item : wishlistItems) {
-            if (cartRepository.findByUserAndProduct(user, item.getProduct()).isEmpty()) {
-                Cart cartItem = new Cart();
-                cartItem.setUser(user);
-                cartItem.setProduct(item.getProduct());
-                cartItem.setQuantity(1);
-                cartItem.setCreatedAt(Instant.now());
-                cartRepository.save(cartItem);
-            }
-        }
-        wishlistRepository.deleteAll(wishlistItems);
-    }
 
     public void addToWishlist(Integer userId, Integer productId) {
         Optional<User> user = userRepository.findById(userId);

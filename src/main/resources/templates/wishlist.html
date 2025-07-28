@@ -54,17 +54,12 @@
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
                     <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-md-end">
-                        <select class="form-select form-select-sm" style="max-width: 200px;">
-                            <option>Sort by: Recently Added</option>
-                            <option>Sort by: Price Low to High</option>
-                            <option>Sort by: Price High to Low</option>
-                            <option>Sort by: Name A-Z</option>
+                        <select class="form-select form-select-sm" id="sort-select" style="max-width: 200px;">
+                            <option value="recent">Sort by: Recently Added</option>
+                            <option value="priceAsc">Sort by: Price Low to High</option>
+                            <option value="priceDesc">Sort by: Price High to Low</option>
+                            <option value="nameAsc">Sort by: Name A-Z</option>
                         </select>
-                        <form th:action="@{/wishlist/move-all-to-cart}" method="post" th:unless="${#lists.isEmpty(wishlistItems)}">
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-shopping-cart me-1"></i>Move All to Cart
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -93,20 +88,15 @@
 
         <!-- Wishlist Items Grid -->
         <div th:unless="${#lists.isEmpty(wishlistItems)}">
-            <div class="row g-4">
+            <div class="row g-4" id="wishlist-items-container">
                 <div class="col-lg-3 col-md-4 col-sm-6" th:each="item : ${wishlistItems}">
                     <div class="card product-card h-100 position-relative fade-in">
                         <!-- Product Actions -->
                         <div class="product-actions">
-                            <form th:action="@{/wishlist/remove}" method="post">
+                            <form class="wishlist-remove-form" th:action="@{/wishlist/remove}" method="post">
                                 <input type="hidden" name="productId" th:value="${item.product.id}">
                                 <button type="submit" class="action-btn remove" title="Remove from wishlist">
                                     <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            <form th:action="@{/wishlist/move-to-cart/{productId}(productId=${item.product.id})}" method="post">
-                                <button type="submit" class="action-btn cart" title="Move to cart">
-                                    <i class="fas fa-shopping-cart"></i>
                                 </button>
                             </form>
                         </div>
@@ -146,11 +136,6 @@
                         <div class="card-body text-center p-4">
                             <h5 class="mb-3">Ready to make a purchase?</h5>
                             <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                                <form th:action="@{/wishlist/move-all-to-cart}" method="post">
-                                    <button type="submit" class="btn btn-success btn-lg px-4">
-                                        <i class="fas fa-shopping-cart me-2"></i>Move All to Cart
-                                    </button>
-                                </form>
                                 <a th:href="@{/shop}" class="btn btn-outline-dark btn-lg px-4">
                                     <i class="fas fa-plus me-2"></i>Continue Shopping
                                 </a>
@@ -162,10 +147,11 @@
         </div>
     </div>
 </div>
-
+<script src="/js/script.js"></script>
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
-
+<div th:replace="fragments/cart :: cart"></div>
+<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -177,24 +163,70 @@
             card.style.animationDelay = `${index * 0.1}s`;
         });
     });
-
-    // Confirm before removing items
-    document.querySelectorAll('.action-btn.remove').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to remove this item from your wishlist?')) {
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.wishlist-remove-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
-            }
-        });
-    });
 
-    // Confirm before moving all items
-    document.querySelectorAll('form[action*="move-all-to-cart"] button').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            if (!confirm('Move all items to your cart?')) {
-                e.preventDefault();
-            }
+                const productId = form.querySelector('input[name="productId"]').value;
+                const productCard = form.closest('.col-lg-3');
+
+                fetch('/wishlist/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `productId=${productId}`
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Xóa thất bại");
+                        return response.text();
+                    })
+                    .then(() => {
+                        productCard.remove();
+                        showToast("Removed from wishlist", "danger");
+
+                        if (document.querySelectorAll('.product-card').length === 0) {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500); // chờ để toast hiện xong
+                        }
+                    })
+                        .catch(err => {
+                        console.error("❌ Lỗi khi xóa khỏi wishlist:", err);
+                        showToast("Xóa thất bại!", "warning");
+                    });
+            });
         });
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sortSelect = document.getElementById('sort-select');
+
+        sortSelect.addEventListener('change', function () {
+            const sortBy = this.value;
+
+            fetch(`/wishlist/sort?sortBy=${sortBy}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi khi lấy dữ liệu sắp xếp");
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("wishlist-items-container").innerHTML = html;
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi sắp xếp:", err);
+                    showToast("Sắp xếp thất bại!", "warning");
+                });
+        });
+    });
+</script>
+
 </body>
 </html>
