@@ -14,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,24 +66,17 @@ public class OrderController {
         model.addAttribute("orderDetailsMap", orderDetailsMap);
         return "order-history";
     }
-// <<<<<<< HEAD
-    
-    @GetMapping("/orders/view/{id}")
-    public String viewOrderDetail(@PathVariable Integer id, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        User currentUser = userDetails.getUser();
-        Order order = orderRepository.findById(id).orElse(null);
 
-        System.out.println("Current User ID: " + currentUser.getId() + ", Checking order ID: " + id);
-        System.out.println("Order found: " + (order != null ? order.getId() : "null"));
-        System.out.println("Order User ID: " + (order != null ? order.getUser().getId() : "null"));
-        System.out.println("Order User FullName: " + (order != null && order.getUser() != null ? order.getUser().getFullName() : "null"));
-        System.out.println("Order Status ID: " + (order != null ? order.getStatus().getId() : "null"));
-        System.out.println("Order Status Name: " + (order != null && order.getStatus() != null ? order.getStatus().getStatusName() : "null"));
-        System.out.println("Order Details size: " + (order != null ? orderDetailRepository.findByOrder(order).size() : 0));
-        if (order != null) {
-            for (Orderdetail detail : orderDetailRepository.findByOrder(order)) {
-                System.out.println("OrderDetail ID: " + detail.getId() + ", Quantity: " + detail.getQuantity() + ", UnitPrice: " + detail.getUnitPrice());
-            }
+
+    @PostMapping("/order/{orderId}/cancel")
+    @ResponseBody
+    public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            orderService.cancelOrder(orderId, userDetails.getUser());
+            return ResponseEntity.ok().body(Map.of("message", "Order cancelled successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Order cannot be cancelled!"));
         }
     }
 
@@ -108,6 +99,4 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, newStatus);
         return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
     }
-
-
 }
