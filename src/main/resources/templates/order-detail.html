@@ -1,32 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Detail - StyleLegacy</title>
-
-    <!-- Bootstrap 5 CSS -->
+    <title>Order Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body style="padding-top: 100px;">
-<!-- Navigation Bar -->
-<div th:replace="fragments/header-navbar :: navbar"></div>
-
-<!-- Order Detail Header -->
-<section class="about-hero">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="fw-bold mb-2" id="orderTitle" th:text="'Order #' + ${order.displayCode}">Order
-                    #ORD-2024-001</h1>
-                <p class="text-muted mb-0" id="orderDate"
-                   th:text="'Placed on ' + ${#dates.format(order.orderDate, 'MMMM dd, yyyy')}">
-                    Placed on January 15, 2024
-                </p>
+<body style="padding-top: 50px;">
+    <div th:replace="~{fragments/header-navbar :: navbar}"></div>
+    <div class="container my-5">
+        <h2 class="fw-bold text-center mb-4">Order Details</h2>
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Order ID: <span th:text="${order.id}"></span></h5>
             </div>
             <div class="col-md-6 text-md-end">
                 <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
@@ -141,142 +128,56 @@
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title mb-3">Need Help?</h5>
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-headset fs-4 text-primary me-3"></i>
-                            <div>
-                                <h6 class="mb-1">Contact Support</h6>
-                                <p class="text-muted small mb-0">Get help with your order</p>
-                            </div>
-                            <button class="btn btn-outline-primary btn-sm ms-auto" onclick="contactSupport()">
-                                Contact
-                            </button>
-                        </div>
+                    <div class="col-md-6">
+                        <p><strong>Order Date:</strong> <span th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"></span></p>
+                        <p><strong>Total Amount:</strong> <span th:text="${#numbers.formatDecimal(order.totalAmount, 2, 'POINT', 0, 'COMMA')} + ' $' ?: 'N/A'"></span></p>
+                        <p><strong>Status:</strong> <span th:text="${order.status.statusName} ?: 'N/A'"></span></p>
+						<p><strong>Discount Code:</strong> <span th:text="${order.discount?.code} ?: 'None'"></span></p>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}" class="d-flex align-items-center">
-                            <i class="bi bi-arrow-return-left fs-4 text-warning me-3"></i>
-                            <div>
-                                <h6 class="mb-1">Return Items</h6>
-                                <p class="text-muted small mb-0">Start a return request</p>
-                            </div>
-                            <button type="button"
-                                    class="btn btn-outline-warning btn-sm ms-auto"
-                                    th:attr="data-order-id=${order.id}"
-                                    onclick="cancelOrderFromAttr(this)">
-                                Return
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <div class="col-md-6">
+                        <p><strong>Customer Name:</strong> <span th:text="${order.user.fullName} ?: 'N/A'"></span></p>
+                        <p><strong>Shipping Address:</strong> <span th:text="${order.shippingAddress} ?: 'N/A'"></span></p>
+                        <p><strong>Phone Number:</strong> <span th:text="${order.phoneNumber} ?: 'N/A'"></span></p>
+					</div>
+				</div>
+			</div>
+
+        <h4 class="mb-3">Products</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Size</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr th:each="detail : ${orderDetails}">
+                        <td th:text="${detail.product.productName} ?: 'N/A'"></td>
+                        <td th:text="${detail.size.sizeLabel} ?: 'N/A'"></td>
+                        <td th:text="${detail.quantity} ?: 'N/A'"></td>
+                        <td th:text="${#numbers.formatDecimal(detail.unitPrice, 2, 'POINT', 0, 'COMMA')} + ' $' ?: 'N/A'"></td>
+                        <td>
+                            <span th:if="${detail.quantity != null and detail.unitPrice != null}"
+                                  th:text="${#numbers.formatDecimal(detail.unitPrice.multiply(T(java.math.BigDecimal).valueOf(detail.quantity.longValue())), 2, 'POINT', 0, 'COMMA')} + ' $'">
+                            </span>
+                            <span th:unless="${detail.quantity != null and detail.unitPrice != null}">N/A</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/order/history}" class="btn btn-primary me-2">Back to Order History</a>
+            <a th:href="@{/orders/delete/{id}(id=${order.id})}" class="btn btn-danger">Delete Order</a>
         </div>
     </div>
-</section>
-<!-- Toast Notification -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999" th:if="${toastMessage}">
-    <div th:id="'toast'" th:class="'toast align-items-center text-bg-' + ${toastType} + ' border-0'" role="alert"
-         aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body" th:text="${toastMessage}">
-                <!-- Nội dung toast -->
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-
-<!-- Footer -->
-<div th:replace="fragments/footer :: footer"></div>
-
-<div th:replace="fragments/cart :: cart"></div>
-
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom JS -->
-<script src="/js/script.js"></script>
-<script>
-    function cancelOrderFromAttr(button) {
-        const orderId = button.getAttribute('data-order-id');
-        const cancelDiv = button.closest('#cancelButton');
-        cancelOrder(orderId, cancelDiv);
-    }
-
-
-    function cancelOrder(orderId, cancelDiv) {
-        if (!confirm('Are you sure you want to cancel this order?')) return;
-
-        fetch(`/order/${orderId}/cancel`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                showToast(data.message, 'success');
-
-                const statusDiv = document.getElementById("orderStatus");
-                if (statusDiv) {
-                    statusDiv.innerHTML = "<p class='text-danger fw-bold'>Cancelled</p>";
-                }
-
-                // Ẩn cả div chứa nút
-                if (cancelDiv) {
-                    cancelDiv.remove();
-                }
-            })
-            .catch(err => {
-                showToast("Failed to cancel order", 'danger');
-                console.error(err);
-            });
-    }
-
-
-    function showToast(message, type = 'success') {
-        const toastContainer = document.createElement('div');
-        toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
-        toastContainer.style.zIndex = '9999';
-
-        toastContainer.innerHTML = `
-            <div class="toast align-items-center text-bg-${type} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>`;
-
-        document.body.appendChild(toastContainer);
-
-        const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
-        toast.show();
-
-        // Tự động xóa toast sau 5s
-        setTimeout(() => toastContainer.remove(), 5000);
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        let lastScroll = 0;
-        const navbar = document.getElementById('mainNavbar');
-        if (!navbar) return;
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-
-            lastScroll = currentScroll;
-        });
-    });
-</script>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
 
