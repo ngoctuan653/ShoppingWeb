@@ -60,8 +60,12 @@
 				<div class="mb-3">
 					<label for="phone_number" class="form-label">Phone Number</label>
 					<input type="text" class="form-control" id="phone_number" name="phone_number"
-						   th:value="${user.phoneNumber}">
+						   th:value="${user.phoneNumber}"
+						   pattern="^0[0-9]{9}$"
+						   title="Phone number must be 10 digits and start with 0. Example: 0912345678"
+						   required>
 				</div>
+
 
 				<!-- Address -->
 				<div class="mb-3">
