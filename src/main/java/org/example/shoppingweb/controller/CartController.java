@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -240,7 +241,7 @@ public class CartController {
         List<CartItemDTO> result = carts.stream().map(cart -> {
             byte[] imageBytes = cart.getProduct().getImage();
             String base64Image = (imageBytes != null && imageBytes.length > 0)
-                    ? "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(imageBytes) : null;
+                    ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes) : null;
             return new CartItemDTO(
                     cart.getProduct().getId(),
                     cart.getProduct().getProductName(),

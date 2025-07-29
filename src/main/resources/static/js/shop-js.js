@@ -1,0 +1,244 @@
+let currentPage = 1;
+const pageSize = 6;
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+// 🔧 Helper
+function getCheckedValues(selector) {
+    return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
+}
+
+const loadMoreProducts = () => {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = "Loading...";
+
+    const keyword = searchInput?.value.trim();
+    const minPrice = minPriceInput?.value;
+    const maxPrice = maxPriceInput?.value;
+    const selectedCategories = getCheckedValues(".category-filter");
+    const selectedSubcategories = getCheckedValues(".subcategory-filter");
+    const selectedBrands = getCheckedValues(".brand-filter");
+
+    const params = new URLSearchParams();
+    params.append("page", currentPage); // dùng đúng currentPage hiện tại
+    params.append("size", pageSize);
+    if (keyword) params.append("keyword", keyword);
+    if (minPrice) params.append("minPrice", minPrice);
+    if (maxPrice) params.append("maxPrice", maxPrice);
+    selectedCategories.forEach(id => params.append("categories", id));
+    selectedSubcategories.forEach(id => params.append("subcategories", id));
+    selectedBrands.forEach(id => params.append("brands", id));
+
+    fetch(`/search?${params.toString()}`)
+        .then(res => res.json())
+        .then(pageData => {
+            const products = pageData.content; // content là danh sách sản phẩm
+            const isLast = pageData.last;      // kiểm tra trang cuối
+
+            if (!Array.isArray(products) || products.length === 0) {
+                loadMoreBtn.style.display = "none";
+                return;
+            }
+
+            products.forEach(product => {
+                const productImage = product.image ? `data:image/jpeg;base64,${product.image}` : '/images/default.png';
+                const productCard = `
+                <div class="col-md-4 mb-4 fade-in">
+                    <div class="card h-100 shadow-sm">
+                        <a href="/products/${product.id}">
+                            <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <a href="/products/${product.id}" class="text-decoration-none text-dark">
+                                <h5 class="card-title">${product.productName}</h5>
+                            </a>
+                            <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
+                            <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
+                            <div class="mt-auto">
+                                <p class="fw-bold">$${product.price}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                productGrid.insertAdjacentHTML("beforeend", productCard);
+            });
+
+            currentPage++;
+            if (isLast) {
+                loadMoreBtn.style.display = "none";
+            } else {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = "Load More Products";
+            }
+        });
+
+};
+
+
+loadMoreBtn?.addEventListener("click", loadMoreProducts);
+
+document.addEventListener("DOMContentLoaded", () => {
+    currentPage = 1;
+});
+
+//search Product by AJAX
+const searchInput = document.getElementById("searchInput");
+const productGrid = document.getElementById("productGrid");
+const minPriceInput = document.getElementById("minPrice");
+const maxPriceInput = document.getElementById("maxPrice");
+let debounceTimeout = null;
+
+const showLoading = () => {
+    productGrid.innerHTML = `
+        <div class="col-12 text-center py-4">
+            <div class="spinner-border text-dark" role="status"></div>
+        </div>`;
+};
+
+// Helper: Lấy danh sách ID từ checkbox
+function getCheckedValues(selector) {
+    return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
+}
+
+const handleSearch = () => {
+    const keyword = searchInput.value.trim();
+    const minPrice = minPriceInput.value;
+    const maxPrice = maxPriceInput.value;
+    const selectedCategories = getCheckedValues(".category-filter");
+    const selectedSubcategories = getCheckedValues(".subcategory-filter");
+    const selectedBrands = getCheckedValues(".brand-filter");
+
+    // 👇 Reset trạng thái phân trang
+    currentPage = 1;
+    loadMoreBtn.style.display = "block";
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = "Load More Products";
+
+    showLoading();
+
+    const params = new URLSearchParams();
+    params.append("page", 0); // Trang đầu tiên
+    params.append("size", pageSize);
+    if (keyword) params.append("keyword", keyword);
+    if (minPrice) params.append("minPrice", minPrice);
+    if (maxPrice) params.append("maxPrice", maxPrice);
+    selectedCategories.forEach(id => params.append("categories", id));
+    selectedSubcategories.forEach(id => params.append("subcategories", id));
+    selectedBrands.forEach(id => params.append("brands", id));
+
+    const url = `/search?${params.toString()}`;
+
+    fetch(url)
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(text || `HTTP error ${res.status}`);
+                });
+            }
+            return res.json();
+        })
+        .then(pageData => {
+            const products = pageData.content;
+            const isLast = pageData.last;
+
+            productGrid.innerHTML = "";
+
+            if (!Array.isArray(products) || products.length === 0) {
+                productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
+                loadMoreBtn.style.display = "none";
+                return;
+            }
+
+            products.forEach(product => {
+                const productImage = product.image ? `data:image/jpeg;base64,${product.image}` : '/images/default.png';
+                const productCard = `
+                    <div class="col-md-4 mb-4 fade-in">
+                        <div class="card h-100 shadow-sm">
+                            <a href="/products/${product.id}">
+                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <a href="/products/${product.id}" class="text-decoration-none text-dark">
+                                    <h5 class="card-title">${product.productName}</h5>
+                                </a>
+                                <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
+                                <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
+                                <div class="mt-auto">
+                                    <p class="fw-bold">$${product.price}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productGrid.insertAdjacentHTML("beforeend", productCard);
+            });
+
+            // ✅ Ẩn nút nếu là trang cuối
+            if (isLast || products.length < pageSize) {
+                loadMoreBtn.style.display = "none";
+            } else {
+                loadMoreBtn.style.display = "block";
+            }
+        })
+        .catch(error => {
+            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error.message || error);
+            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Lỗi khi tải dữ liệu sản phẩm.</div>`;
+        });
+};
+
+// Debounce search input
+if (searchInput) {
+    let debounceTimeout;
+    searchInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+} else {
+    console.log("searchInput not found");
+}
+
+if (minPriceInput) {
+    minPriceInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+} else {
+    console.log("minPriceInput not found");
+}
+
+if (maxPriceInput) {
+    maxPriceInput.addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+} else {
+    console.log("maxPriceInput not found");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Gắn sự kiện change cho các checkbox category
+    document.querySelectorAll(".category-filter").forEach(cb => {
+        cb.addEventListener("change", () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(handleSearch, 100);
+        });
+    });
+
+    document.querySelectorAll(".subcategory-filter").forEach(cb => {
+        cb.addEventListener("change", () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(handleSearch, 100);
+        });
+    });
+
+    // Gắn sự kiện change cho các checkbox brand
+    document.querySelectorAll(".brand-filter").forEach(cb => {
+        cb.addEventListener("change", () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(handleSearch, 100);
+        });
+    });
+
+    // Nếu bạn có nút tìm kiếm thì cũng gắn ở đây
+    document.getElementById("searchBtn")?.addEventListener("click", handleSearch);
+});

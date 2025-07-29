@@ -16,5 +16,4 @@ public class CartItemDTO {
     private int quantity;
     private BigDecimal price;
     private String sizeLabel;
-
 }
