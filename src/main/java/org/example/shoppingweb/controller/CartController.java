@@ -328,8 +328,13 @@ public class CartController {
                     request.getShippingAddress(),
                     request.getPhone(),
                     request.getDiscountCode(),
-                    items
+                    items,
+                    request.getPaymentMethod()
             );
+            String paymentMethod = request.getPaymentMethod();
+            if ("COD".equalsIgnoreCase(paymentMethod)) {
+                return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+            }
             return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));

@@ -10,4 +10,6 @@ public class CheckoutRequestDTO {
     private String phone;
     private String discountCode;
     private List<OrderItemRequestDTO> items;
+    private String paymentMethod;
+
 }

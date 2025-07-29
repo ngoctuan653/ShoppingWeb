@@ -52,6 +52,13 @@ public class Order {
     @Column(name = "phone_number", length = 10)
     private String phoneNumber;
 
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @Column(name = "payment_status")
+    private String paymentStatus;
+
+
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
     private Instant createdAt;

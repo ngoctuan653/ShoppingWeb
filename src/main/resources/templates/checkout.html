@@ -61,14 +61,14 @@
                     <label for="phone" class="form-label">Phone Number:</label>
                     <input type="text" class="form-control" name="phone" id="phone" required>
                 </div>
-                <!--                <div class="mb-3">-->
-                <!--                    <label for="payment" class="form-label">Payment Method</label>-->
-                <!--                    <select class="form-select" id="payment" name="payment" required>-->
-                <!--                        <option value="credit-card">Credit Card</option>-->
-                <!--                        <option value="paypal">PayPal</option>-->
-                <!--                        <option value="bank-transfer">Bank Transfer</option>-->
-                <!--                    </select>-->
-                <!--                </div>-->
+                <div class="mb-3">
+                    <label for="paymentMethod" class="form-label">Payment Method</label>
+                    <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                        <option value="COD">Cash on Delivery</option>
+                        <option value="VNPAY">VNPay</option>
+                        <option value="MOMO">Momo</option>
+                    </select>
+                </div>
 
                 <!-- Cart Total -->
                 <input type="hidden" name="discountCode" id="discountCodeHidden">
@@ -94,7 +94,8 @@
                     <span>Discount:</span>
                     <span>
                         <span id="discountAmount">- $0.00</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeDiscount" title="Remove discount">
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeDiscount"
+                                title="Remove discount">
                             <i class="bi bi-x-circle"></i>
                         </button>
                     </span>
@@ -137,11 +138,11 @@
         const shippingAddress = document.getElementById("shippingAddress").value.trim();
         const phone = document.getElementById("phone").value.trim();
         const discountCode = document.getElementById("discountCode").value.trim();
-
+        const paymentMethod = document.getElementById("paymentMethod").value.trim();
         const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
 
         // Gọi lại giỏ hàng để lấy đúng quantity
-        const res = await fetch("/cart/json", { credentials: "include" });
+        const res = await fetch("/cart/json", {credentials: "include"});
         const cartData = await res.json();
 
         const items = cartData
@@ -161,25 +162,29 @@
             shippingAddress,
             phone,
             discountCode,
+            paymentMethod,
             items
         };
 
         const response = await fetch("/cart/checkout-ajax", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             credentials: "include",
             body: JSON.stringify(requestBody)
         });
 
         if (response.ok) {
             const data = await response.json();
-            if (data.success) {
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect đến cổng thanh toán
+            } else if (data.success) {
                 localStorage.removeItem("selectedCartItems");
                 window.location.href = `/order/success?id=${data.orderId}`;
             } else {
                 alert("Lỗi: " + data.message);
             }
-        } else {
+        }
+        else {
             const text = await response.text();
             alert("Lỗi: " + text);
         }

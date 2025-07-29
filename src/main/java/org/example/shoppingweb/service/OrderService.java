@@ -129,7 +129,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrderWithItems(User user, String shippingAddress, String phone, String discountCode, List<OrderItemRequestDTO> items) {
+    public Order createOrderWithItems(User user, String shippingAddress, String phone, String discountCode, List<OrderItemRequestDTO> items, String paymentMethod) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("Không có sản phẩm nào được chọn.");
         }
@@ -152,6 +152,7 @@ public class OrderService {
         order.setUser(user);
         order.setShippingAddress(shippingAddress);
         order.setPhoneNumber(phone);
+        order.setPaymentMethod(paymentMethod);
         order.setOrderDate(Instant.now());
         order.setCreatedAt(nowInVietnam.toInstant());
         order.setUpdatedAt(Instant.now());

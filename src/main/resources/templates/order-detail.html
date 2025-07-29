@@ -80,7 +80,16 @@
 
             <!-- Order Summary -->
             <div class="col-lg-4">
-
+                <!-- Payment Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Payment</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="paymentInfo">
+                            <p><span th:text="${order.paymentMethod}"></span></p></div>
+                    </div>
+                </div>
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Status</h5>
@@ -120,17 +129,7 @@
                     </div>
                 </div>
 
-                <!-- Payment Information -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Payment Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="paymentInfo">
-                            <!-- Payment info will be loaded here by JavaScript -->
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
@@ -156,7 +155,8 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}" class="d-flex align-items-center">
+                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}"
+                             class="d-flex align-items-center">
                             <i class="bi bi-arrow-return-left fs-4 text-warning me-3"></i>
                             <div>
                                 <h6 class="mb-1">Return Items</h6>
