@@ -2,6 +2,8 @@ package org.example.shoppingweb.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.CartItemDTO;
+import org.example.shoppingweb.DTO.CheckoutRequestDTO;
+import org.example.shoppingweb.DTO.OrderItemRequestDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.example.shoppingweb.security.CustomUserDetails;
@@ -100,7 +102,7 @@ public class CartController {
             cart.setQuantity(newQuantity);
             cartRepository.save(cart);
         } else {
-            if (productSize.getStockQuantity()<1) {
+            if (productSize.getStockQuantity() < 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This size is out of stock.");
             }
             Cart cart = new Cart();
@@ -163,7 +165,6 @@ public class CartController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
     }
-
 
 
     @PostMapping("/decrease/{productId}")
@@ -242,14 +243,21 @@ public class CartController {
             byte[] imageBytes = cart.getProduct().getImage();
             String base64Image = (imageBytes != null && imageBytes.length > 0)
                     ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes) : null;
+
+            Optional<Productsize> optionalSize = productSizeRepository.findByProductAndSize(cart.getProduct(), cart.getSize());
+            boolean outOfStock = optionalSize
+                    .map(ps -> ps.getStockQuantity() < cart.getQuantity())
+                    .orElse(true);
+
             return new CartItemDTO(
                     cart.getProduct().getId(),
                     cart.getProduct().getProductName(),
                     base64Image,
                     cart.getQuantity(),
                     cart.getProduct().getPrice(),
-                    cart.getSize().getSizeLabel()
-            );
+                    cart.getSize().getSizeLabel(),
+                    outOfStock
+                    );
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);
     }
@@ -297,4 +305,34 @@ public class CartController {
         return "redirect:/order/success?id=" + order.getId();
     }
 
+    @PostMapping("/checkout-ajax")
+    @ResponseBody
+    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn chưa đăng nhập.");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        User user = userDetails.getUser();
+
+        List<OrderItemRequestDTO> items = request.getItems();
+        if (items == null || items.isEmpty()) {
+            return ResponseEntity.badRequest().body("Không có sản phẩm nào được chọn.");
+        }
+
+        try {
+            Order order = orderService.createOrderWithItems(
+                    user,
+                    request.getShippingAddress(),
+                    request.getPhone(),
+                    request.getDiscountCode(),
+                    items
+            );
+            return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
 }
