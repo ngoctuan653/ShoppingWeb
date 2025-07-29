@@ -29,7 +29,7 @@ public class WishlistController {
     private WishlistService wishlistService;
 
     @Autowired
-    private HttpSession session; // Thêm để fallback nếu cần
+    private HttpSession session;
 
     @GetMapping
     public String showWishlist(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
