@@ -30,20 +30,25 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
+    @Async
     public void sendContactEmail(Contact contact) {
-        String to = "viethoang2454@gmail.com";
-        String subject = "New Contact: " + contact.getSubject();
-        String content = "From: " + contact.getFullName() + "\n"
-                + "Email: " + contact.getEmail() + "\n"
-                + "Phone: " + (contact.getPhoneNumber() != null ? contact.getPhoneNumber() : "N/A") + "\n"
-                + "Message:\n" + contact.getMessage();
+        try {
+            String to = "viethoang2454@gmail.com";
+            String subject = "New Contact: " + contact.getSubject();
+            String content = "From: " + contact.getFullName() + "\n"
+                    + "Email: " + contact.getEmail() + "\n"
+                    + "Phone: " + (contact.getPhoneNumber() != null ? contact.getPhoneNumber() : "N/A") + "\n"
+                    + "Message:\n" + contact.getMessage();
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(content);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(content);
 
-        javaMailSender.send(message);
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -129,11 +134,16 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendResetCode(String toEmail, String resetCode) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("Reset Password Code");
-        message.setText("Your reset code is: " + resetCode);
-        javaMailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("Reset Password Code");
+            message.setText("Your reset code is: " + resetCode);
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
