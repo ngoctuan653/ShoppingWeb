@@ -19,7 +19,6 @@ public class AdminController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/dashboard")
     public String showDashboard(Model model) {
-        
         model.addAttribute("totalRevenue", 24780); 
         model.addAttribute("totalOrders", 1245);
         model.addAttribute("activeProducts", 342);
