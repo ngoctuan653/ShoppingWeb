@@ -80,6 +80,7 @@ public class OrderController {
         }
     }
 
+
     @PostMapping("/order/{orderId}/confirm")
     @ResponseBody
     public ResponseEntity<?> confirmOrder(@PathVariable Integer orderId) {
@@ -99,4 +100,5 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, newStatus);
         return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
     }
+
 }
