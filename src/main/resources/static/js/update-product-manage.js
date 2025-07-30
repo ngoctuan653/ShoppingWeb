@@ -100,7 +100,7 @@ function openEditModal(product) {
     if (editDescriptionEditor) {
         editDescriptionEditor.setData(product.description);
     }
-    document.getElementById("edit-price").value = parseInt(product.price);
+    document.getElementById("edit-price").value = formatCurrencyInput(product.price);
     document.getElementById("edit-stockQuantity").value = product.stockQuantity;
     document.getElementById("edit-category").value = product.category.id;
     document.getElementById("edit-subcategory").value = product.subcategory.id;
@@ -119,6 +119,17 @@ function openEditModal(product) {
 
     renderSizeListUpdate();
 }
+
+function formatCurrencyInput(value) {
+    const number = Number(value.toString().replace(/[.,]/g, ''));
+    if (isNaN(number)) return '';
+    return number.toLocaleString('vi-VN'); // mặc định sẽ dùng dấu `.`
+}
+
+document.getElementById("edit-price").addEventListener("input", function (e) {
+    const raw = e.target.value.replace(/[^\d]/g, '');
+    e.target.value = formatCurrencyInput(raw);
+});
 
 
 // === Submit cập nhật sản phẩm ===
@@ -140,7 +151,7 @@ document.getElementById("updateForm").addEventListener("submit", async function 
     const updatedProduct = {
         productName: document.getElementById("edit-productName").value,
         description: document.getElementById("edit-description").value,
-        price: parseInt(document.getElementById("edit-price").value),
+        price: parseInt(document.getElementById("edit-price").value.replace(/[.,]/g, '')),
         categoryId: parseInt(document.getElementById("edit-category").value),
         subCategoryId: parseInt(document.getElementById("edit-subcategory").value),
         brandId: parseInt(document.getElementById("edit-brand").value),

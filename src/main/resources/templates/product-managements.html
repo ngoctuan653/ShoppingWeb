@@ -75,7 +75,7 @@
                             th:attr="
                             data-id=${product.id},
                             data-name=${product.productName},
-                            data-price=${product.price.intValue()},
+                            data-price=${product.price.longValue()},
                             data-quantity=${product.stockQuantity},
                             data-description=${product.description},
                             data-category-id=${product.category.id},
@@ -117,7 +117,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="price" class="form-label">Price</label>
-                                <input type="number" class="form-control" id="price" name="price" required>
+                                <input type="text" class="form-control" id="price" name="price" inputmode="numeric" pattern="\d*" required>
                             </div>
 
                             <div class="col-md-6">

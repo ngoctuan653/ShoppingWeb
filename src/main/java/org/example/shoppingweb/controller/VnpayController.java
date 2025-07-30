@@ -23,11 +23,6 @@ import java.util.stream.Collectors;
 @Controller
 public class VnpayController {
     @Autowired
-    private VnpayService vnpayService;
-
-    @Value("${vnpay.hash-secret}")
-    private String vnpHashSecret;
-    @Autowired
     private OrderService orderService;
     @Autowired
     private UserRepository userRepository;
@@ -66,7 +61,4 @@ public class VnpayController {
         redirectAttributes.addFlashAttribute("message", "Thanh toán thất bại hoặc bị huỷ.");
         return "redirect:/checkout";
     }
-
-
-
 }

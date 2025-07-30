@@ -24,6 +24,20 @@ function addSize() {
     }
 }
 
+// Định dạng tiền khi nhập
+function formatCurrencyInput(value) {
+    // Xóa ký tự không phải số
+    const numeric = value.replace(/[^\d]/g, '');
+    if (!numeric) return '';
+    return parseInt(numeric).toLocaleString('vi-VN');
+}
+
+document.getElementById("price").addEventListener("input", function () {
+    const formatted = formatCurrencyInput(this.value);
+    this.value = formatted;
+});
+
+
 document.getElementById("productForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -32,7 +46,7 @@ document.getElementById("productForm").addEventListener("submit", async function
     const product = {
         productName: document.getElementById("productName").value,
         description: document.getElementById("description").value,
-        price: parseFloat(document.getElementById("price").value),
+        price: parseFloat(document.getElementById("price").value.replace(/[.,]/g, '')),
         categoryId: parseInt(document.getElementById("categoryId").value),
         subCategoryId: parseInt(document.getElementById("subCategoryId").value),
         brandId: parseInt(document.getElementById("brandId").value),
