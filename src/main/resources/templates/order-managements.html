@@ -19,7 +19,7 @@
     <div th:replace="fragments/admin-sidebar :: sidebar"></div>
 
     <!-- Main Content -->
-	<div id="mainContent" class="flex-grow-1 p-4" style="margin-left: 256px;">
+    <div id="mainContent" class="flex-grow-1 p-4" style="margin-left: 256px;">
         <div>
             <h2 class="fw-bold mb-0">Order Management</h2>
             <p class="text-muted">Manage your store's orders</p>
@@ -53,46 +53,6 @@
             </tbody>
         </table>
     </div>
-
-    <table class="table table-bordered table-hover align-middle text-center">
-        <thead class="table-dark">
-        <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.displayCode}">#1024</td>
-            <td th:text="${order.user.fullName}">John Doe</td>
-            <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">2025-07-20</td>
-            <td>
-    <span th:switch="${order.status.statusName}">
-        <span th:case="'Pending'" class="badge bg-warning text-dark">Pending</span>
-        <span th:case="'Confirmed'" class="badge bg-info text-dark">Confirmed</span>
-        <span th:case="'Shipped'" class="badge bg-secondary text-white">Shipped</span>
-        <span th:case="'Delivered'" class="badge bg-success">Delivered</span>
-        <span th:case="'Cancelled'" class="badge bg-danger">Cancelled</span>
-        <span th:case="*"
-              class="badge bg-dark text-white"
-              th:text="${order.status.statusName}">Unknown</span>
-    </span>
-            </td>
-
-            <td>
-                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#confirmModal"
-                        th:attr="onclick=|loadOrderDetails(${order.id})|">
-                    <i class="bi bi-pencil"></i>
-                </button>
-
-            </td>
-        </tr>
-        <!-- Add more rows here -->
-        </tbody>
-    </table>
 </div>
 
 <!-- Confirm Modal -->
@@ -192,8 +152,8 @@
         try {
             const response = await fetch(`/order/${selectedOrderId}/status`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({status: newStatus})
             });
 
             const result = await response.json();
