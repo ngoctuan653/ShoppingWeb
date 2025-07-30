@@ -3,96 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Sidebar</title>
-    <style>
-        .sidebar {
-            transition: all 0.3s ease;
-        }
-        .sidebar.collapsed {
-            width: 80px;
-        }
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-        .sidebar.collapsed .logo-text {
-            display: none;
-        }
-        .sidebar.collapsed .toggle-btn {
-            justify-content: center;
-        }
-        .main-content {
-            margin-left: 280px;
-            transition: all 0.3s ease;
-        }
-        .main-content.expanded {
-            margin-left: 80px;
-        }
-        .text-dark {
-            color: #1f2937;
-        }
-    </style>
 </head>
 <body>
-<div id="sidebar" class="sidebar fixed top-16 left-0 bottom-0 w-64 bg-white shadow-md overflow-y-auto" th:fragment="sidebar">
+<div th:fragment="sidebar" id="sidebar" class="sidebar w-64 h-screen bg-white shadow-md overflow-y-auto">
     <div class="px-4 py-6">
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-xl font-bold text-gray-800 logo-text">Dashboard</h2>
             <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700 toggle-btn">
-                <i class="bi bi-list"></i>
+                <i class="bi bi-three-dots-vertical"></i>
             </button>
         </div>
         <nav>
             <ul class="space-y-2">
                 <li>
-                    <a th:href="@{/admin/dashboard}" th:class="${#httpServletRequest.requestURI == '/admin/dashboard'} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 active'">
-                        <i class="bi bi-speedometer2 mr-3 text-indigo-600 dark:text-indigo-400"></i>
+                    <a th:href="@{/admin/dashboard}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-speedometer2 mr-3 text-indigo-600"></i>
                         <span class="nav-text">Overview</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/product-manage}" th:class="${#httpServletRequest.requestURI == '/product-manage'} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700'">
-                        <i class="bi bi-cart3 mr-3 text-indigo-600 dark:text-indigo-400"></i>
+                    <a th:href="@{/product-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-cart3 mr-3 text-indigo-600"></i>
                         <span class="nav-text">Products</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/admin/categories}" th:class="${#httpServletRequest.requestURI == '/admin/categories'} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700'">
-                        <i class="bi bi-tags mr-3 text-indigo-600 dark:text-indigo-400"></i>
+                    <a th:href="@{/admin/categories}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-tags mr-3 text-indigo-600"></i>
                         <span class="nav-text">Categories</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/admin/users}" th:class="${#httpServletRequest.requestURI == '/admin/users'} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700'">
-                        <i class="bi bi-people mr-3 text-indigo-600 dark:text-indigo-400"></i>
-                        <span class="nav-text">Customers</span>
+                    <a th:href="@{/admin/users}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-people mr-3 text-indigo-600"></i>
+                        <span class="nav-text">Users</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/order-manage}" th:class="${#strings.contains(#httpServletRequest.requestURI, '/order-manage')} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700'">
-                        <i class="bi bi-receipt mr-3 text-indigo-600 dark:text-indigo-400"></i>
+                    <a th:href="@{/order-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-receipt mr-3 text-indigo-600"></i>
                         <span class="nav-text">Orders</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/discount-manage}" th:class="${#httpServletRequest.requestURI == '/discount-manage'} ? 'flex items-center px-4 py-3 text-gray-700 rounded-lg bg-indigo-50' : 'flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-700'">
-                        <i class="bi bi-percent mr-3 text-indigo-600 dark:text-indigo-400"></i>
+                    <a th:href="@{/discount-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <i class="bi bi-percent mr-3 text-indigo-600"></i>
                         <span class="nav-text">Discounts</span>
                     </a>
                 </li>
             </ul>
         </nav>
     </div>
-    <script>
-        // Toggle sidebar
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            });
-        });
-    </script>
 </div>
 </body>
 </html>
