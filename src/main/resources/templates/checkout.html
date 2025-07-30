@@ -77,15 +77,19 @@
                     <input type="hidden" id="cartTotalValue" value="0">
                 </div>
 
-                <!-- Discount Code -->
-                <div class="mb-3">
-                    <label for="discountCode" class="form-label">Discount Code</label>
-                    <div class="input-group">
-                        <input type="text" id="discountCode" class="form-control" placeholder="Enter discount code">
-                        <button class="btn btn-outline-secondary" type="button" id="applyDiscount">Apply</button>
-                    </div>
-                    <div id="discountFeedback" class="form-text text-success"></div>
-                </div>
+				<!-- Discount Code -->
+				<div class="mb-3">
+				    <label for="discountCode" class="form-label d-flex justify-content-between">
+				        <span>Discount Code</span>
+				        <a href="#" class="small text-primary" data-bs-toggle="modal" data-bs-target="#couponModal">View Available Coupons</a>
+				    </label>
+				    <div class="input-group">
+				        <input type="text" id="discountCode" class="form-control" placeholder="Enter discount code">
+				        <button class="btn btn-outline-secondary" type="button" id="applyDiscount">Apply</button>
+				    </div>
+				    <div id="discountFeedback" class="form-text text-success"></div>
+				</div>
+
 
                 <!-- Discount Amount and New Total -->
                 <div class="d-flex justify-content-between mb-2 align-items-center" id="discountRow"
@@ -189,6 +193,32 @@
         }
     });
 </script>
+
+<!-- Discount Coupon Modal -->
+<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="couponModalLabel">Available Discount Codes</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>SUMMER10</strong> – 10% off Summer Sale	
+                    </li>
+                    <li class="list-group-item">
+                        <strong>NEWUSER20</strong> – 20% off for new users	
+                    </li>
+                    <li class="list-group-item">
+                        <strong>FLASH15</strong> – 15% off flash sale	
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 </body>
