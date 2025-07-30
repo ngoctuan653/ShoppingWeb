@@ -100,7 +100,7 @@ function openEditModal(product) {
     if (editDescriptionEditor) {
         editDescriptionEditor.setData(product.description);
     }
-    document.getElementById("edit-price").value = product.price;
+    document.getElementById("edit-price").value = parseInt(product.price);
     document.getElementById("edit-stockQuantity").value = product.stockQuantity;
     document.getElementById("edit-category").value = product.category.id;
     document.getElementById("edit-subcategory").value = product.subcategory.id;
@@ -140,8 +140,7 @@ document.getElementById("updateForm").addEventListener("submit", async function 
     const updatedProduct = {
         productName: document.getElementById("edit-productName").value,
         description: document.getElementById("edit-description").value,
-        price: parseFloat(document.getElementById("edit-price").value),
-        // stockQuantity: parseInt(document.getElementById("edit-stockQuantity").value),
+        price: parseInt(document.getElementById("edit-price").value),
         categoryId: parseInt(document.getElementById("edit-category").value),
         subCategoryId: parseInt(document.getElementById("edit-subcategory").value),
         brandId: parseInt(document.getElementById("edit-brand").value),

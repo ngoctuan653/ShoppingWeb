@@ -172,7 +172,7 @@
                             </a>
                             <p class="card-text text-muted" th:text="${product.subcategory.subcategoryName}"></p>
                             <p class="card-text text-muted" th:text="${product.category.categoryName}"></p>
-                            <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
+                            <p class="fw-bold" th:text="${product.formatPrice(product.price)} +' VNĐ'">$0.00</p>
                         </div>
                     </div>
                 </div>

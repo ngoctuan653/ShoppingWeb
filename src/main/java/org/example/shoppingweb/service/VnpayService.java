@@ -11,82 +11,88 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class VnpayService {
 
     @Value("${vnpay.tmn-code}")
-    private String vnpTmnCode;
+    private String vnp_TmnCode;
 
     @Value("${vnpay.hash-secret}")
-    private String vnpHashSecret;
+    private String vnp_HashSecret;
 
-    @Value("${vnpay.payment-url}")
-    private String vnpPayUrl;
+    @Value("${vnpay.pay-url}")
+    private String vnp_PaymentUrl;
 
     @Value("${vnpay.return-url}")
-    private String vnpReturnUrl;
+    private String vnp_ReturnUrl;
 
-    public String createRedirectUrl(Order order) {
-        Map<String, String> vnpParams = new TreeMap<>();
-        vnpParams.put("vnp_Version", "2.1.0");
-        vnpParams.put("vnp_Command", "pay");
-        vnpParams.put("vnp_TmnCode", vnpTmnCode);
-
-        String amount = order.getTotalAmount()
-                .multiply(BigDecimal.valueOf(100)) // nhân 100 vì VNPay dùng đơn vị VND * 100
-                .toBigInteger()
-                .toString();
-        vnpParams.put("vnp_Amount", amount);
-
-        vnpParams.put("vnp_CurrCode", "VND");
-        vnpParams.put("vnp_TxnRef", String.valueOf(order.getId()));
-        vnpParams.put("vnp_OrderInfo", "Payment for order " + order.getId());
-        vnpParams.put("vnp_Locale", "vn");
-        vnpParams.put("vnp_ReturnUrl", vnpReturnUrl);
-        vnpParams.put("vnp_IpAddr", "127.0.0.1");
-        String createDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        vnpParams.put("vnp_CreateDate", createDate);
-
-        // ✅ In log các tham số gửi đi
-        System.out.println("======= VNPay Parameters =======");
-        vnpParams.forEach((k, v) -> System.out.println(k + ": " + v));
-        System.out.println("======= END Parameters =========");
-
-        // Chuỗi query encode để redirect
-        String query = vnpParams.entrySet().stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&"));
-
-        // Chuỗi hash (không encode)
-        String hashData = vnpParams.entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue()) // ✔ KHÔNG ENCODE
-                .collect(Collectors.joining("&"));
-
-        System.out.println("Hash data string: " + hashData);
-
-        String secureHash = hmacSHA512(vnpHashSecret, hashData);
-        System.out.println("Secure Hash: " + secureHash);
-
-        String fullUrl = vnpPayUrl + "?" + query + "&vnp_SecureHash=" + secureHash;
-        System.out.println("Final Redirect URL: " + fullUrl);
-
-        return fullUrl;
-    }
-
-    public String hmacSHA512(String key, String data) {
+    public String createRedirectUrl(BigDecimal totalAmount) {
         try {
-            Mac hmac = Mac.getInstance("HmacSHA512");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
-            hmac.init(secretKeySpec);
-            byte[] hashBytes = hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            return DatatypeConverter.printHexBinary(hashBytes).toUpperCase();
+            String vnp_Version = "2.1.0";
+            String vnp_Command = "pay";
+            String orderType = "other";
+            long amountLong = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
+
+            String vnp_TxnRef = UUID.randomUUID().toString(); // Tạo mã ngẫu nhiên tạm
+            String vnp_IpAddr = "127.0.0.1"; // Cập nhật IP thực nếu cần
+
+            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            String vnp_CreateDate = formatter.format(cld.getTime());
+
+            cld.add(Calendar.MINUTE, 15);
+            String vnp_ExpireDate = formatter.format(cld.getTime());
+
+            Map<String, String> vnp_Params = new HashMap<>();
+            vnp_Params.put("vnp_Version", vnp_Version);
+            vnp_Params.put("vnp_Command", vnp_Command);
+            vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+            vnp_Params.put("vnp_Amount", String.valueOf(amountLong));
+            vnp_Params.put("vnp_CurrCode", "VND");
+            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+            vnp_Params.put("vnp_OrderInfo", "Thanh toán đơn hàng");
+            vnp_Params.put("vnp_OrderType", orderType);
+            vnp_Params.put("vnp_Locale", "vn");
+            vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
+            vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+            vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+            vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+            List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+            Collections.sort(fieldNames);
+
+            StringBuilder hashData = new StringBuilder();
+            StringBuilder query = new StringBuilder();
+            for (String fieldName : fieldNames) {
+                String value = vnp_Params.get(fieldName);
+                if (value != null && !value.isEmpty()) {
+                    hashData.append(fieldName).append('=').append(URLEncoder.encode(value, StandardCharsets.US_ASCII)).append('&');
+                    query.append(fieldName).append('=').append(URLEncoder.encode(value, StandardCharsets.US_ASCII)).append('&');
+                }
+            }
+
+            hashData.setLength(hashData.length() - 1);
+            query.setLength(query.length() - 1);
+
+            String secureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
+            query.append("&vnp_SecureHash=").append(secureHash);
+
+            return vnp_PaymentUrl + "?" + query.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi mã hóa HMAC SHA512", e);
+            throw new RuntimeException("Lỗi tạo URL VNPay: " + e.getMessage(), e);
         }
     }
+
+
+    private String hmacSHA512(String key, String data) throws Exception {
+        Mac hmac512 = Mac.getInstance("HmacSHA512");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
+        hmac512.init(secretKeySpec);
+        byte[] hash = hmac512.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return DatatypeConverter.printHexBinary(hash).toLowerCase();
+    }
 }
+

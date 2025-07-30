@@ -33,8 +33,8 @@ document.getElementById("applyDiscount").addEventListener("click", function () {
             const discountValue = cartTotal * (percentage / 100);
             const newTotal = Math.max(0, cartTotal - discountValue);
 
-            discountAmountEl.textContent = `- $${discountValue.toFixed(2)}`;
-            finalTotalEl.textContent = `$${newTotal.toFixed(2)}`;
+            discountAmountEl.textContent = `- ${discountValue.toLocaleString('vi-VN')} VNĐ`;
+            finalTotalEl.textContent = `${newTotal.toLocaleString('vi-VN')} VNĐ`;
             discountRow.style.display = "flex";
             finalTotalRow.style.display = "flex";
 
@@ -61,8 +61,8 @@ document.getElementById("removeDiscount").addEventListener("click", function () 
 
     discountRow.style.display = "none";
     finalTotalRow.style.display = "none";
-    discountAmountEl.textContent = "- $0.00";
-    finalTotalEl.textContent = "$0.00";
+    discountAmountEl.textContent = "-0 VNĐ";
+    finalTotalEl.textContent = "0 VNĐ";
     hiddenInput.value = "";
     feedback.textContent = "Discount removed.";
     feedback.className = "form-text text-warning";

@@ -125,7 +125,7 @@
                             <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">
                                 Category</p>
                             <div class="mt-auto">
-                                <p class="fw-bold mb-1 fs-5" th:text="'$' + ${item.product.price}">$0.00</p>
+                                <p class="fw-bold mb-1 fs-5" th:text="${item.product.formatPrice(item.product.price)} +' VNĐ'">$0.00</p>
 
                                 <span class="badge bg-danger mt-2"
                                       th:if="${item.product.productSizes.?[stockQuantity > 0].isEmpty()}">

@@ -149,6 +149,33 @@ public class OrderService {
         return order;
     }
 
+    public BigDecimal calculateTotalBeforeDiscount(List<OrderItemRequestDTO> items) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItemRequestDTO item : items) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm ID: " + item.getProductId()));
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        }
+        return total;
+    }
+
+    public BigDecimal calculateFinalTotal(BigDecimal totalBeforeDiscount, String discountCode) {
+        if (discountCode == null || discountCode.trim().isEmpty()) {
+            return totalBeforeDiscount;
+        }
+
+        Discount discount = discountRepository.findByCodeIgnoreCase(discountCode.trim())
+                .orElseThrow(() -> new RuntimeException("Mã giảm giá không hợp lệ"));
+
+        Instant now = Instant.now();
+        if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
+                (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
+            throw new RuntimeException("Mã giảm giá đã hết hạn hoặc chưa có hiệu lực.");
+        }
+
+        BigDecimal discountPercent = discount.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        return totalBeforeDiscount.subtract(totalBeforeDiscount.multiply(discountPercent));
+    }
 
 
     @Transactional
@@ -233,13 +260,12 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
-        Orderstatus paidStatus = orderStatusRepository.findByStatusName("Paid")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy trạng thái Paid"));
-
-        order.setStatus(paidStatus);
+        order.setPaymentStatus("PAID");
         order.setUpdatedAt(Instant.now());
+
         orderRepository.save(order);
     }
+
 
 
 }

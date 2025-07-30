@@ -1,12 +1,21 @@
 package org.example.shoppingweb.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.example.shoppingweb.DTO.CheckoutRequestDTO;
+import org.example.shoppingweb.entity.Order;
+import org.example.shoppingweb.entity.User;
+import org.example.shoppingweb.repository.OrderRepository;
+import org.example.shoppingweb.repository.UserRepository;
+import org.example.shoppingweb.service.OrderService;
 import org.example.shoppingweb.service.VnpayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,44 +27,46 @@ public class VnpayController {
 
     @Value("${vnpay.hash-secret}")
     private String vnpHashSecret;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
 
     @GetMapping("/payment/vnpay-return")
-    public String vnpayReturn(HttpServletRequest request, Model model) {
-        Map<String, String> params = request.getParameterMap().entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue()[0]
-                ));
+    public String handleVNPayReturn(@RequestParam Map<String, String> params, HttpSession session, RedirectAttributes redirectAttributes) {
+        String vnp_ResponseCode = params.get("vnp_ResponseCode");
 
-        String secureHash = params.remove("vnp_SecureHash");
+        if ("00".equals(vnp_ResponseCode)) {
+            CheckoutRequestDTO request = (CheckoutRequestDTO) session.getAttribute("checkoutRequest");
+            Integer userId = (Integer) session.getAttribute("userId");
+            User user = userRepository.findById(userId).orElseThrow();
 
-        String hashData = params.entrySet().stream()
-                .filter(e -> !e.getKey().equals("vnp_SecureHashType"))
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> e.getKey() + "=" + e.getValue())
-                .collect(Collectors.joining("&"));
+            // Tạo đơn hàng
+            Order order = orderService.createOrderWithItems(
+                    user,
+                    request.getShippingAddress(),
+                    request.getPhone(),
+                    request.getDiscountCode(),
+                    request.getItems(),
+                    "VNPAY"
+            );
+            order.setPaymentStatus("PAID");
+            orderRepository.save(order);
 
-        String myHash = vnpayService.hmacSHA512(vnpHashSecret, hashData);
+            // Xóa session
+            session.removeAttribute("checkoutRequest");
+            session.removeAttribute("userId");
 
-        if (myHash.equalsIgnoreCase(secureHash)) {
-            String responseCode = params.get("vnp_ResponseCode");
-            String txnRef = params.get("vnp_TxnRef");
-
-            if ("00".equals(responseCode)) {
-                // thành công
-                Long orderId = Long.parseLong(txnRef);
-                // Cập nhật đơn hàng nếu cần
-                model.addAttribute("message", "Thanh toán thành công");
-            } else {
-                model.addAttribute("message", "Thanh toán thất bại. Mã lỗi: " + responseCode);
-            }
-        } else {
-            model.addAttribute("message", "Sai chữ ký bảo mật");
+            return "redirect:/order/success?id=" + order.getId();
         }
 
-        return "payment-result"; // trả về view hiển thị kết quả
+        redirectAttributes.addFlashAttribute("message", "Thanh toán thất bại hoặc bị huỷ.");
+        return "redirect:/checkout";
     }
+
 
 
 }

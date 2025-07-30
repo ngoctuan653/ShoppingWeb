@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
@@ -50,6 +51,8 @@ public class CartController {
     private DiscountRepository discountRepository;
     @Autowired
     private VnpayService vnpayService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @PostMapping("/add/{productId}")
     @ResponseBody
@@ -266,7 +269,7 @@ public class CartController {
 
     @PostMapping("/checkout-ajax")
     @ResponseBody
-    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request) {
+    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
@@ -282,24 +285,34 @@ public class CartController {
         }
 
         try {
-            Order order = orderService.createOrderWithItems(
-                    user,
-                    request.getShippingAddress(),
-                    request.getPhone(),
-                    request.getDiscountCode(),
-                    items,
-                    request.getPaymentMethod()
-            );
-            String paymentMethod = request.getPaymentMethod();
-            if ("COD".equalsIgnoreCase(paymentMethod)) {
+            if ("COD".equalsIgnoreCase(request.getPaymentMethod())) {
+                // Tạo đơn hàng luôn
+                Order order = orderService.createOrderWithItems(
+                        user,
+                        request.getShippingAddress(),
+                        request.getPhone(),
+                        request.getDiscountCode(),
+                        items,
+                        "COD"
+                );
+                order.setPaymentStatus("UNPAID");
+                orderRepository.save(order);
                 return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
             } else if ("VNPAY".equalsIgnoreCase(request.getPaymentMethod())) {
-                String redirectUrl = vnpayService.createRedirectUrl(order);
+                session.setAttribute("checkoutRequest", request);
+                session.setAttribute("userId", user.getId());
+
+                BigDecimal totalBeforeDiscount = orderService.calculateTotalBeforeDiscount(items);
+                BigDecimal finalTotal = orderService.calculateFinalTotal(totalBeforeDiscount, request.getDiscountCode());
+
+                String redirectUrl = vnpayService.createRedirectUrl(finalTotal);
                 return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
             }
-            return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phương thức thanh toán không hợp lệ"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
+
 }
