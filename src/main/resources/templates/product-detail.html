@@ -65,7 +65,7 @@
 				<p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
 				<p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
 				<p class="mb-4 fs-5" th:utext="${product.description}">Product description</p>
-				<div class="price-tag mb-4" th:text="'$' + ${product.price}">$0.00</div>
+				<div class="price-tag mb-4" th:text=" ${product.price} + 'VND'">$0.00</div>
 
 
 				<div th:if="${product.stockQuantity != 0}" class="mb-4">
