@@ -24,8 +24,11 @@ public class AdminController {
         model.addAttribute("totalOrders", 1245);
         model.addAttribute("activeProducts", 342);
         model.addAttribute("customers", 8756);
+        model.addAttribute("page", "dashboard");
         return "admin-dashboard"; 
     }
+    
+    
 
 
 }

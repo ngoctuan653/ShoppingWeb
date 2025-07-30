@@ -11,6 +11,7 @@ import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +34,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/order-manage")
     public String orderManagePage(Model model){
         List<Order> orders = orderRepository.findAll();
