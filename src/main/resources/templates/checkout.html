@@ -174,8 +174,8 @@
 
         if (response.ok) {
             const data = await response.json();
-            if (data.redirect) {
-                window.location.href = data.redirect; // Redirect đến cổng thanh toán
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl; // Redirect đến cổng thanh toán
             } else if (data.success) {
                 localStorage.removeItem("selectedCartItems");
                 window.location.href = `/order/success?id=${data.orderId}`;
