@@ -33,7 +33,7 @@
             <td th:text="${order.displayCode}">#1024</td>
             <td th:text="${order.user.fullName}">John Doe</td>
             <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">2025-07-20</td>
-            <td><span th:text="${order.status.statusName}" class="badge bg-warning text-dark">Pending</span></td>
+			<td><span th:text="${order.status.statusName}" class="badge bg-warning text-dark">Pending</span></td>
             <td>
                 <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#confirmModal"
                         th:attr="onclick=|loadOrderDetails(${order.id})|">
