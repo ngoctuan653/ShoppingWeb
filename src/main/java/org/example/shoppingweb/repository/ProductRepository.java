@@ -10,5 +10,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer>, JpaS
     List<Product> findByStatusAndProductNameContainingIgnoreCase(String status, String keyword);
 
     List<Product> findByStatus(String status);
+    
+ // Đếm số sản phẩm có status = 'Active'
+    long countByStatus(String status);
 
 }

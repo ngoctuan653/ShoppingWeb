@@ -19,6 +19,8 @@ import java.util.List;
 @Entity
 @Table(name = "products")
 public class Product {
+	@Transient
+    private int quantitySold; // Trường tạm thời để lưu số lượng bán
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id", nullable = false)
