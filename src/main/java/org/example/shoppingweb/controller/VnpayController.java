@@ -1,6 +1,5 @@
 package org.example.shoppingweb.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.CheckoutRequestDTO;
 import org.example.shoppingweb.entity.Order;
@@ -8,17 +7,13 @@ import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.OrderRepository;
 import org.example.shoppingweb.repository.UserRepository;
 import org.example.shoppingweb.service.OrderService;
-import org.example.shoppingweb.service.VnpayService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 public class VnpayController {
