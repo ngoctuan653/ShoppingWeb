@@ -39,6 +39,8 @@ public class OrderService {
     private SizeRepository sizeRepository;
     @Autowired
     private DiscountRepository discountRepository;
+    @Autowired
+    private UserDiscountRepository userDiscountRepository;
 
     public Order findByIdAndUser(Integer orderId, User user) {
         return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
@@ -59,6 +61,13 @@ public class OrderService {
             if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
                     (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
                 throw new RuntimeException("Mã giảm giá đã hết hạn hoặc chưa có hiệu lực.");
+            }
+
+            if(discount.getAvailableQuantity() <= 0){
+                throw new RuntimeException("Mã giảm giá đã hết lượt sử dụng.");
+            }
+            if (userDiscountRepository.existsByUserAndDiscount(user, discount)) {
+                throw new RuntimeException("Bạn đã sử dụng mã giảm giá này rồi.");
             }
         }
 
@@ -138,6 +147,18 @@ public class OrderService {
 
         // Lưu đơn hàng và chi tiết
         order = orderRepository.save(order);
+        if (discount != null) {
+            Userdiscount userDiscount = new Userdiscount();
+            userDiscount.setUser(user);
+            userDiscount.setDiscount(discount);
+            userDiscount.setUsedAt(Instant.now());
+            userDiscountRepository.save(userDiscount);
+
+            discount.setAvailableQuantity(discount.getAvailableQuantity() - 1);
+            discount.setUpdatedAt(Instant.now());
+            discountRepository.save(discount);
+        }
+
         orderDetailRepository.saveAll(orderDetails);
 
         // Xóa các cart đã mua

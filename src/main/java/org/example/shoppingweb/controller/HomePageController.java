@@ -43,6 +43,9 @@ public class HomePageController {
         return "checkout";
     }
 
-
+    @GetMapping("/discount-manage")
+    public String discountManagePage() {
+        return "discount-managements";
+    }
 }
 

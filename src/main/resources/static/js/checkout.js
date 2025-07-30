@@ -1,3 +1,60 @@
+document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const shippingAddress = document.getElementById("shippingAddress").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const discountCode = document.getElementById("discountCode").value.trim();
+    const paymentMethod = document.getElementById("paymentMethod").value.trim();
+    const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
+
+    // Gọi lại giỏ hàng để lấy đúng quantity
+    const res = await fetch("/cart/json", {credentials: "include"});
+    const cartData = await res.json();
+
+    const items = cartData
+        .filter(item => selectedMap[`${item.productId}_${item.sizeLabel}`])
+        .map(item => ({
+            productId: item.productId,
+            sizeLabel: item.sizeLabel,
+            quantity: item.quantity
+        }));
+
+    if (items.length === 0) {
+        alert("Bạn chưa chọn sản phẩm nào.");
+        return;
+    }
+
+    const requestBody = {
+        shippingAddress,
+        phone,
+        discountCode,
+        paymentMethod,
+        items
+    };
+
+    const response = await fetch("/cart/checkout-ajax", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+        body: JSON.stringify(requestBody)
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        if (data.redirectUrl) {
+            window.location.href = data.redirectUrl; // Redirect đến cổng thanh toán
+        } else if (data.success) {
+            localStorage.removeItem("selectedCartItems");
+            window.location.href = `/order/success?id=${data.orderId}`;
+        } else {
+            alert("Lỗi: " + data.message);
+        }
+    } else {
+        const text = await response.text();
+        alert("Lỗi: " + text);
+    }
+});
+
 window.addEventListener('DOMContentLoaded', function () {
     const toastEl = document.getElementById('contactToast');
     if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
@@ -5,69 +62,6 @@ window.addEventListener('DOMContentLoaded', function () {
         toast.show();
     }
 });
-
-
-document.getElementById("applyDiscount").addEventListener("click", function () {
-    const code = document.getElementById("discountCode").value.trim().toUpperCase();
-    const feedback = document.getElementById("discountFeedback");
-    const discountRow = document.getElementById("discountRow");
-    const finalTotalRow = document.getElementById("finalTotalRow");
-    const discountAmountEl = document.getElementById("discountAmount");
-    const finalTotalEl = document.getElementById("finalTotal");
-    const hiddenInput = document.getElementById("discountCodeHidden");
-
-    if (!code) {
-        feedback.textContent = "Please enter a discount code.";
-        feedback.className = "form-text text-danger";
-        return;
-    }
-
-    fetch(`/api/discounts/validate?code=${code}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Invalid code");
-            return res.json();
-        })
-        .then(data => {
-            const percentage = parseFloat(data.percentage);
-            const cartTotal = parseFloat(document.getElementById("cartTotalValue").value);
-            const discountValue = cartTotal * (percentage / 100);
-            const newTotal = Math.max(0, cartTotal - discountValue);
-
-            discountAmountEl.textContent = `- ${discountValue.toLocaleString('vi-VN')} VNĐ`;
-            finalTotalEl.textContent = `${newTotal.toLocaleString('vi-VN')} VNĐ`;
-            discountRow.style.display = "flex";
-            finalTotalRow.style.display = "flex";
-
-            feedback.textContent = `✓ Code "${code}" applied (${percentage}% off)`;
-            feedback.className = "form-text text-success";
-            hiddenInput.value = code; // để gửi về backend khi submit
-        })
-        .catch(() => {
-            discountRow.style.display = "none";
-            finalTotalRow.style.display = "none";
-            feedback.textContent = "❌ Invalid discount code";
-            feedback.className = "form-text text-danger";
-            hiddenInput.value = "";
-        });
-});
-
-document.getElementById("removeDiscount").addEventListener("click", function () {
-    const discountRow = document.getElementById("discountRow");
-    const finalTotalRow = document.getElementById("finalTotalRow");
-    const discountAmountEl = document.getElementById("discountAmount");
-    const finalTotalEl = document.getElementById("finalTotal");
-    const hiddenInput = document.getElementById("discountCodeHidden");
-    const feedback = document.getElementById("discountFeedback");
-
-    discountRow.style.display = "none";
-    finalTotalRow.style.display = "none";
-    discountAmountEl.textContent = "-0 VNĐ";
-    finalTotalEl.textContent = "0 VNĐ";
-    hiddenInput.value = "";
-    feedback.textContent = "Discount removed.";
-    feedback.className = "form-text text-warning";
-});
-
 
 function loadCheckoutCart() {
     const cartContainer = document.querySelector("#checkout-cart-items");
@@ -197,7 +191,7 @@ function changeQuantity(productId, delta, sizeLabel) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ sizeLabel: sizeLabel })
+        body: JSON.stringify({sizeLabel: sizeLabel})
     })
         .then(res => {
             console.log("📥 Phản hồi từ thay đổi số lượng:", res.status);

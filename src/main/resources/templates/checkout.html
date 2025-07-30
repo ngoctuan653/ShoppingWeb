@@ -126,6 +126,31 @@
     </div>
 </div>
 
+<!-- Discount Coupon Modal -->
+<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="couponModalLabel">Available Discount</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>SUMMER10</strong> – 10% off Summer Sale
+                    </li>
+                    <li class="list-group-item">
+                        <strong>NEWUSER20</strong> – 20% off for new users
+                    </li>
+                    <li class="list-group-item">
+                        <strong>FLASH15</strong> – 15% off flash sale
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 <div th:replace="fragments/cart :: cart"></div>
@@ -134,93 +159,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/script.js"></script>
 <script src="/js/checkout.js"></script>
+<script src="/js/apply-discount.js"></script>
 <script>
-    document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
 
-        const shippingAddress = document.getElementById("shippingAddress").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const discountCode = document.getElementById("discountCode").value.trim();
-        const paymentMethod = document.getElementById("paymentMethod").value.trim();
-        const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
-
-        // Gọi lại giỏ hàng để lấy đúng quantity
-        const res = await fetch("/cart/json", {credentials: "include"});
-        const cartData = await res.json();
-
-        const items = cartData
-            .filter(item => selectedMap[`${item.productId}_${item.sizeLabel}`])
-            .map(item => ({
-                productId: item.productId,
-                sizeLabel: item.sizeLabel,
-                quantity: item.quantity
-            }));
-
-        if (items.length === 0) {
-            alert("Bạn chưa chọn sản phẩm nào.");
-            return;
-        }
-
-        const requestBody = {
-            shippingAddress,
-            phone,
-            discountCode,
-            paymentMethod,
-            items
-        };
-
-        const response = await fetch("/cart/checkout-ajax", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            credentials: "include",
-            body: JSON.stringify(requestBody)
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.redirectUrl) {
-                window.location.href = data.redirectUrl; // Redirect đến cổng thanh toán
-            } else if (data.success) {
-                localStorage.removeItem("selectedCartItems");
-                window.location.href = `/order/success?id=${data.orderId}`;
-            } else {
-                alert("Lỗi: " + data.message);
-            }
-        }
-        else {
-            const text = await response.text();
-            alert("Lỗi: " + text);
-        }
-    });
 </script>
-
-<!-- Discount Coupon Modal -->
-<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title" id="couponModalLabel">Available Discount Codes</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <strong>SUMMER10</strong> – 10% off Summer Sale	
-                    </li>
-                    <li class="list-group-item">
-                        <strong>NEWUSER20</strong> – 20% off for new users	
-                    </li>
-                    <li class="list-group-item">
-                        <strong>FLASH15</strong> – 15% off flash sale	
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
 </body>
 
 </html>
