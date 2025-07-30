@@ -1,7 +1,7 @@
 <div th:fragment="wishlistItemsGrid">
     <div class="row g-4">
         <div class="col-lg-3 col-md-4 col-sm-6" th:each="item : ${wishlistItems}">
-            <div class="card product-card h-100 position-relative fade-in border">
+            <div class="card product-card h-100 position-relative fade-in">
                 <!-- Product Actions -->
                 <div class="product-actions">
                     <form class="wishlist-remove-form" th:action="@{/wishlist/remove}" method="post">

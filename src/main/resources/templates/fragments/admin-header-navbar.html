@@ -14,7 +14,7 @@
 <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom" th:fragment="navbar">
     <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
+        <a class="navbar-brand d-flex align-items-center" href="/statistics">
             <i class="bi bi-bag-heart fs-3 me-2"></i>
             <span class="fw-bold fs-4 text-dark">Admin Dashboard</span>
         </a>
@@ -40,6 +40,7 @@
                         <li><a class="dropdown-item" th:href="@{/admin/users}">User Managements</a></li>
                         <li><a class="dropdown-item" th:href="@{/product-manage}">Product Managements</a></li>
                         <li><a class="dropdown-item" th:href="@{/discount-manage}">Discount Managements</a></li>
+						<li><a class="dropdown-item" th:href="@{/category-manage}">Category Managements</a></li>
                         <li>
                             <form th:action="@{/logout}" method="post" class="m-0">
                                 <button type="submit" class="dropdown-item bg-transparent border-0">Logout</button>
