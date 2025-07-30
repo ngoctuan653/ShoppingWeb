@@ -1,32 +1,20 @@
-<!-- fragments/admin-header-navbar.html -->
-
-<!-- Optional: Move this style to your CSS file -->
-<style>
-    #mainNavbar {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1030;
-        transition: transform 0.3s ease-in-out;
-    }
-</style>
-
-<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom" th:fragment="navbar">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Navbar</title>
+</head>
+<body>
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom" th:fragment="navbar">
     <div class="container">
-        <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" th:href="@{/admin/dashboard}">
             <i class="bi bi-bag-heart fs-3 me-2"></i>
             <span class="fw-bold fs-4 text-dark">Admin Dashboard</span>
         </a>
-
-        <!-- Mobile Toggle -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-
-        <!-- Navigation Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Right Side Actions -->
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <div th:if="${currentUser != null}" class="dropdown">
                     <a class="btn btn-outline-dark btn-sm dropdown-toggle" href="#" id="userDropdown"
@@ -36,47 +24,25 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" th:href="@{/home}">Shop</a></li>
-						<li><a class="dropdown-item" th:href="@{/admin/dashboard}">Overview</a></li>
-                        <li><a class="dropdown-item" th:href="@{/order-manage}">Order Managements</a></li>
-                        <li><a class="dropdown-item" th:href="@{/admin/users}">User Managements</a></li>
-                        <li><a class="dropdown-item" th:href="@{/product-manage}">Product Managements</a></li>
-                        <li><a class="dropdown-item" th:href="@{/discount-manage}">Discount Managements</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/dashboard}">Overview</a></li>
+                        <li><a class="dropdown-item" th:href="@{/order-manage}">Order Management</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/users}">User Management</a></li>
+                        <li><a class="dropdown-item" th:href="@{/product-manage}">Product Management</a></li>
+                        <li><a class="dropdown-item" th:href="@{/discount-manage}">Discount Management</a></li>
                         <li>
                             <form th:action="@{/logout}" method="post" class="m-0">
-                                <button type="submit" class="dropdown-item bg-transparent border-0">Logout</button>
+                                <button type="submit" class="dropdown-item bg-transparent border-0">Log Out</button>
                             </form>
                         </li>
                     </ul>
                 </div>
-
-                <!-- Sign In -->
                 <a th:if="${currentUser == null}" th:href="@{/login}"
                    class="btn btn-outline-dark btn-sm d-none d-md-block">
-                    <i class="bi bi-person me-1"></i>Sign In
+                    <i class="bi bi-person me-1"></i>Log In
                 </a>
-
-
             </div>
         </div>
     </div>
 </nav>
-
-<!-- Optional: Move to main JS file -->
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        let lastScroll = 0;
-        const navbar = document.getElementById('mainNavbar');
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-
-            lastScroll = currentScroll;
-        });
-    });
-</script>
+</body>
+</html>
