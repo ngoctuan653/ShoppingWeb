@@ -6,6 +6,7 @@ import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.ProductSizeRepository;
+import org.example.shoppingweb.repository.ReviewRepository;
 import org.example.shoppingweb.repository.SizeRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.*;
@@ -37,19 +38,9 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private ProductSizeRepository productSizeRepository;
-    @Autowired
-    private SizeService sizeService;
-    @Autowired
-    private BrandService brandService;
-    @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private SubCategoryService subCategoryService;
-    @Autowired
-    private ProductSizeService productSizeService;
-    @Autowired
     private WishlistService wishlistService;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @GetMapping("/shop")
     public String showProduct(Model model) {
@@ -228,8 +219,9 @@ public class ProductController {
             User currentUser = userDetails.getUser();
             inWishlist = wishlistService.existsInWishlist(currentUser.getId(), id);
         }
-
         model.addAttribute("inWishlist", inWishlist);
+        List<Review> reviews = reviewRepository.findByProductIdOrderByCreatedAtDesc(id);
+        model.addAttribute("reviews", reviews);
         return "product-detail";
     }
 

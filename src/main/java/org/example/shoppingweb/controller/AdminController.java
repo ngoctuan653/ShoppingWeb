@@ -19,11 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin")
 public class AdminController {
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -38,9 +34,8 @@ public class AdminController {
     private OrderDetailRepository orderDetailRepository;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/dashboard")
+    @GetMapping("/admin/dashboard")
     public String showDashboard(Model model) {
-        // Stats Cards
         BigDecimal totalRevenue = orderRepository.findTotalRevenue() != null ? orderRepository.findTotalRevenue() : BigDecimal.ZERO;
         long totalOrders = orderRepository.count();
         long activeProducts = productRepository.countByStatus("Active");
@@ -69,7 +64,6 @@ public class AdminController {
         model.addAttribute("recentOrders", recentOrders);
 
         model.addAttribute("page", "dashboard");
-
         return "admin-dashboard";
     }
 }

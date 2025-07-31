@@ -73,7 +73,7 @@
                 <p id="discountRow" style="display: none;">
                     <strong>Discount:</strong> <span id="discount">...</span>
                 </p>
-                <p><strong>Total:</strong> $<span id="orderTotal">...</span></p>
+                <p><strong>Total:</strong> <span id="orderTotal">...</span></p>
                 <p><strong>Status:</strong>
                     <select id="orderStatusSelect" class="form-select form-select-sm w-auto d-inline-block ms-2">
                         <!-- Options populated dynamically -->
@@ -106,7 +106,7 @@
             document.getElementById("customerName").textContent = data.customer;
             document.getElementById("shippingAddress").textContent = data.shippingAddress;
             document.getElementById("phoneNumber").textContent = data.phoneNumber;
-            document.getElementById("orderTotal").textContent = data.total.toFixed(2);
+            document.getElementById("orderTotal").textContent = formatCurrencyVND(data.total);
 
             if (data.discount) {
                 document.getElementById("discountRow").style.display = "block";
@@ -120,7 +120,7 @@
             itemsList.innerHTML = "";
             data.items.forEach(item => {
                 const li = document.createElement("li");
-                li.textContent = `${item.productName} (Size: ${item.size}) x${item.quantity} - $${item.unitPrice.toFixed(2)}`;
+                li.textContent = `${item.productName} (Size: ${item.size}) x ${item.quantity} - ${formatCurrencyVND(item.unitPrice)}`;
                 itemsList.appendChild(li);
             });
 
@@ -183,6 +183,11 @@
             position: 'top'
         });
     }
+
+    function formatCurrencyVND(amount) {
+        return Number(amount).toLocaleString('vi-VN') + ' VNĐ';
+    }
+
 </script>
 
 </body>

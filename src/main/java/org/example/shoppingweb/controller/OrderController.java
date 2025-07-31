@@ -35,7 +35,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/order-manage")
+    @GetMapping("/admin/order-manage")
     public String orderManagePage(Model model){
         List<Order> orders = orderRepository.findAll();
         model.addAttribute("orders", orders);

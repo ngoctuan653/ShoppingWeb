@@ -13,4 +13,7 @@ public interface OrderDetailRepository extends JpaRepository<Orderdetail, Intege
  // Lấy 5 sản phẩm bán chạy nhất
     @Query("SELECT od.product, SUM(od.quantity) as totalSold FROM Orderdetail od GROUP BY od.product ORDER BY totalSold DESC")
     List<Object[]> findTop5ProductsByTotalSold();
+
+    List<Orderdetail> findByOrder_IdAndOrder_User_Id(Integer orderId, Integer userId);
+
 }

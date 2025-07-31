@@ -6,6 +6,7 @@ import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.RoleRepository;
 import org.example.shoppingweb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
