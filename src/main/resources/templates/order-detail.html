@@ -181,7 +181,9 @@
                         </div>
 
                         <!-- Nếu đơn hàng đã Shipped thì hiện nút Feedback -->
-                        <div id="feedbackButton" th:if="${order.status.statusName == 'Shipped'}" class="d-flex align-items-center">
+                        <div id="feedbackButton"
+                             th:if="${order.status.statusName == 'Shipped' and !allItemsReviewed}"
+                             class="d-flex align-items-center">
                             <i class="bi bi-chat-square-dots fs-4 text-success me-3"></i>
                             <div>
                                 <h6 class="mb-1">Feedback</h6>
@@ -329,12 +331,20 @@
         fetch(`/api/order/${orderId}/feedback-items`)
             .then(res => res.json())
             .then(data => {
+                if (data.length === 0) {
+                    showToast("You have already reviewed all items in this order.", "info");
+                    // Ẩn nút feedback nếu tất cả sản phẩm đã được đánh giá
+                    document.getElementById("feedbackButton")?.remove();
+                    return;
+                }
+
                 const body = document.getElementById("feedbackBody");
                 body.innerHTML = "";
 
                 data.forEach((item, index) => {
                     body.innerHTML += `
                     <div class="border rounded p-3 mb-3">
+                        <input type="hidden" name="orderDetailIds" value="${item.orderDetailId}">
                         <input type="hidden" name="productIds" value="${item.productId}">
                         <div class="d-flex align-items-center mb-2">
                             <img src="/products/image/${item.productId}" alt="${item.productName}" style="width: 60px;" class="me-3">
@@ -359,6 +369,7 @@
                 `;
                 });
 
+                // Gắn sự kiện click cho từng nhóm sao
                 document.querySelectorAll('.star-rating').forEach(starGroup => {
                     const stars = starGroup.querySelectorAll('.star');
                     const hiddenInput = starGroup.querySelector('input[name="ratings"]');
@@ -384,7 +395,6 @@
             });
     }
 
-
     function submitFeedback(event) {
         event.preventDefault();
 
@@ -392,6 +402,8 @@
         const productIds = Array.from(form.querySelectorAll('input[name="productIds"]')).map(e => e.value);
         const ratings = Array.from(form.querySelectorAll('input[name="ratings"]')).map(e => parseInt(e.value));
         const comments = Array.from(form.querySelectorAll('textarea[name="comments"]')).map(e => e.value);
+        const orderDetailIds = Array.from(form.querySelectorAll('input[name="orderDetailIds"]')).map(e => e.value);
+
 
         for (let i = 0; i < ratings.length; i++) {
             if (isNaN(ratings[i]) || ratings[i] < 1 || ratings[i] > 5) {
@@ -402,9 +414,11 @@
 
         const feedbacks = productIds.map((productId, index) => ({
             productId: parseInt(productId),
+            orderDetailId: parseInt(orderDetailIds[index]),
             rating: ratings[index],
             comment: comments[index]
         }));
+
 
         fetch('/api/reviews/submit', {
             method: 'POST',
@@ -417,15 +431,19 @@
             .then(res => res.json())
             .then(data => {
                 showToast(data.message || "Feedback submitted!", "success");
+
+                // Đóng modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
                 modal.hide();
+
+                // Ẩn nút Feedback
+                document.getElementById("feedbackButton")?.remove();
             })
             .catch(err => {
                 console.error(err);
                 showToast("Failed to submit feedback", "danger");
             });
     }
-
 </script>
 </body>
 </html>

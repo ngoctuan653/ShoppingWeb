@@ -43,13 +43,16 @@ public class ReviewController {
         User user = userService.findByUsername(principal.getName());
         List<Orderdetail> details = orderDetailService.findByOrderIdAndUserId(orderId, user.getId());
 
-        List<Map<String, Object>> result = details.stream().map(d -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("productId", d.getProduct().getId());
-            map.put("productName", d.getProduct().getProductName());
-            map.put("sizeLabel", d.getSize().getSizeLabel());
-            return map;
-        }).collect(Collectors.toList());
+        List<Map<String, Object>> result = details.stream()
+                .filter(d -> !reviewRepository.existsByOrderDetail(d)) // kiểm tra theo Orderdetail
+                .map(d -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("productId", d.getProduct().getId());
+                    map.put("productName", d.getProduct().getProductName());
+                    map.put("sizeLabel", d.getSize().getSizeLabel());
+                    map.put("orderDetailId", d.getId()); // truyền về để lưu lúc submit
+                    return map;
+                }).collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
     }
@@ -64,6 +67,7 @@ public class ReviewController {
             review.setRating(req.getRating());
             review.setComment(req.getComment());
             review.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant());
+            review.setOrderDetail(orderDetailService.findById(req.getOrderDetailId()));
             reviewRepository.save(review);
         }
 

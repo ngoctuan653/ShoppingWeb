@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderDetailRepository extends JpaRepository<Orderdetail, Integer> {
     List<Orderdetail> findByOrder(Order order);
@@ -15,5 +16,8 @@ public interface OrderDetailRepository extends JpaRepository<Orderdetail, Intege
     List<Object[]> findTop5ProductsByTotalSold();
 
     List<Orderdetail> findByOrder_IdAndOrder_User_Id(Integer orderId, Integer userId);
+    boolean existsById(Integer id);
+
+    Optional<Orderdetail> findById(Integer id);
 
 }

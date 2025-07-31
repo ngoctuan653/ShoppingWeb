@@ -14,4 +14,8 @@ public class OrderDetailService {
     public List<Orderdetail> findByOrderIdAndUserId(Integer orderId, Integer userId) {
         return orderDetailRepository.findByOrder_IdAndOrder_User_Id(orderId, userId);
     }
+    public Orderdetail findById(Integer id) {
+        return orderDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderDetail not found"));
+    }
 }

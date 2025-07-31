@@ -42,6 +42,11 @@ public class OrderService {
     @Autowired
     private UserDiscountRepository userDiscountRepository;
 
+    public Order findById(Integer orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+
+
     public Order findByIdAndUser(Integer orderId, User user) {
         return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
     }
