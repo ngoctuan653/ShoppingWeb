@@ -35,13 +35,13 @@ function openModal(isEdit = false, productData = null) {
     const saveBtn = document.getElementById('saveBtn');
 
     if (isEdit && productData) {
-        modalTitle.textContent = 'Chỉnh sửa sản phẩm';
-        saveBtn.textContent = 'Cập nhật sản phẩm';
+        modalTitle.textContent = 'Update Product';
+        saveBtn.textContent = 'Save Product';
         currentEditingProduct = productData;
         populateForm(productData);
     } else {
-        modalTitle.textContent = 'Thêm sản phẩm mới';
-        saveBtn.textContent = 'Lưu sản phẩm';
+        modalTitle.textContent = 'Add New Product';
+        saveBtn.textContent = 'Save Product';
         currentEditingProduct = null;
         resetForm();
     }
@@ -67,16 +67,13 @@ function resetForm() {
 
 function populateForm(data) {
     // This would populate form fields with existing product data
-    document.getElementById('productName').value = data.name || '';
-    document.getElementById('productSku').value = data.sku || '';
-    document.getElementById('productCategory').value = data.category || '';
+    document.getElementById('productName').value = data.productName || '';
     document.getElementById('productDescription').value = data.description || '';
     document.getElementById('productPrice').value = data.price || '';
-    document.getElementById('productCostPrice').value = data.costPrice || '';
-    document.getElementById('productStock').value = data.stock || '';
-    document.getElementById('productStatus').value = data.status || 'draft';
-    document.getElementById('productOrder').value = data.order || '';
-    document.getElementById('productTags').value = data.tags || '';
+    document.getElementById('productCategory').value = data.categoryId || '';
+    document.getElementById('productSubCategory').value = data.subcategoryId || '';
+    document.getElementById('productBrand').value = data.brandId || '';
+    document.getElementById('productStatus').value = data.status || 'Active';
 }
 
 // Event listeners for modal
@@ -165,29 +162,19 @@ addVariantBtn.addEventListener('click', addVariant);
 function addVariant() {
     variantCount++;
     const variantHtml = `
-                <div class="variant-item" id="variant-${variantCount}">
-                    <button type="button" class="variant-remove" onclick="removeVariant(${variantCount})">✕</button>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Tên biến thể</label>
-                            <input type="text" class="form-input" placeholder="VD: Màu sắc, Size..." name="variant_name_${variantCount}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Giá trị</label>
-                            <input type="text" class="form-input" placeholder="VD: Đỏ, Xanh / S, M, L..." name="variant_values_${variantCount}">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Giá bổ sung</label>
-                            <input type="number" class="form-input" placeholder="0" min="0" name="variant_price_${variantCount}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Tồn kho</label>
-                            <input type="number" class="form-input" placeholder="0" min="0" name="variant_stock_${variantCount}">
-                        </div>
-                    </div>
+        <div class="variant-item" id="variant-${variantCount}">
+        <button type="button" class="variant-remove" onclick="removeVariant(${variantCount})">✕</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Size</label>
+                        <input type="text" class="form-input" placeholder="Size" name="variant_name_${variantCount}">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" class="form-input" placeholder="0" min="0" name="variant_stock_${variantCount}">
+                </div>
+            </div>
+        </div>
             `;
     variantsList.insertAdjacentHTML('beforeend', variantHtml);
 }

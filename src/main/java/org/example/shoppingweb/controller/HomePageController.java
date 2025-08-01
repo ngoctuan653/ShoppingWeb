@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomePageController {
 
-
     @GetMapping("/")
     public String home() {
         return "redirect:/home";
@@ -51,11 +50,6 @@ public class HomePageController {
     @GetMapping("/admin/chat")
     public String chatPage() {
         return "admin-chat";
-    }
-
-    @GetMapping("/product-manage2")
-    public String productManagePage2() {
-        return "product-managements2";
     }
 }
 
