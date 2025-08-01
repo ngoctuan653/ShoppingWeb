@@ -47,5 +47,15 @@ public class HomePageController {
     public String discountManagePage() {
         return "discount-managements";
     }
+
+    @GetMapping("/admin/chat")
+    public String chatPage() {
+        return "admin-chat";
+    }
+
+    @GetMapping("/product-manage2")
+    public String productManagePage2() {
+        return "product-managements2";
+    }
 }
 

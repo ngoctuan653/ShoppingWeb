@@ -1,6 +1,7 @@
 package org.example.shoppingweb.repository;
 
 import org.example.shoppingweb.entity.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +12,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUsername(String username);
     List<User> findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String name, String email);
     long countByRoleId(Integer roleId);
+
+    @EntityGraph(attributePaths = "role")
+    Optional<User> findWithRoleByEmail(String email);
 }
+

@@ -95,14 +95,21 @@ public class ProductController {
 
 
     @GetMapping("/home")
-    public String showProductHome(Model model) {
+    public String showProductHome(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Product> allProducts = productRepository.findAll();
         List<Product> availableProducts = allProducts.stream()
                 .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
                 .collect(Collectors.toList());
         model.addAttribute("products", availableProducts);
+
+        // Truyền thông tin user cho chat box
+        if (userDetails != null) {
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
+        }
         return "Home";
     }
+
 
     @GetMapping("/product-manage")
     public String showProducts(Model model) {
