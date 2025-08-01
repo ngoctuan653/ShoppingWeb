@@ -6,6 +6,7 @@ import org.example.shoppingweb.entity.Orderstatus;
 import org.example.shoppingweb.repository.OrderDetailRepository;
 import org.example.shoppingweb.repository.OrderRepository;
 import org.example.shoppingweb.repository.OrderStatusRepository;
+import org.example.shoppingweb.repository.ReviewRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class OrderDetailController {
     private OrderDetailRepository orderDetailRepository;
     @Autowired
     private OrderStatusRepository orderStatusRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     public OrderDetailController(OrderService orderService, OrderRepository orderRepository) {
         this.orderService = orderService;
@@ -45,6 +48,12 @@ public class OrderDetailController {
         List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
         model.addAttribute("order", order);
         model.addAttribute("orderDetails", orderDetails);
+        boolean allItemsReviewed = orderDetails.stream().allMatch(detail ->
+                reviewRepository.existsByOrderDetail(detail)
+        );
+
+
+        model.addAttribute("allItemsReviewed", allItemsReviewed); // truyền vào Thymeleaf
         return "order-detail";
     }
 
@@ -82,6 +91,43 @@ public class OrderDetailController {
         data.put("items", items);
         return ResponseEntity.ok(data);
     }
+
+    @GetMapping("/api/admin/order/{orderId}/details")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAdminOrderDetails(@PathVariable Integer orderId) {
+        Order order = orderService.findById(orderId);
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("orderId", order.getDisplayCode());
+        data.put("customer", order.getUser().getFullName());
+        data.put("shippingAddress", order.getShippingAddress());
+        data.put("phoneNumber", order.getPhoneNumber());
+        data.put("status", order.getStatus().getStatusName());
+        data.put("total", order.getTotalAmount());
+        data.put("totalBeforeDiscount", order.getTotalAmountBeforeDiscount());
+
+        if (order.getDiscount() != null) {
+            data.put("discount", order.getDiscount().getCode() + " (" + order.getDiscount().getDiscountPercentage() + "%)");
+        }
+
+        List<Map<String, Object>> items = orderDetails.stream().map(od -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("productName", od.getProduct().getProductName());
+            item.put("size", od.getSize().getSizeLabel());
+            item.put("quantity", od.getQuantity());
+            item.put("unitPrice", od.getUnitPrice());
+            return item;
+        }).toList();
+
+        data.put("items", items);
+        return ResponseEntity.ok(data);
+    }
+
 
     @GetMapping("/order/statuses")
     @ResponseBody

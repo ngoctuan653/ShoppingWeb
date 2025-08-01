@@ -40,7 +40,7 @@
 									<td th:text="${#dates.format(orderDTO.order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">
 										01/01/2025
 									</td>
-									<td th:text="${#numbers.formatDecimal(orderDTO.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' $'">
+									<td th:text="${#numbers.formatDecimal(orderDTO.order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
 										100000
 									</td>
 									<td th:text="${orderDTO.order.status.statusName}">Delivered</td>

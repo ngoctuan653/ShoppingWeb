@@ -6,24 +6,18 @@ import org.example.shoppingweb.repository.OrderRepository;
 import org.example.shoppingweb.repository.OrderDetailRepository;
 import org.example.shoppingweb.repository.ProductRepository;
 import org.example.shoppingweb.repository.UserRepository;
-import org.example.shoppingweb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin")
 public class AdminController {
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -38,9 +32,8 @@ public class AdminController {
     private OrderDetailRepository orderDetailRepository;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/dashboard")
+    @GetMapping("/admin/dashboard")
     public String showDashboard(Model model) {
-        // Stats Cards
         BigDecimal totalRevenue = orderRepository.findTotalRevenue() != null ? orderRepository.findTotalRevenue() : BigDecimal.ZERO;
         long totalOrders = orderRepository.count();
         long activeProducts = productRepository.countByStatus("Active");
@@ -69,7 +62,6 @@ public class AdminController {
         model.addAttribute("recentOrders", recentOrders);
 
         model.addAttribute("page", "dashboard");
-
         return "admin-dashboard";
     }
 }

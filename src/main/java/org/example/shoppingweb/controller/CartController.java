@@ -2,10 +2,13 @@ package org.example.shoppingweb.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.DTO.CartItemDTO;
+import org.example.shoppingweb.DTO.CheckoutRequestDTO;
+import org.example.shoppingweb.DTO.OrderItemRequestDTO;
 import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
+import org.example.shoppingweb.service.VnpayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,6 +49,10 @@ public class CartController {
     private ProductSizeRepository productSizeRepository;
     @Autowired
     private DiscountRepository discountRepository;
+    @Autowired
+    private VnpayService vnpayService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @PostMapping("/add/{productId}")
     @ResponseBody
@@ -99,7 +107,7 @@ public class CartController {
             cart.setQuantity(newQuantity);
             cartRepository.save(cart);
         } else {
-            if (productSize.getStockQuantity()<1) {
+            if (productSize.getStockQuantity() < 1) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This size is out of stock.");
             }
             Cart cart = new Cart();
@@ -162,7 +170,6 @@ public class CartController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart item not found");
     }
-
 
 
     @PostMapping("/decrease/{productId}")
@@ -240,60 +247,71 @@ public class CartController {
         List<CartItemDTO> result = carts.stream().map(cart -> {
             byte[] imageBytes = cart.getProduct().getImage();
             String base64Image = (imageBytes != null && imageBytes.length > 0)
-                    ? "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(imageBytes) : null;
+                    ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes) : null;
+
+            Optional<Productsize> optionalSize = productSizeRepository.findByProductAndSize(cart.getProduct(), cart.getSize());
+            boolean outOfStock = optionalSize
+                    .map(ps -> ps.getStockQuantity() < cart.getQuantity())
+                    .orElse(true);
+
             return new CartItemDTO(
                     cart.getProduct().getId(),
                     cart.getProduct().getProductName(),
                     base64Image,
                     cart.getQuantity(),
                     cart.getProduct().getPrice(),
-                    cart.getSize().getSizeLabel()
-            );
+                    cart.getSize().getSizeLabel(),
+                    outOfStock
+                    );
         }).collect(Collectors.toList());
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/checkout")
-    public String checkout(@RequestParam String shippingAddress,
-                           @RequestParam String phone,
-                           @RequestParam(required = false) String discountCode,
-                           RedirectAttributes redirectAttributes) {
+    @PostMapping("/checkout-ajax")
+    @ResponseBody
+    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/login?needLogin=true";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn chưa đăng nhập.");
         }
 
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         User user = userDetails.getUser();
 
-        Discount discount = null;
-        if (discountCode != null && !discountCode.isEmpty()) {
-            Optional<Discount> optionalDiscount = discountRepository.findByCodeIgnoreCase(discountCode.trim());
+        List<OrderItemRequestDTO> items = request.getItems();
+        if (items == null || items.isEmpty()) {
+            return ResponseEntity.badRequest().body("Không có sản phẩm nào được chọn.");
+        }
 
-            if (optionalDiscount.isPresent()) {
-                discount = optionalDiscount.get();
-                Instant now = Instant.now();
+        try {
+            if ("COD".equalsIgnoreCase(request.getPaymentMethod())) {
+                // Tạo đơn hàng luôn
+                Order order = orderService.createOrderWithItems(
+                        user,
+                        request.getShippingAddress(),
+                        request.getPhone(),
+                        request.getDiscountCode(),
+                        items,
+                        "COD"
+                );
+                order.setPaymentStatus("UNPAID");
+                orderRepository.save(order);
+                return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+            } else if ("VNPAY".equalsIgnoreCase(request.getPaymentMethod())) {
+                session.setAttribute("checkoutRequest", request);
+                session.setAttribute("userId", user.getId());
 
-                if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
-                        (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
+                BigDecimal totalBeforeDiscount = orderService.calculateTotalBeforeDiscount(items);
+                BigDecimal finalTotal = orderService.calculateFinalTotal(totalBeforeDiscount, request.getDiscountCode());
 
-                    redirectAttributes.addFlashAttribute("error", "Discount code has expired or is not yet valid.");
-                    return "redirect:/checkout";
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Invalid discount code.");
-                return "redirect:/checkout";
+                String redirectUrl = vnpayService.createRedirectUrl(finalTotal);
+                return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
             }
-        }
 
-        Order order = orderService.createOrder(user, shippingAddress, phone, discount);
-        if (order == null) {
-            redirectAttributes.addFlashAttribute("error", "Your cart is empty!");
-            return "redirect:/checkout";
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phương thức thanh toán không hợp lệ"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
-
-        return "redirect:/order/success?id=" + order.getId();
     }
-
 }

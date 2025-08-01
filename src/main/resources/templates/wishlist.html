@@ -48,17 +48,18 @@
                         </div>
                         <div>
                             <h4 class="mb-1 fw-bold">Saved Items</h4>
-                            <p class="text-muted mb-0" th:text="|${#lists.size(wishlistItems)} items in your wishlist|">0 items in your wishlist</p>
+                            <p class="text-muted mb-0" th:text="|${#lists.size(wishlistItems)} items in your wishlist|">
+                                0 items in your wishlist</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
                     <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-md-end">
                         <select class="form-select form-select-sm" id="sort-select" style="max-width: 200px;">
-                            <option value="recent">Sort by: Recently Added</option>
-                            <option value="priceAsc">Sort by: Price Low to High</option>
-                            <option value="priceDesc">Sort by: Price High to Low</option>
-                            <option value="nameAsc">Sort by: Name A-Z</option>
+                            <option value="recent">Recently Added</option>
+                            <option value="priceAsc">Price Low to High</option>
+                            <option value="priceDesc">Price High to Low</option>
+                            <option value="nameAsc">Name A-Z</option>
                         </select>
                     </div>
                 </div>
@@ -90,7 +91,7 @@
         <div th:unless="${#lists.isEmpty(wishlistItems)}">
             <div class="row g-4" id="wishlist-items-container">
                 <div class="col-lg-3 col-md-4 col-sm-6" th:each="item : ${wishlistItems}">
-                    <div class="card product-card h-100 position-relative fade-in">
+                    <div class="card product-card h-100 position-relative fade-in border">
                         <!-- Product Actions -->
                         <div class="product-actions">
                             <form class="wishlist-remove-form" th:action="@{/wishlist/remove}" method="post">
@@ -119,11 +120,19 @@
                             <a th:href="@{'/products/' + ${item.product.id}}" class="text-decoration-none text-dark">
                                 <h5 class="card-title mb-2" th:text="${item.product.productName}">Product Name</h5>
                             </a>
-                            <p class="card-text text-muted small mb-2" th:text="${item.product.subcategory?.subcategoryName}">Subcategory</p>
-                            <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">Category</p>
+                            <p class="card-text text-muted small mb-2"
+                               th:text="${item.product.subcategory?.subcategoryName}">Subcategory</p>
+                            <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">
+                                Category</p>
                             <div class="mt-auto">
-                                <p class="fw-bold mb-0 fs-5" th:text="'$' + ${item.product.price}">$0.00</p>
+                                <p class="fw-bold mb-1 fs-5" th:text="${item.product.formatPrice(item.product.price)} +' VNĐ'">$0.00</p>
+
+                                <span class="badge bg-danger mt-2"
+                                      th:if="${item.product.productSizes.?[stockQuantity > 0].isEmpty()}">
+                                    Out of stock
+                                </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -157,7 +166,7 @@
 
 <script>
     // Add smooth animations on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const cards = document.querySelectorAll('.product-card');
         cards.forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
@@ -195,7 +204,7 @@
                             }, 1500); // chờ để toast hiện xong
                         }
                     })
-                        .catch(err => {
+                    .catch(err => {
                         console.error("❌ Lỗi khi xóa khỏi wishlist:", err);
                         showToast("Xóa thất bại!", "warning");
                     });
@@ -211,7 +220,7 @@
             const sortBy = this.value;
 
             fetch(`/wishlist/sort?sortBy=${sortBy}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
             })
                 .then(response => {
                     if (!response.ok) throw new Error("Lỗi khi lấy dữ liệu sắp xếp");
@@ -222,7 +231,7 @@
                 })
                 .catch(err => {
                     console.error("❌ Lỗi khi sắp xếp:", err);
-                    showToast("Sắp xếp thất bại!", "warning");
+                    showToast("Wishlist is empty!", "warning");
                 });
         });
     });

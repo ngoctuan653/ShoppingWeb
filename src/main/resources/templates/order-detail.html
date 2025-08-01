@@ -11,6 +11,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
+
+    <style>
+        .star-rating .star {
+            font-size: 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .star-rating .star.selected {
+            color: #ffc107;
+        }
+    </style>
 </head>
 <body style="padding-top: 100px;">
 <!-- Navigation Bar -->
@@ -67,9 +79,7 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <span th:text="${detail.unitPrice + ' x ' + detail.quantity}"></span>
-                                    <!--                                        2 x 49.99 $-->
-                                    </span>
+                                    <span th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'POINT', 0, 'COMMA')+' VNĐ' + ' x ' + detail.quantity}"></span>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +90,16 @@
 
             <!-- Order Summary -->
             <div class="col-lg-4">
-
+                <!-- Payment Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Payment</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="paymentInfo">
+                            <p><span th:text="${order.paymentMethod}"></span></p></div>
+                    </div>
+                </div>
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Status</h5>
@@ -99,8 +118,8 @@
                     </div>
                     <div class="card-body">
                         <div id="orderSummary">
-                            <p>Total: <span th:text="${order.totalAmountBeforeDiscount} + ' $'">99.98 $</span></p>
-                            <p>Total(After discount): <span th:text="${order.totalAmount} + ' $'">99.98 $</span></p>
+                            <p>Total: <span th:text="${#numbers.formatDecimal(order.totalAmountBeforeDiscount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
+                            <p>Total(After discount): <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
                             <p th:if="${order.discount != null}">Discount: <span
                                     th:text="${order.discount.discountPercentage} + '%'">10%</span></p>
                         </div>
@@ -120,17 +139,7 @@
                     </div>
                 </div>
 
-                <!-- Payment Information -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Payment Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="paymentInfo">
-                            <!-- Payment info will be loaded here by JavaScript -->
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
@@ -156,7 +165,8 @@
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}" class="d-flex align-items-center">
+                        <div id="cancelButton" th:if="${order.status.statusName == 'Pending'}"
+                             class="d-flex align-items-center">
                             <i class="bi bi-arrow-return-left fs-4 text-warning me-3"></i>
                             <div>
                                 <h6 class="mb-1">Return Items</h6>
@@ -167,6 +177,23 @@
                                     th:attr="data-order-id=${order.id}"
                                     onclick="cancelOrderFromAttr(this)">
                                 Return
+                            </button>
+                        </div>
+
+                        <!-- Nếu đơn hàng đã Shipped thì hiện nút Feedback -->
+                        <div id="feedbackButton"
+                             th:if="${order.status.statusName == 'Shipped' and !allItemsReviewed}"
+                             class="d-flex align-items-center">
+                            <i class="bi bi-chat-square-dots fs-4 text-success me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Feedback</h6>
+                                <p class="text-muted small mb-0">Share your experience</p>
+                            </div>
+                            <button type="button"
+                                    class="btn btn-outline-success btn-sm ms-auto"
+                                    th:attr="data-order-id=${order.id}"
+                                    onclick="openFeedbackModal(this)">
+                                Feedback
                             </button>
                         </div>
                     </div>
@@ -188,6 +215,28 @@
         </div>
     </div>
 </div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">Leave Feedback</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="feedbackBody">
+                    <!-- Dữ liệu đánh giá sẽ được load bằng JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
@@ -275,6 +324,126 @@
             lastScroll = currentScroll;
         });
     });
+
+    function openFeedbackModal(button) {
+        const orderId = button.getAttribute('data-order-id');
+
+        fetch(`/api/order/${orderId}/feedback-items`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    showToast("You have already reviewed all items in this order.", "info");
+                    // Ẩn nút feedback nếu tất cả sản phẩm đã được đánh giá
+                    document.getElementById("feedbackButton")?.remove();
+                    return;
+                }
+
+                const body = document.getElementById("feedbackBody");
+                body.innerHTML = "";
+
+                data.forEach((item, index) => {
+                    body.innerHTML += `
+                    <div class="border rounded p-3 mb-3">
+                        <input type="hidden" name="orderDetailIds" value="${item.orderDetailId}">
+                        <input type="hidden" name="productIds" value="${item.productId}">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="/products/image/${item.productId}" alt="${item.productName}" style="width: 60px;" class="me-3">
+                            <strong>${item.productName}</strong> (Size: ${item.sizeLabel})
+                        </div>
+                        <div class="mb-2">
+                            <label>Rating:</label>
+                            <div class="star-rating" data-index="${index}">
+                                <input type="hidden" name="ratings" value="" required>
+                                <i class="bi bi-star-fill star" data-value="1"></i>
+                                <i class="bi bi-star-fill star" data-value="2"></i>
+                                <i class="bi bi-star-fill star" data-value="3"></i>
+                                <i class="bi bi-star-fill star" data-value="4"></i>
+                                <i class="bi bi-star-fill star" data-value="5"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label>Comment:</label>
+                            <textarea name="comments" class="form-control" rows="2" placeholder="Write your review..." required></textarea>
+                        </div>
+                    </div>
+                `;
+                });
+
+                // Gắn sự kiện click cho từng nhóm sao
+                document.querySelectorAll('.star-rating').forEach(starGroup => {
+                    const stars = starGroup.querySelectorAll('.star');
+                    const hiddenInput = starGroup.querySelector('input[name="ratings"]');
+
+                    stars.forEach(star => {
+                        star.addEventListener('click', () => {
+                            const rating = parseInt(star.getAttribute('data-value'));
+                            hiddenInput.value = rating;
+                            stars.forEach(s => {
+                                const val = parseInt(s.getAttribute('data-value'));
+                                s.classList.toggle('selected', val <= rating);
+                            });
+                        });
+                    });
+                });
+
+                const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                modal.show();
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("Failed to load feedback form", "danger");
+            });
+    }
+
+    function submitFeedback(event) {
+        event.preventDefault();
+
+        const form = document.getElementById("feedbackForm");
+        const productIds = Array.from(form.querySelectorAll('input[name="productIds"]')).map(e => e.value);
+        const ratings = Array.from(form.querySelectorAll('input[name="ratings"]')).map(e => parseInt(e.value));
+        const comments = Array.from(form.querySelectorAll('textarea[name="comments"]')).map(e => e.value);
+        const orderDetailIds = Array.from(form.querySelectorAll('input[name="orderDetailIds"]')).map(e => e.value);
+
+
+        for (let i = 0; i < ratings.length; i++) {
+            if (isNaN(ratings[i]) || ratings[i] < 1 || ratings[i] > 5) {
+                showToast("Please select a star rating (1-5) for all items.", "warning");
+                return;
+            }
+        }
+
+        const feedbacks = productIds.map((productId, index) => ({
+            productId: parseInt(productId),
+            orderDetailId: parseInt(orderDetailIds[index]),
+            rating: ratings[index],
+            comment: comments[index]
+        }));
+
+
+        fetch('/api/reviews/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(feedbacks)
+        })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.message || "Feedback submitted!", "success");
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+                modal.hide();
+
+                // Ẩn nút Feedback
+                document.getElementById("feedbackButton")?.remove();
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("Failed to submit feedback", "danger");
+            });
+    }
 </script>
 </body>
 </html>

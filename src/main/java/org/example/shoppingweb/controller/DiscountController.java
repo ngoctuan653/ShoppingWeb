@@ -1,10 +1,15 @@
 package org.example.shoppingweb.controller;
 
 import org.example.shoppingweb.entity.Discount;
+import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.DiscountRepository;
+import org.example.shoppingweb.repository.UserDiscountRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,24 +18,17 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class DiscountController {
 
     @Autowired
     private DiscountRepository discountRepository;
+    @Autowired
+    private UserDiscountRepository userDiscountRepository;
 
-    // Load the discount management page
-    @GetMapping("/discount-manage")
-    public String discountManagePage(Model model) {
-        return "discount-managements";
-    }
 
-    // Get all discounts
     @GetMapping("/api/discounts/all")
     @ResponseBody
     public ResponseEntity<?> getAllDiscounts() {
@@ -41,6 +39,37 @@ public class DiscountController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to load discounts: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/api/discounts/available")
+    @ResponseBody
+    public ResponseEntity<?> getAvailableDiscounts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        List<Discount> discounts = discountRepository.findAll();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        Instant now = Instant.now();
+
+        for (Discount discount : discounts) {
+            boolean used = userDiscountRepository.existsByUserAndDiscount(user, discount);
+            boolean expired = (discount.getStartDate() != null && now.isBefore(discount.getStartDate()))
+                    || (discount.getEndDate() != null && now.isAfter(discount.getEndDate()));
+            boolean inactive = !"Active".equalsIgnoreCase(discount.getStatus());
+            boolean outOfQuantity = discount.getAvailableQuantity() != null && discount.getAvailableQuantity() <= 0;
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("code", discount.getCode());
+            map.put("description", discount.getDescription());
+            map.put("percentage", discount.getDiscountPercentage());
+            map.put("used", used);
+            map.put("expired", expired);
+            map.put("inactive", inactive);
+            map.put("outOfQuantity", outOfQuantity);
+
+            result.add(map);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     // Get discount by ID
@@ -54,6 +83,7 @@ public class DiscountController {
                     response.put("code", discount.getCode());
                     response.put("percentage", discount.getDiscountPercentage());
                     response.put("description", discount.getDescription());
+                    response.put("availableQuantity", discount.getAvailableQuantity());
                     response.put("status", discount.getStatus());
 
                     // Convert Instant to LocalDate for form display
@@ -72,18 +102,29 @@ public class DiscountController {
     // Validate discount code for checkout
     @GetMapping("/api/discounts/validate")
     @ResponseBody
-    public ResponseEntity<?> validateDiscount(@RequestParam String code) {
+    public ResponseEntity<?> validateDiscount(@RequestParam String code,
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         return discountRepository.findByCodeIgnoreCase(code.trim())
                 .map(discount -> {
                     Instant now = Instant.now();
+
                     if (now.isBefore(discount.getStartDate()) || now.isAfter(discount.getEndDate())) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(Map.of("error", "Discount code has expired or not yet active"));
+                                .body("The discount code has expired or is not yet valid.");
                     }
 
-                    if (!"Active".equals(discount.getStatus())) {
+                    if (!"Active".equalsIgnoreCase(discount.getStatus())) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(Map.of("error", "Discount code is not active"));
+                                .body("Discount code is currently inactive.");
+                    }
+
+                    if (userDetails != null) {
+                        User user = userDetails.getUser();
+
+                        if (userDiscountRepository.existsByUserAndDiscount(user, discount)) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body("You have already used this code.");
+                        }
                     }
 
                     Map<String, Object> response = new HashMap<>();
@@ -91,8 +132,8 @@ public class DiscountController {
                     response.put("description", discount.getDescription());
                     return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Invalid discount code")));
+                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Invalid discount code."));
     }
 
     // Add new discount
@@ -103,6 +144,7 @@ public class DiscountController {
             String code = (String) data.get("code");
             BigDecimal percentage = new BigDecimal(data.get("percentage").toString());
             String description = (String) data.get("description");
+            Integer availableQuantity = Integer.parseInt(data.get("availableQuantity").toString());
             LocalDate startDate = LocalDate.parse((String) data.get("startDate"));
             LocalDate endDate = LocalDate.parse((String) data.get("endDate"));
 
@@ -115,6 +157,11 @@ public class DiscountController {
             if (percentage.compareTo(BigDecimal.ZERO) <= 0 || percentage.compareTo(new BigDecimal("100")) > 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("error", "Percentage must be between 1 and 100"));
+            }
+
+            if (availableQuantity < 1) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Must have at least 1 available quantity"));
             }
 
             if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
@@ -138,6 +185,7 @@ public class DiscountController {
             discount.setCode(code.trim().toUpperCase());
             discount.setDiscountPercentage(percentage);
             discount.setDescription(description.trim());
+            discount.setAvailableQuantity(availableQuantity);
             discount.setStatus("Active");
             discount.setStartDate(startInstant);
             discount.setEndDate(endInstant);
@@ -160,6 +208,7 @@ public class DiscountController {
             String code = (String) data.get("code");
             BigDecimal percentage = new BigDecimal(data.get("percentage").toString());
             String description = (String) data.get("description");
+            Integer availableQuantity = Integer.parseInt(data.get("availableQuantity").toString());
             String status = (String) data.get("status");
             LocalDate startDate = LocalDate.parse((String) data.get("startDate"));
             LocalDate endDate = LocalDate.parse((String) data.get("endDate"));
@@ -175,6 +224,11 @@ public class DiscountController {
             if (existing.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Discount not found"));
+            }
+
+            if (availableQuantity < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Invalid available quantity"));
             }
 
             // Check for code conflict
@@ -193,6 +247,7 @@ public class DiscountController {
             discount.setCode(code.trim().toUpperCase());
             discount.setDiscountPercentage(percentage);
             discount.setDescription(description.trim());
+            discount.setAvailableQuantity(availableQuantity);
             discount.setStatus(status);
             discount.setStartDate(startInstant);
             discount.setEndDate(endInstant);

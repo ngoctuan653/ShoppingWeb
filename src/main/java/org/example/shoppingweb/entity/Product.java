@@ -10,9 +10,11 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 @Setter
@@ -75,5 +77,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Productsize> productSizes = new ArrayList<>();
+
+    public String formatPrice(BigDecimal price) {
+        return NumberFormat.getInstance(new Locale("vi", "VN")).format(price);
+    }
+
+
 
 }

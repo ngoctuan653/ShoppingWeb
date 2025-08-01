@@ -1,83 +1,5 @@
 console.log("✅ script.js loaded");
 
-function addToCart(button) {
-    const productId = button.getAttribute("data-id");
-    const selectedSize = document.getElementById("sizeSelect").value;
-
-    if (!selectedSize) {
-        showToast("Please choose a size!", "warning");
-        return;
-    }
-
-    fetch(`/cart/add/${productId}`, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ sizeLabel: selectedSize })
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(msg => {
-                    throw new Error(msg);
-                });
-            }
-            return response.text();
-        })
-        .then(message => {
-            showToast(message, "success");
-            loadCart();
-        })
-        .catch(err => {
-            showToast(err.message, "danger");
-        });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const pathSegments = window.location.pathname.split("/");
-    const productId = pathSegments[pathSegments.length - 1];
-
-    // Nếu URL dạng /products/{id}
-    if (!isNaN(productId)) {
-        loadSizes(productId);
-    }
-
-    function loadSizes(productId) {
-        fetch(`/${productId}/sizes`)
-            .then(res => {
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                    throw new Error("Không thể tải size: Phản hồi không hợp lệ hoặc chưa đăng nhập");
-                }
-                return res.json();
-            })
-            .then(sizes => {
-                const select = document.getElementById("sizeSelect");
-                select.innerHTML = `<option value="">-- Choose size --</option>`;
-
-                sizes
-                    .filter(size => size.stockQuantity > 0)  // ✨ Lọc chỉ size còn hàng
-                    .forEach(size => {
-                        const option = document.createElement("option");
-                        option.value = size.sizeLabel;
-                        option.textContent = size.sizeLabel;
-                        select.appendChild(option);
-                    });
-            })
-
-            .catch(error => {
-                console.error("❌ Lỗi khi tải size:", error);
-            });
-    }
-
-    // Gắn sự kiện click cho tất cả nút Add to Cart
-    document.querySelectorAll(".add-to-cart-btn").forEach(button => {
-        button.addEventListener("click", () => addToCart(button));
-    });
-});
-
-
 // hiện thông báo
 function showToast(message, type) {
     const toastEl = document.getElementById("cart-toast");
@@ -101,8 +23,11 @@ function showToast(message, type) {
 }
 
 function formatCurrency(amount) {
-    return "$" + Number(amount).toFixed(2);
+    const number = Number(amount);
+    if (isNaN(number)) return "0 VNĐ";
+    return number.toLocaleString('vi-VN') + " VNĐ";
 }
+
 
 function loadCart() {
     const cartContainer = document.querySelector("#cartOffcanvas .offcanvas-body");
@@ -137,36 +62,50 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
 
     cartItems.forEach(item => {
         const itemTotal = Number(item.price) * item.quantity;
-        total += itemTotal;
+        const isOutOfStock = item.outOfStock;
+        if (!isOutOfStock) total += itemTotal;
 
         const cartItem = document.createElement("div");
         cartItem.className = "d-flex justify-content-between align-items-center mb-3 border-bottom pb-2";
+        if (isOutOfStock) {
+            cartItem.classList.add("opacity-50");
+        }
+
         cartItem.innerHTML = `
+            <div class="form-check me-2">
+                <input class="form-check-input cart-item-checkbox" type="checkbox"
+                    data-id="${item.productId}"
+                    data-size="${item.sizeLabel ?? ''}"
+                    ${isOutOfStock ? 'disabled' : ''}>
+            </div>
             <a href="/products/${item.productId}">
-                <img src="${item.imageBase64 || '/images/default.png'}" alt="${item.productName}" class="me-2 rounded" style="width: 60px; height: 70px; object-fit: cover; border: 1px solid #dee2e6;">
+                <img src="${item.imageBase64 || '/images/default.png'}" alt="${item.productName}" class="me-2 rounded"
+                    style="width: 60px; height: 70px; object-fit: cover; border: 1px solid #dee2e6;">
             </a>
             <div class="flex-grow-1 ms-2">
                 <a href="/products/${item.productId}" class="text-decoration-none text-dark">
                     <p class="mb-1 fw-semibold">${item.productName}</p>
                 </a>
                 <p class="mb-1 text-muted small">Size: ${item.sizeLabel ?? "N/A"}</p>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease" 
-                            data-id="${item.productId}" 
-                            data-size="${item.sizeLabel}">-</button>
-                    <span class="px-2">${item.quantity}</span>
-                    <button class="btn btn-sm btn-outline-secondary ms-1 btn-increase" 
-                            data-id="${item.productId}" 
-                            data-size="${item.sizeLabel}">+</button>
-                </div>
+                ${isOutOfStock
+            ? '<span class="badge bg-danger">Out of stock</span>'
+            : `
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm btn-outline-secondary me-1 btn-decrease"
+                                    data-id="${item.productId}" data-size="${item.sizeLabel}">-</button>
+                            <span class="px-2">${item.quantity}</span>
+                            <button class="btn btn-sm btn-outline-secondary ms-1 btn-increase"
+                                    data-id="${item.productId}" data-size="${item.sizeLabel}">+</button>
+                        </div>
+                    `}
             </div>
             <div class="text-end">
                 <p class="fw-bold mb-1">${formatCurrency(itemTotal)}</p>
-                <button class="btn btn-sm btn-outline-danger btn-remove" 
-                        data-id="${item.productId}" 
-                        data-size="${item.sizeLabel}">x</button>
+                ${isOutOfStock ? '' : `<button class="btn btn-sm btn-outline-danger btn-remove" 
+                    data-id="${item.productId}" data-size="${item.sizeLabel}">x</button>`}
             </div>
         `;
+
         cartContainer.appendChild(cartItem);
     });
 
@@ -174,7 +113,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalItems;
 
-    // Tăng số lượng
+    // Gắn sự kiện cho sản phẩm còn hàng
     cartContainer.querySelectorAll(".btn-increase").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
@@ -195,7 +134,6 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
         });
     });
 
-    // Giảm số lượng
     cartContainer.querySelectorAll(".btn-decrease").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
@@ -216,7 +154,6 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
         });
     });
 
-    // Xóa sản phẩm
     cartContainer.querySelectorAll(".btn-remove").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
@@ -236,151 +173,34 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
             });
         });
     });
-}
 
+    // Lưu sản phẩm đã chọn vào localStorage
+    cartContainer.querySelectorAll(".cart-item-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+            const productId = checkbox.dataset.id;
+            const sizeLabel = checkbox.dataset.size;
+            const key = `${productId}_${sizeLabel}`;
 
-function loadCheckoutCart() {
-    const cartContainer = document.querySelector("#checkout-cart-items");
-    const cartTotal = document.querySelector("#checkout-cart-total");
+            let selected = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
 
-    if (!cartContainer || !cartTotal) {
-        console.warn("⚠️ DOM phần giỏ hàng checkout chưa sẵn sàng. loadCheckoutCart() dừng.");
-        return;
-    }
-
-    fetch("/cart/json", {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(res => {
-            const contentType = res.headers.get("content-type");
-            if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                throw new Error("Chưa đăng nhập hoặc phản hồi không hợp lệ");
-            }
-            return res.json();
-        })
-
-        .then(data => {
-            const cartContainer = document.getElementById("checkout-cart-items");
-            const totalEl = document.getElementById("checkout-cart-total");
-
-            cartContainer.innerHTML = "";
-            let total = 0;
-
-            data.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-
-                const card = document.createElement("div");
-                card.className = "col-md-4 mb-4";
-                card.innerHTML = `
-                    <div class="card">
-                        <a href="/products/${item.productId}">
-                            <img src="${item.imageBase64 || '/images/default.png'}" class="card-img-top" alt="Product Image">
-                        </a>
-                        <div class="card-body">
-                            <a href="/products/${item.productId}" class="text-decoration-none text-dark">
-                                <h5 class="card-title">${item.productName}</h5>
-                            </a>
-                            <p class="text-muted small">Size: ${item.sizeLabel}</p>
-                            <p class="fw-bold">$${item.price.toFixed(2)}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, -1, '${item.sizeLabel}')">-</button>
-                                <span class="px-2">${item.quantity}</span>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.productId}, 1, '${item.sizeLabel}')">+</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                cartContainer.appendChild(card);
-            });
-
-            totalEl.textContent = `$${total.toFixed(2)}`;
-            document.getElementById("cartTotalValue").value = total.toFixed(2); // 👈 dùng trong discount
-            cartContainer.classList.remove("d-none");
-
-        })
-        .catch(err => {
-            console.error("Không thể tải giỏ hàng:", err);
-        });
-}
-
-
-function updateCartItemCount() {
-    console.log("🔄 Bắt đầu updateCartItemCount...");
-
-    fetch('/cart/json')
-        .then(res => {
-            const contentType = res.headers.get("content-type");
-            console.log("📥 Phản hồi nhận được từ /cart/json:", res.status, contentType);
-
-            if (!res.ok || !contentType.includes("application/json")) {
-                throw new Error("❌ Phản hồi không hợp lệ từ /cart/json");
-            }
-            return res.json();
-        })
-        .then(data => {
-            console.log("✅ Dữ liệu giỏ hàng:", data);
-
-            if (!Array.isArray(data)) {
-                throw new Error("❌ Dữ liệu trả về không phải là danh sách");
-            }
-
-            let totalQuantity = 0;
-            data.forEach(item => {
-                console.log(`🛒 ${item.productName} (size: ${item.sizeLabel}) - SL: ${item.quantity}`);
-                totalQuantity += item.quantity;
-            });
-
-            const cartCountEl = document.getElementById("cartItemCount");
-            if (cartCountEl) {
-                cartCountEl.innerText = totalQuantity;
-                console.log("✅ Tổng số lượng hiển thị trong giỏ:", totalQuantity);
-                console.log("---------------------------------------------------------------");
+            if (checkbox.checked) {
+                selected[key] = { productId, sizeLabel };
             } else {
-                console.warn("⚠️ Không tìm thấy phần tử #cartItemCount");
-                console.log("---------------------------------------------------------------");
+                delete selected[key];
             }
-        })
-        .catch(err => {
-            console.error("❌ Lỗi khi cập nhật số lượng giỏ hàng:", err.message);
+
+            localStorage.setItem("selectedCartItems", JSON.stringify(selected));
         });
+    });
 
-    loadCart();
+    const selected = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
+    cartContainer.querySelectorAll(".cart-item-checkbox").forEach(cb => {
+        const key = `${cb.dataset.id}_${cb.dataset.size}`;
+        if (selected[key]) {
+            cb.checked = true;
+        }
+    });
 }
-
-function changeQuantity(productId, delta, sizeLabel) {
-    const url = delta > 0 ? `/cart/increase/${productId}` : `/cart/decrease/${productId}`;
-    console.log(`🛠️ Gửi yêu cầu ${delta > 0 ? "TĂNG" : "GIẢM"} số lượng: productId=${productId}, sizeLabel=${sizeLabel}, URL=${url}`);
-
-    fetch(url, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ sizeLabel: sizeLabel })
-    })
-        .then(res => {
-            console.log("📥 Phản hồi từ thay đổi số lượng:", res.status);
-            if (!res.ok) {
-                return res.text().then(text => {
-                    throw new Error(text || "Lỗi không xác định");
-                });
-            }
-            return res.text();
-        })
-        .then(msg => {
-            console.log("✅ Thay đổi số lượng thành công:", msg);
-            loadCheckoutCart();
-            updateCartItemCount();
-        })
-        .catch(err => {
-            console.error("❌ Lỗi thay đổi số lượng:", err.message);
-        });
-}
-
-document.addEventListener("DOMContentLoaded", loadCheckoutCart);
 
 document.addEventListener("DOMContentLoaded", function () {
     const cartBtn = document.querySelector("button[data-bs-target='#cartOffcanvas']");
@@ -390,167 +210,28 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.log("cartBtn not found");
     }
-
 });
 
-//search Product by AJAX
-const searchInput = document.getElementById("searchInput");
-const productGrid = document.getElementById("productGrid");
-const minPriceInput = document.getElementById("minPrice");
-const maxPriceInput = document.getElementById("maxPrice");
-let debounceTimeout = null;
-
-const showLoading = () => {
-    productGrid.innerHTML = `
-        <div class="col-12 text-center py-4">
-            <div class="spinner-border text-dark" role="status"></div>
-        </div>`;
-};
-
-// Helper: Lấy danh sách ID từ checkbox
-function getCheckedValues(selector) {
-    return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
-}
-
-const handleSearch = () => {
-    const keyword = searchInput.value.trim();
-    const minPrice = minPriceInput.value;
-    const maxPrice = maxPriceInput.value;
-    const selectedCategories = getCheckedValues(".category-filter");
-    const selectedSubcategories = getCheckedValues(".subcategory-filter");
-    const selectedBrands = getCheckedValues(".brand-filter");
-
-    // 👇 Reset trạng thái phân trang
-    currentPage = 1;
-    loadMoreBtn.style.display = "block";
-    loadMoreBtn.disabled = false;
-    loadMoreBtn.textContent = "Load More Products";
-
-    showLoading();
-
-    const params = new URLSearchParams();
-    params.append("page", 0); // Trang đầu tiên
-    params.append("size", pageSize);
-    if (keyword) params.append("keyword", keyword);
-    if (minPrice) params.append("minPrice", minPrice);
-    if (maxPrice) params.append("maxPrice", maxPrice);
-    selectedCategories.forEach(id => params.append("categories", id));
-    selectedSubcategories.forEach(id => params.append("subcategories", id));
-    selectedBrands.forEach(id => params.append("brands", id));
-
-    const url = `/search?${params.toString()}`;
-
-    fetch(url)
-        .then(res => {
-            if (!res.ok) {
-                return res.text().then(text => {
-                    throw new Error(text || `HTTP error ${res.status}`);
-                });
-            }
-            return res.json();
-        })
-        .then(pageData => {
-            const products = pageData.content;
-            const isLast = pageData.last;
-
-            productGrid.innerHTML = "";
-
-            if (!Array.isArray(products) || products.length === 0) {
-                productGrid.innerHTML = `<div class="col-12"><p class="text-muted text-center">Not found Product.</p></div>`;
-                loadMoreBtn.style.display = "none";
-                return;
-            }
-
-            products.forEach(product => {
-                const productImage = product.image ? `data:image/jpeg;base64,${product.image}` : '/images/default.png';
-                const productCard = `
-                    <div class="col-md-4 mb-4 fade-in">
-                        <div class="card h-100 shadow-sm">
-                            <a href="/products/${product.id}">
-                                <img src="${productImage}" class="card-img-top" alt="${product.productName}" style="height: 350px; object-fit: cover;" />
-                            </a>
-                            <div class="card-body d-flex flex-column">
-                                <a href="/products/${product.id}" class="text-decoration-none text-dark">
-                                    <h5 class="card-title">${product.productName}</h5>
-                                </a>
-                                <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
-                                <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
-                                <div class="mt-auto">
-                                    <p class="fw-bold">$${product.price}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                productGrid.insertAdjacentHTML("beforeend", productCard);
-            });
-
-            // ✅ Ẩn nút nếu là trang cuối
-            if (isLast || products.length < pageSize) {
-                loadMoreBtn.style.display = "none";
-            } else {
-                loadMoreBtn.style.display = "block";
-            }
-        })
-        .catch(error => {
-            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error.message || error);
-            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Lỗi khi tải dữ liệu sản phẩm.</div>`;
-        });
-};
-
-// Debounce search input
-if (searchInput) {
-    let debounceTimeout;
-    searchInput.addEventListener("input", () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(handleSearch, 300);
-    });
-} else {
-    console.log("searchInput not found");
-}
-
-if (minPriceInput) {
-    minPriceInput.addEventListener("input", () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(handleSearch, 300);
-    });
-} else {
-    console.log("minPriceInput not found");
-}
-
-if (maxPriceInput) {
-    maxPriceInput.addEventListener("input", () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(handleSearch, 300);
-    });
-} else {
-    console.log("maxPriceInput not found");
-}
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Gắn sự kiện change cho các checkbox category
-    document.querySelectorAll(".category-filter").forEach(cb => {
-        cb.addEventListener("change", () => {
-            clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(handleSearch, 100);
-        });
-    });
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    if (!checkoutBtn) return;
 
-    document.querySelectorAll(".subcategory-filter").forEach(cb => {
-        cb.addEventListener("change", () => {
-            clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(handleSearch, 100);
+    checkoutBtn.addEventListener("click", () => {
+        const selectedMap = {};
+        document.querySelectorAll(".cart-item-checkbox:checked").forEach(cb => {
+            const productId = cb.dataset.id;
+            const sizeLabel = cb.dataset.size;
+            const key = `${productId}_${sizeLabel}`;
+            selectedMap[key] = { productId, sizeLabel };
         });
-    });
 
-    // Gắn sự kiện change cho các checkbox brand
-    document.querySelectorAll(".brand-filter").forEach(cb => {
-        cb.addEventListener("change", () => {
-            clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(handleSearch, 100);
-        });
-    });
+        if (Object.keys(selectedMap).length === 0) {
+            alert("Bạn chưa chọn sản phẩm nào!");
+            return;
+        }
 
-    // Nếu bạn có nút tìm kiếm thì cũng gắn ở đây
-    document.getElementById("searchBtn")?.addEventListener("click", handleSearch);
+        localStorage.setItem("selectedCartItems", JSON.stringify(selectedMap));
+        window.location.href = "/checkout";
+    });
 });

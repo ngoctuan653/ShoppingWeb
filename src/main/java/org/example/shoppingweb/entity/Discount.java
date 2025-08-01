@@ -53,4 +53,8 @@ public class Discount {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @ColumnDefault("0")
+    @Column(name = "available_quantity")
+    private Integer availableQuantity;
+
 }

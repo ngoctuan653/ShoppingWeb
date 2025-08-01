@@ -13,249 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        .hero-contact {
-            /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
-            background: black;
-            min-height: 500px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-contact::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
-            opacity: 0.5;
-        }
-
-        .contact-hero-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin-top: -120px;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        .contact-info-card {
-            transition: all 0.3s ease;
-            border: none;
-            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-            border-radius: 15px;
-            padding: 30px 20px;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .contact-info-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-
-        .contact-info-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .contact-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .contact-icon::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .contact-info-card:hover .contact-icon::after {
-            opacity: 1;
-        }
-
-        .contact-form {
-            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-form::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-            background: #fff;
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 50px;
-            padding: 15px 40px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-submit::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-submit:hover::before {
-            left: 100%;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .map-container {
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-        }
-
-        .map-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            z-index: 1;
-        }
-
-        .faq-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .accordion-item {
-            border: none;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
-        .accordion-button {
-            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-            border: none;
-            font-weight: 600;
-            padding: 20px 25px;
-        }
-
-        .accordion-button:not(.collapsed) {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: none;
-        }
-
-        .accordion-button::after {
-            transition: transform 0.3s ease;
-        }
-
-        .fade-up {
-            animation: fadeUp 0.6s ease-out;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .floating-element {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating-element:nth-child(2) {
-            animation-delay: -2s;
-            background: rgba(118, 75, 162, 0.1);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .section-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
-            margin: 60px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/contact-styles.css">
 </head>
 <body>
 <!-- Navigation Bar -->
@@ -288,7 +46,8 @@
                 <div class="position-relative">
                     <img src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                          alt="Contact Us" class="img-fluid rounded-4 shadow-lg" style="border-radius: 20px;">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient rounded-4" style="background: linear-gradient(45deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));"></div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient rounded-4"
+                         style="background: linear-gradient(45deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));"></div>
                 </div>
             </div>
         </div>
@@ -362,7 +121,8 @@
             <div class="col-lg-8 mx-auto">
                 <div class="text-center mb-5">
                     <h2 class="display-5 fw-bold mb-3">Send Us a Message</h2>
-                    <p class="lead text-muted">Fill out the form below and we'll get back to you as soon as possible.</p>
+                    <p class="lead text-muted">Fill out the form below and we'll get back to you as soon as
+                        possible.</p>
                 </div>
                 <div class="contact-form">
                     <form id="contactForm" class="needs-validation" novalidate th:action="@{/contact}" method="POST">
@@ -510,7 +270,8 @@
                         <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 We offer a 30-day return policy for unworn items with original tags.
-                                Items must be in original condition for a full refund. Return shipping is free for exchanges.
+                                Items must be in original condition for a full refund. Return shipping is free for
+                                exchanges.
                             </div>
                         </div>
                     </div>
@@ -556,12 +317,12 @@
 
 <script>
     // Form validation
-    (function() {
+    (function () {
         'use strict';
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
                     if (form.checkValidity() === false) {
                         event.preventDefault();
                         event.stopPropagation();
@@ -576,7 +337,7 @@
     window.addEventListener('DOMContentLoaded', function () {
         const toastEl = document.getElementById('contactToast');
         if (toastEl && toastEl.querySelector('.toast-body').textContent.trim() !== '') {
-            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            const toast = new bootstrap.Toast(toastEl, {delay: 4000});
             toast.show();
         }
     });

@@ -9,4 +9,5 @@ public interface SizeRepository extends JpaRepository<Size, Integer> {
     Optional<Size> findBySizeLabel(String sizeLabel);
     boolean existsBySizeLabel(String sizeLabel);
 
+    Optional<Size> findBySizeLabelIgnoreCase(String sizeLabel);
 }

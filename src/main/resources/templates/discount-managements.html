@@ -38,6 +38,7 @@
                 <th>Code</th>
                 <th>Discount (%)</th>
                 <th>Description</th>
+                <th>Available</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Status</th>
@@ -73,6 +74,10 @@
                 <div class="mb-3">
                     <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="description" name="description" placeholder="e.g., Welcome discount for new customers" required>
+                </div>
+                <div class="mb-3">
+                    <label for="availableQuantity" class="form-label">Available Quantity <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="availableQuantity" name="availableQuantity" min="1" placeholder="e.g., 100" required>
                 </div>
                 <div class="mb-3">
                     <label for="startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
@@ -114,6 +119,10 @@
                 <div class="mb-3">
                     <label for="editDescription" class="form-label">Description <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="editDescription" name="description" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editAvailableQuantity" class="form-label">Available Quantity <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="editAvailableQuantity" name="availableQuantity" min="0" required>
                 </div>
                 <div class="mb-3">
                     <label for="editStartDate" class="form-label">Start Date <span class="text-danger">*</span></label>
@@ -185,7 +194,6 @@
     function renderDiscountsTable(discounts) {
         const tbody = document.getElementById('discountTableBody');
         tbody.innerHTML = '';
-
         discounts.forEach(discount => {
             const row = `
             <tr>
@@ -193,6 +201,7 @@
                 <td>${discount.code}</td>
                 <td>${discount.discountPercentage}%</td>
                 <td>${discount.description}</td>
+                <td>${discount.availableQuantity}</td>
                 <td>${formatDate(discount.startDate)}</td>
                 <td>${formatDate(discount.endDate)}</td>
                 <td><span class="badge ${discount.status === 'Active' ? 'bg-success' : 'bg-secondary'}">${discount.status}</span></td>
@@ -249,6 +258,7 @@
                 code: formData.get('code'),
                 percentage: formData.get('percentage'),
                 description: formData.get('description'),
+                availableQuantity: formData.get('availableQuantity'),
                 startDate: formData.get('startDate'),
                 endDate: formData.get('endDate')
             };
@@ -293,6 +303,7 @@
                 code: formData.get('code'),
                 percentage: formData.get('percentage'),
                 description: formData.get('description'),
+                availableQuantity: formData.get('availableQuantity'),
                 startDate: formData.get('startDate'),
                 endDate: formData.get('endDate'),
                 status: formData.get('status')
@@ -343,6 +354,7 @@
                 document.getElementById('editCode').value = data.code;
                 document.getElementById('editPercentage').value = data.percentage;
                 document.getElementById('editDescription').value = data.description;
+                document.getElementById('editAvailableQuantity').value = data.availableQuantity;
                 document.getElementById('editStartDate').value = data.startDate;
                 document.getElementById('editEndDate').value = data.endDate;
                 document.getElementById('editStatus').value = data.status;
