@@ -54,6 +54,17 @@ public class OrderController {
         return "order-managements";
     }
 
+    @GetMapping("/admin/dashboard-stats")
+    @ResponseBody
+    public Map<String, Integer> getDashboardStats() {
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("totalOrders", orderService.countAll());
+        stats.put("pendingOrders", orderService.countByStatus("Pending"));
+        stats.put("shippingOrders", orderService.countByStatus("Shipping"));
+        stats.put("cancelledOrders", orderService.countByStatus("Cancelled"));
+        return stats;
+    }
+
 
     @GetMapping("/order/success")
     public String orderSuccess(@RequestParam("id") Integer orderId, Model model) {

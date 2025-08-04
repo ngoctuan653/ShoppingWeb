@@ -147,7 +147,7 @@
                                   class="status-badge">
                             </span>
                         </td>
-                        <td th:text="${product.createdAt}">15/07/2025</td>
+                        <td th:text="${#dates.format(product.createdAt, 'dd/MM/yyyy ''at'' HH:mm')}">15/07/2025</td>
                         <td>
                             <div class="actions">
                                 <button class="action-btn action-view"

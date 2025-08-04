@@ -19,4 +19,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     // Tính tổng doanh thu
     @Query("SELECT SUM(o.totalAmount) FROM Order o")
     BigDecimal findTotalRevenue();
+
+    int countBy();
+    int countByStatus_StatusName(String statusName);
 }

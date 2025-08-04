@@ -36,7 +36,7 @@
                     <div class="stat-title">Tổng Đơn Hàng</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">📦</div>
                 </div>
-                <div class="stat-value">5</div>
+                <div class="stat-value" id="stat-total-orders">0</div>
                 <div class="stat-change positive">+2 đơn hôm nay</div>
             </div>
 
@@ -45,7 +45,7 @@
                     <div class="stat-title">Chờ Xử Lý</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">⏳</div>
                 </div>
-                <div class="stat-value">1</div>
+                <div class="stat-value" id="stat-pending-orders">0</div>
                 <div class="stat-change positive">+1 so với hôm qua</div>
             </div>
 
@@ -54,7 +54,7 @@
                     <div class="stat-title">Đang Giao</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">🚚</div>
                 </div>
-                <div class="stat-value">1</div>
+                <div class="stat-value" id="stat-shipping-orders">0</div>
                 <div class="stat-change positive">Không đổi</div>
             </div>
 
@@ -63,7 +63,7 @@
                     <div class="stat-title">Đã Hủy</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)">❌</div>
                 </div>
-                <div class="stat-value">1</div>
+                <div class="stat-value" id="stat-cancelled-orders">0</div>
                 <div class="stat-change negative">+1 so với hôm qua</div>
             </div>
         </div>
@@ -136,7 +136,7 @@
                     <tbody id="ordersTableBody">
                     <tr th:each="order : ${orders}">
                         <td>
-                            <input type="checkbox" class="checkbox order-checkbox" data-order-id="1">
+                            <input type="checkbox" class="checkbox order-checkbox" th:attr="data-order-id=${order.id}">
                         </td>
                         <td th:text="${order.displayCode}">ORD001</td>
                         <td th:text="${order.user.fullName}">Nguyễn Văn A</td>

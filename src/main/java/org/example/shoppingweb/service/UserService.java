@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -69,7 +70,6 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-
     public void updateUser(User user) {
         User existing = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -78,6 +78,14 @@ public class UserService {
         existing.setEmail(user.getEmail());
         existing.setPhoneNumber(user.getPhoneNumber());
         existing.setAddress(user.getAddress());
+
+        if (user.getRole() != null) {
+            existing.setRole(user.getRole());
+        }
+
+        if (user.getStatus() != null) {
+            existing.setStatus(user.getStatus());
+        }
 
         if (user.getAvatar() != null && user.getAvatar().length > 0) {
             existing.setAvatar(user.getAvatar());

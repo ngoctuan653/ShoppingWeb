@@ -206,6 +206,7 @@ function updateOrderFromModal(orderId) {
             }
 
             showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            updateStats();
             hideModal('orderDetailModal');
 
             const row = document.querySelector(`.order-checkbox[data-order-id="${orderId}"]`)?.closest('tr');
@@ -283,6 +284,7 @@ function updateOrderStatus(orderId, newStatus) {
             }
 
             showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            updateStats();
 
             // ✅ Cập nhật giao diện
             const row = document.querySelector(`.order-checkbox[data-order-id="${orderId}"]`)?.closest('tr');
@@ -301,11 +303,6 @@ function updateOrderStatus(orderId, newStatus) {
                     };
                     statusSpan.classList.add(classMap[newStatus]);
                 }
-
-                // ✅ Ẩn/hiện nút
-                const processBtn = row.querySelector(`button[data-action="processing-${orderId}"]`);
-                const cancelBtn = row.querySelector(`button[data-action="cancelled-${orderId}"]`);
-
                 updateActionButtons(orderId, newStatus);
 
             }
@@ -338,10 +335,39 @@ function updateActionButtons(orderId, newStatus) {
         `;
     }
 
-    // Các trạng thái khác không hiển thị thêm gì ngoài nút "Xem"
-
     actionDiv.innerHTML = buttonsHtml;
 }
+
+function loadDashboardStats() {
+    fetch('/admin/dashboard-stats')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('stat-total-orders').textContent = data.totalOrders;
+            document.getElementById('stat-pending-orders').textContent = data.pendingOrders;
+            document.getElementById('stat-shipping-orders').textContent = data.shippingOrders;
+            document.getElementById('stat-cancelled-orders').textContent = data.cancelledOrders;
+        })
+        .catch(err => console.error("Lỗi tải thống kê:", err));
+}
+
+
+function updateStats() {
+    fetch('/admin/dashboard-stats')
+        .then(res => res.json())
+        .then(data => {
+            console.log('Dashboard stats:', data);
+
+            document.getElementById('stat-total-orders').textContent = data.totalOrders;
+            document.getElementById('stat-pending-orders').textContent = data.pendingOrders;
+            document.getElementById('stat-shipping-orders').textContent = data.shippingOrders;
+            document.getElementById('stat-cancelled-orders').textContent = data.cancelledOrders;
+        })
+        .catch(err => {
+            console.error("Lỗi tải thống kê:", err);
+        });
+}
+
+
 
 
 // Show bulk action modal
@@ -464,6 +490,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize
     initializeSidebar();
     updateToggleIcon();
+    loadDashboardStats();
 
     // Sidebar toggle
     document.getElementById('sidebarToggle').addEventListener('click', (e) => {

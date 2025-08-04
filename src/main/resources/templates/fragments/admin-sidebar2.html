@@ -46,7 +46,9 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="#" class="menu-link">
+            <a th:href="@{/admin/users}"
+               class="menu-link"
+               th:classappend="${activePage == 'users'} ? ' active'">
                 <span class="menu-icon">👥</span>
                 <span>User</span>
             </a>
