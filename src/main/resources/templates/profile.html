@@ -19,6 +19,10 @@
 
 <!-- User Profile Section -->
 <div class="container my-5" style="padding-top: 50px">
+	<!-- Thông báo thành công hoặc lỗi -->
+	<div th:if="${success}" class="alert alert-success text-center" th:text="${success}"></div>
+	<div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+
 	<div class="row">
 		<form id="profile-update-form" th:action="@{/update_profile}" method="POST" enctype="multipart/form-data" class="row">
 
@@ -36,6 +40,11 @@
 				<div class="mb-3">
 					<input type="file" class="form-control" id="avatar" name="avatar">
 				</div>
+				<!-- Nút mở modal đổi mật khẩu -->
+				<button type="button" class="btn btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+					Change Password
+				</button>
+
 			</div>
 
 			<!-- Right: User Profile Form -->
@@ -103,6 +112,42 @@
 	});
 </script>
 <script src="/js/script.js"></script>
+<!-- Modal Đổi Mật Khẩu -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form th:action="@{/change_password}" method="post">
+
+				<div class="modal-header">
+					<h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<!-- Current Password -->
+					<div class="mb-3">
+						<label for="currentPassword" class="form-label">Current Password</label>
+						<input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+					</div>
+					<!-- New Password -->
+					<div class="mb-3">
+						<label for="newPassword" class="form-label">New Password</label>
+						<input type="password" class="form-control" id="newPassword" name="newPassword"
+							   pattern=".{6,}" title="Password must be at least 6 characters" required>
+					</div>
+					<!-- Confirm Password -->
+					<div class="mb-3">
+						<label for="confirmPassword" class="form-label">Confirm New Password</label>
+						<input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-dark">Change Password</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 </body>
 </html>
