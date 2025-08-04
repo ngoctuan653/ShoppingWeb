@@ -60,7 +60,7 @@ public class AdminController {
         // Recent Orders
         List<Order> recentOrders = orderRepository.findTop5ByOrderByOrderDateDesc();
         model.addAttribute("recentOrders", recentOrders);
-
+        model.addAttribute("activePage", "dashboard");
         model.addAttribute("page", "dashboard");
         return "admin-dashboard";
     }

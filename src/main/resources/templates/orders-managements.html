@@ -71,8 +71,7 @@
         <!-- Filters and Search -->
         <div class="filter-section">
             <div class="filter-group">
-                <input type="text" class="search-input" placeholder="Tìm kiếm theo mã đơn, tên khách hàng..."
-                       id="searchInput">
+                <input type="text" class="search-input" placeholder="Tìm kiếm theo mã đơn, tên khách hàng..." id="searchInput">
                 <button class="search-btn" id="searchBtn">🔍</button>
             </div>
             <div class="filter-group">
@@ -134,50 +133,121 @@
                     </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                    <tr th:each="order : ${orders}">
+                    <tr>
                         <td>
                             <input type="checkbox" class="checkbox order-checkbox" data-order-id="1">
                         </td>
-                        <td th:text="${order.displayCode}">ORD001</td>
-                        <td th:text="${order.user.fullName}">Nguyễn Văn A</td>
+                        <td>ORD001</td>
+                        <td>Nguyễn Văn A</td>
                         <td>
                             <div class="product-list">
-                                <div th:each="detail : ${orderDetailsMap[order.id]}" class="product-item">
-                                    <span th:text="${detail.product.productName}"></span>
-                                    x
-                                    <span th:text="${detail.quantity}"></span>
-                                </div>
+                                <div class="product-item">Áo Thun Nam Basic x2</div>
+                                <div class="product-item">Quần Short Jean x1</div>
                             </div>
                         </td>
-
-                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
-                            ₫850,000
-                        </td>
+                        <td>₫850,000</td>
                         <td>
-                            <span th:text="${order.status.statusName}"
-                                  th:classappend="${order.status.cssClass}"
-                                  class="status-badge">Chờ xử lý
-                            </span>
+                            <span class="status-badge status-pending">Chờ xử lý</span>
                         </td>
-                        <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">30/07/2025</td>
+                        <td>30/07/2025</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-sm btn-primary"
-                                        th:onclick="'viewOrderDetail(' + ${order.id} + ')'">Xem</button>
-
-                                <button class="btn-sm btn-success"
-                                        th:if="${order.status.statusName == 'Pending'}"
-                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'confirmed')|"
-                                        th:attrappend="data-action='confirmed-' + ${order.id}">
-                                    Xử lý
-                                </button>
-
-                                <button class="btn-sm btn-danger"
-                                        th:if="${order.status.statusName == 'Pending' or order.status.statusName == 'Confirmed'}"
-                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'cancelled')|"
-                                        th:attrappend="data-action='cancelled-' + ${order.id}">
-                                    Hủy
-                                </button>
+                                <button class="btn-sm btn-primary" onclick="viewOrderDetail(1)">Xem</button>
+                                <button class="btn-sm btn-success" onclick="updateOrderStatus(1, 'processing')">Xử lý</button>
+                                <button class="btn-sm btn-danger" onclick="updateOrderStatus(1, 'cancelled')">Hủy</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="checkbox order-checkbox" data-order-id="2">
+                        </td>
+                        <td>ORD002</td>
+                        <td>Trần Thị B</td>
+                        <td>
+                            <div class="product-list">
+                                <div class="product-item">Váy Midi Hoa x1</div>
+                            </div>
+                        </td>
+                        <td>₫680,000</td>
+                        <td>
+                            <span class="status-badge status-processing">Đang xử lý</span>
+                        </td>
+                        <td>30/07/2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-primary" onclick="viewOrderDetail(2)">Xem</button>
+                                <button class="btn-sm btn-success" onclick="updateOrderStatus(2, 'shipping')">Giao hàng</button>
+                                <button class="btn-sm btn-danger" onclick="updateOrderStatus(2, 'cancelled')">Hủy</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="checkbox order-checkbox" data-order-id="3">
+                        </td>
+                        <td>ORD003</td>
+                        <td>Lê Minh C</td>
+                        <td>
+                            <div class="product-list">
+                                <div class="product-item">Quần Jean Slim x1</div>
+                                <div class="product-item">Áo Polo Nam x2</div>
+                            </div>
+                        </td>
+                        <td>₫1,290,000</td>
+                        <td>
+                            <span class="status-badge status-shipping">Đang giao</span>
+                        </td>
+                        <td>29/07/2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-primary" onclick="viewOrderDetail(3)">Xem</button>
+                                <button class="btn-sm btn-success" onclick="updateOrderStatus(3, 'completed')">Hoàn thành</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="checkbox order-checkbox" data-order-id="4">
+                        </td>
+                        <td>ORD004</td>
+                        <td>Phạm Thu D</td>
+                        <td>
+                            <div class="product-list">
+                                <div class="product-item">Áo Sơ Mi Nữ x1</div>
+                            </div>
+                        </td>
+                        <td>₫520,000</td>
+                        <td>
+                            <span class="status-badge status-completed">Hoàn thành</span>
+                        </td>
+                        <td>29/07/2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-primary" onclick="viewOrderDetail(4)">Xem</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="checkbox order-checkbox" data-order-id="5">
+                        </td>
+                        <td>ORD005</td>
+                        <td>Hoàng Văn E</td>
+                        <td>
+                            <div class="product-list">
+                                <div class="product-item">Jacket Bomber x1</div>
+                                <div class="product-item">Quần Kaki x1</div>
+                            </div>
+                        </td>
+                        <td>₫1,450,000</td>
+                        <td>
+                            <span class="status-badge status-cancelled">Đã hủy</span>
+                        </td>
+                        <td>28/07/2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-primary" onclick="viewOrderDetail(5)">Xem</button>
                             </div>
                         </td>
                     </tr>

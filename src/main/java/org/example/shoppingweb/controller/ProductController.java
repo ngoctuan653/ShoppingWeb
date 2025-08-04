@@ -111,14 +111,29 @@ public class ProductController {
     }
 
 
-    @GetMapping("/product-manage")
+    @GetMapping("/admin/product-manage")
     public String showProducts(Model model) {
-        model.addAttribute("products", productService.getAllProduct());
+        List<Product> allProducts = productService.getAllProduct();
+
+        long totalProducts = allProducts.size();
+        long activeProducts = allProducts.stream()
+                .filter(p -> "Active".equalsIgnoreCase(p.getStatus()))
+                .count();
+        long lowStockProducts = allProducts.stream()
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() <= 5)
+                .count();
+
+        model.addAttribute("products", allProducts);
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("brands", productService.getAllBrands());
-        model.addAttribute("subcategories", productService.getAllSubcategories()); // <- thêm dòng này
+        model.addAttribute("subcategories", productService.getAllSubcategories());
         model.addAttribute("sizes", sizeRepository.findAll());
+        model.addAttribute("activePage", "products");
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("activeProducts", activeProducts);
+        model.addAttribute("lowStockProducts", lowStockProducts);
 
+        // Dùng cho form Thymeleaf nếu cần
         Product p = new Product();
         p.setSubcategory(new Subcategory());
         p.getSubcategory().setCategory(new Category());
@@ -128,43 +143,17 @@ public class ProductController {
         return "product-managements";
     }
 
-    @PostMapping("/products/save")
-    public String saveProduct(@ModelAttribute Product product,
-                              @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        if (!imageFile.isEmpty()) {
-            product.setImage(imageFile.getBytes());
-        }
-        productService.saveProduct(product);
-        return "redirect:/product-manage";
-    }
-
-    @GetMapping("/products/edit/{id}")
-    public String editProduct(@PathVariable("id") Integer id, Model model) {
-        Product product = productService.getProductById(id);
-        model.addAttribute("product", product);
-        model.addAttribute("products", productService.getAllProduct());
-        return "product-managements";
-    }
 
     @PostMapping("/products/delete/{id}")
-    public String deleteProduct(@PathVariable("id") Integer id) {
-        productService.deleteProduct(id);
-        return "redirect:/product-manage";
-    }
-
-    @PostMapping("/products/update")
-    public String updateProduct(@ModelAttribute Product product,
-                                @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        Product existing = productService.getProductById(product.getId());
-
-        if (!imageFile.isEmpty()) {
-            product.setImage(imageFile.getBytes());
-        } else {
-            product.setImage(existing.getImage());
+    @ResponseBody
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Integer id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok("Sản phẩm đã được xóa thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi xóa sản phẩm: " + e.getMessage());
         }
-
-        productService.updateProduct(product);
-        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/add")
@@ -209,10 +198,17 @@ public class ProductController {
     }
 
     @PostMapping("/products/hide/{id}")
-    public String softDeleteProduct(@PathVariable("id") Integer id) {
-        productService.updateStatus(id, "Inactive");
-        return "redirect:/product-manage";
+    @ResponseBody
+    public ResponseEntity<String> softDeleteProduct(@PathVariable("id") Integer id) {
+        try {
+            productService.updateStatus(id, "Inactive");
+            return ResponseEntity.ok("Sản phẩm đã được ẩn thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi ẩn sản phẩm: " + e.getMessage());
+        }
     }
+
 
     @GetMapping("/products/{id}")
     public String getProductDetail(@PathVariable Integer id,
@@ -238,5 +234,13 @@ public class ProductController {
         List<SizeDTO> sizes = productService.getSizesByProductId(id);
         return ResponseEntity.ok(sizes);
     }
+
+    @GetMapping("/api/products/{id}")
+    @ResponseBody
+    public ResponseEntity<ProductRequest> getProductForEdit(@PathVariable Integer id) {
+        ProductRequest productRequest = productService.getProductRequestById(id); // convert từ entity
+        return ResponseEntity.ok(productRequest);
+    }
+
 
 }

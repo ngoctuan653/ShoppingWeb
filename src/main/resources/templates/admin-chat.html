@@ -9,51 +9,7 @@
 <body>
 <div class="dashboard-container">
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <a href="#" class="brand-logo">StyleLegacy</a>
-            <div class="brand-subtitle">Admin Dashboard</div>
-        </div>
-
-        <ul class="sidebar-menu">
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <span class="menu-icon">📊</span>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <span class="menu-icon">👕</span>
-                    <span>Sản phẩm</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <span class="menu-icon">📦</span>
-                    <span>Đơn hàng</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <span class="menu-icon">👥</span>
-                    <span>Khách hàng</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link active">
-                    <span class="menu-icon">💬</span>
-                    <span>Nhắn tin</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <span class="menu-icon">⚙️</span>
-                    <span>Cài đặt</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -61,7 +17,7 @@
         <header class="header">
             <div class="header-left">
                 <button class="sidebar-toggle" id="sidebarToggle">☰</button>
-                <h1 class="header-title">Nhắn Tin</h1>
+                <h1 class="header-title">Message</h1>
             </div>
             <div class="header-user">
                 <span>Xin chào, Admin</span>
@@ -74,7 +30,7 @@
             <!-- Conversations Panel -->
             <div class="conversations-panel">
                 <div class="conversations-header">
-                    <h2 class="conversations-title">Cuộc trò chuyện</h2>
+                    <h2 class="conversations-title">All message</h2>
                 </div>
 
                 <div class="conversations-list">

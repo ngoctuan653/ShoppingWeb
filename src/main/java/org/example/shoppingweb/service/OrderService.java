@@ -292,6 +292,17 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    public void updateOrderStatusById(Integer orderId, Integer statusId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        Orderstatus status = orderStatusRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("Trạng thái không hợp lệ"));
+
+        order.setStatus(status);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
 
 
 }

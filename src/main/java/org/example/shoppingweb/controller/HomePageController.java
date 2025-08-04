@@ -48,7 +48,8 @@ public class HomePageController {
     }
 
     @GetMapping("/admin/chat")
-    public String chatPage() {
+    public String chatPage(Model model) {
+        model.addAttribute("activePage", "chat");
         return "admin-chat";
     }
 }

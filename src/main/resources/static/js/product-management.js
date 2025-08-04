@@ -66,15 +66,64 @@ function resetForm() {
 }
 
 function populateForm(data) {
-    // This would populate form fields with existing product data
+    console.log('🔧 Editing product data:', data);
+
+    setTimeout(() => {
+        const categorySelect = document.getElementById('productCategory');
+        const subCategorySelect = document.getElementById('productSubCategory');
+        const brandSelect = document.getElementById('productBrand');
+
+        const categoryIdStr = data.categoryId?.toString() || '';
+        const subCategoryIdStr = String(data.subCategoryId || '');
+        const brandIdStr = String(data.brandId || '');
+
+        categorySelect.value = categoryIdStr;
+        subCategorySelect.value = subCategoryIdStr;
+        brandSelect.value = brandIdStr;
+
+        console.log('✅ After delay, selected category:', categorySelect.value);
+        console.log('✅ After delay, selected subCategory:', subCategorySelect.value);
+        console.log('✅ After delay, selected brand:', brandSelect.value);
+    }, 0); // ← delay 1 tick để DOM đảm bảo render xong
+
+    // Các trường còn lại vẫn xử lý bình thường
     document.getElementById('productName').value = data.productName || '';
     document.getElementById('productDescription').value = data.description || '';
-    document.getElementById('productPrice').value = data.price || '';
-    document.getElementById('productCategory').value = data.categoryId || '';
-    document.getElementById('productSubCategory').value = data.subcategoryId || '';
-    document.getElementById('productBrand').value = data.brandId || '';
+    document.getElementById('productPrice').value = formatCurrencyInput(data.price || 0);
     document.getElementById('productStatus').value = data.status || 'Active';
+
+    // Variants
+    variantsList.innerHTML = '';
+    variantCount = 0;
+    if (Array.isArray(data.sizes)) {
+        data.sizes.forEach(size => {
+            variantCount++;
+            const variantHtml = `
+                <div class="variant-item" id="variant-${variantCount}">
+                    <button type="button" class="variant-remove" onclick="removeVariant(${variantCount})">✕</button>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Size</label>
+                            <input type="text" class="form-input" placeholder="Size" name="variant_name_${variantCount}" value="${size.sizeLabel}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-input" placeholder="0" min="0" name="variant_stock_${variantCount}" value="${size.stockQuantity}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            variantsList.insertAdjacentHTML('beforeend', variantHtml);
+        });
+    }
 }
+
+function formatCurrencyInput(value) {
+    const number = Number(value.toString().replace(/[^\d]/g, ''));
+    if (isNaN(number)) return '';
+    return number.toLocaleString('vi-VN');
+}
+
 
 // Event listeners for modal
 addProductBtn.addEventListener('click', () => openModal());
@@ -186,43 +235,77 @@ function removeVariant(variantId) {
     }
 }
 
+const productPriceInput = document.getElementById('productPrice');
+
+// Định dạng khi người dùng nhập giá
+productPriceInput.addEventListener('input', (e) => {
+    const raw = e.target.value.replace(/[^\d]/g, ''); // Chỉ giữ lại số
+    const formatted = Number(raw).toLocaleString('vi-VN'); // Format kiểu VNĐ
+    e.target.value = formatted;
+});
+
 // Form submission
-productForm.addEventListener('submit', (e) => {
+productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Collect form data
-    const formData = new FormData(productForm);
+    const product = {
+        id: currentEditingProduct?.id || null,
+        productName: document.getElementById('productName').value,
+        description: document.getElementById('productDescription').value,
+        price: parseInt(document.getElementById('productPrice').value.replace(/[^\d]/g, '')),
+        categoryId: parseInt(document.getElementById('productCategory').value),
+        subCategoryId: parseInt(document.getElementById('productSubCategory').value),
+        brandId: parseInt(document.getElementById('productBrand').value),
+        status: document.getElementById('productStatus').value,
+        sizes: [],
+    };
 
-    // Add images
-    uploadedImages.forEach((img, index) => {
-        formData.append(`images[${index}]`, img.file);
-    });
-
-    // Add variants
-    const variants = [];
-    document.querySelectorAll('.variant-item').forEach((item, index) => {
-        const inputs = item.querySelectorAll('input');
-        if (inputs.length >= 4) {
-            variants.push({
-                name: inputs[0].value,
-                values: inputs[1].value,
-                price: inputs[2].value,
-                stock: inputs[3].value
+    document.querySelectorAll('.variant-item').forEach(item => {
+        const sizeInput = item.querySelector('input[name^="variant_name_"]');
+        const quantityInput = item.querySelector('input[name^="variant_stock_"]');
+        if (sizeInput && quantityInput) {
+            product.sizes.push({
+                sizeLabel: sizeInput.value,
+                stockQuantity: parseInt(quantityInput.value || '0')
             });
         }
     });
-    formData.append('variants', JSON.stringify(variants));
 
-    // Simulate API call
-    setTimeout(() => {
-        if (currentEditingProduct) {
-            showToast('Sản phẩm đã được cập nhật thành công!', 'success');
+    const formData = new FormData();
+    formData.append('product', new Blob([JSON.stringify(product)], {type: 'application/json'}));
+
+    if (uploadedImages.length > 0) {
+        formData.append('image', uploadedImages[0].file);
+    }
+
+    const isEdit = !!currentEditingProduct;
+    const url = isEdit
+        ? `/products/update/${currentEditingProduct.id}`
+        : `/products/add`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showToast(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm mới thành công!', 'success');
+            closeModal();
+
+            // 🔁 Reload toàn bộ trang sau 1.5s để đảm bảo dữ liệu mới
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         } else {
-            showToast('Sản phẩm mới đã được thêm thành công!', 'success');
+            showToast(result.message || 'Đã có lỗi xảy ra!', 'error');
         }
-        closeModal();
-        // Here you would typically refresh the product list
-    }, 1000);
+    } catch (err) {
+        console.error("[ERROR] Lỗi fetch hoặc mạng:", err);
+        showToast('Lỗi hệ thống khi lưu sản phẩm!', 'error');
+    }
 });
 
 // Toast notification
@@ -239,28 +322,66 @@ function showToast(message, type = 'success') {
 // Table action handlers
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('action-edit')) {
-        // Mock product data for editing
-        const mockProductData = {
-            name: 'Áo Thun Nam Basic Cotton',
-            sku: 'TSB001',
-            category: 'ao-thun',
-            description: 'Áo thun nam chất liệu cotton cao cấp',
-            price: 299000,
-            costPrice: 150000,
-            stock: 156,
-            status: 'active',
-            order: 1,
-            tags: 'áo thun, nam, cotton, basic'
-        };
-        openModal(true, mockProductData);
+        const productId = e.target.dataset.productId;
+        fetch(`/api/products/${productId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Không thể tải dữ liệu sản phẩm');
+                return response.json();
+            })
+            .then(data => {
+                openModal(true, data);
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Lỗi khi tải sản phẩm để chỉnh sửa!', 'error');
+            });
+
     } else if (e.target.classList.contains('action-delete')) {
-        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            showToast('Sản phẩm đã được xóa thành công!', 'success');
+        const productId = e.target.closest('.actions').querySelector('[data-product-id]')?.dataset.productId;
+
+        if (productId && confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            fetch(`/products/delete/${productId}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Xóa thất bại");
+                    return response.text();
+                })
+                .then(message => {
+                    showToast(message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi xóa sản phẩm:", err);
+                    showToast("Lỗi khi xóa sản phẩm!", 'error');
+                });
         }
     } else if (e.target.classList.contains('action-view')) {
-        showToast('Tính năng xem chi tiết đang được phát triển!', 'success');
+        const productId = e.target.dataset.productId;
+
+        if (confirm('Bạn có chắc chắn muốn ẩn sản phẩm này?')) {
+            fetch(`/products/hide/${productId}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Ẩn thất bại");
+                    return response.text();
+                })
+                .then(message => {
+                    showToast(message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi ẩn:", err);
+                    showToast("Lỗi khi ẩn sản phẩm!", 'error');
+                });
+        }
     }
+
 });
+
 
 // Search functionality
 const searchInput = document.querySelector('.search-input');
