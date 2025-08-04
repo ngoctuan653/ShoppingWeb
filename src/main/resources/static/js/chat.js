@@ -24,8 +24,6 @@ function loadChatHistory() {
         });
 }
 
-
-
 function connectWebSocket() {
     const socket = new SockJS('/ws-chat');
     stompClient = Stomp.over(socket);

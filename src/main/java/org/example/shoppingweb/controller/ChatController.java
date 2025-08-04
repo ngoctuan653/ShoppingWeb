@@ -60,7 +60,7 @@ public class ChatController {
         } else if (userDetails != null) {
             currentUserId = userDetails.getUser().getId();
         } else {
-            currentUserId = 1; // fallback nếu không login
+            currentUserId = 1;
         }
 
         return messageRepository.findBySenderIdAndReceiverIdOrSenderIdAndReceiverIdOrderByCreatedAtAsc(

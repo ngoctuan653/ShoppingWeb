@@ -43,7 +43,7 @@ public class ProductController {
     private ReviewRepository reviewRepository;
 
     @GetMapping("/shop")
-    public String showProduct(Model model) {
+    public String showProduct(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Product> allProducts = productRepository.findAll();
         List<Product> availableProducts = allProducts.stream()
                 .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
@@ -56,6 +56,10 @@ public class ProductController {
         model.addAttribute("subcategories", subcategories);
         model.addAttribute("products", availableProducts);
         model.addAttribute("brands", brands);
+        if (userDetails != null) {
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
+        }
         return "shop";
     }
 
