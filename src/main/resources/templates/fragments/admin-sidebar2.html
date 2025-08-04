@@ -30,6 +30,14 @@
             </a>
         </li>
         <li class="menu-item">
+            <a th:href="@{/admin/category-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'categories'} ? ' active'">
+                <span class="menu-icon">📋</span>
+                <span>Category</span>
+            </a>
+        </li>
+        <li class="menu-item">
             <a th:href="@{/admin/product-manage}"
                class="menu-link"
                th:classappend="${activePage == 'products'} ? ' active'">
@@ -51,12 +59,6 @@
                th:classappend="${activePage == 'users'} ? ' active'">
                 <span class="menu-icon">👥</span>
                 <span>User</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="#" class="menu-link">
-                <span class="menu-icon">📈</span>
-                <span>Báo cáo</span>
             </a>
         </li>
         <li class="menu-item">

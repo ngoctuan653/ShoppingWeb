@@ -62,5 +62,7 @@ public class HomePageController {
         model.addAttribute("activePage", "chat");
         return "admin-chat";
     }
+
+
 }
 

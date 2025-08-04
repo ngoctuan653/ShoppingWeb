@@ -237,7 +237,6 @@ function removeVariant(variantId) {
 
 const productPriceInput = document.getElementById('productPrice');
 
-// Định dạng khi người dùng nhập giá
 productPriceInput.addEventListener('input', (e) => {
     const raw = e.target.value.replace(/[^\d]/g, ''); // Chỉ giữ lại số
     const formatted = Number(raw).toLocaleString('vi-VN'); // Format kiểu VNĐ
@@ -381,6 +380,95 @@ document.addEventListener('click', (e) => {
     }
 
 });
+
+function handleSearchAndFilter() {
+    const keyword = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+    const brand = document.getElementById('filterBrand')?.value || '';
+    const category = document.getElementById('filterCategory')?.value || '';
+    const subcategory = document.getElementById('filterSubcategory')?.value || '';
+    const status = document.getElementById('filterStatus')?.value || '';
+    const stock = document.getElementById('filterStock')?.value || '';
+
+    const params = new URLSearchParams();
+    if (keyword) params.append("keyword", keyword);
+    if (brand) params.append("brand", brand);
+    if (category) params.append("category", category);
+    if (subcategory) params.append("subcategory", subcategory);
+    if (status) params.append("status", status);
+    if (stock) params.append("stockLevel", stock);
+
+    fetch(`/admin/products/search?${params.toString()}`)
+        .then(res => res.json())
+        .then(products => {
+            renderProductTable(products);
+        })
+        .catch(err => {
+            console.error("Lỗi khi tìm kiếm:", err);
+            showToast("Lỗi khi tìm kiếm!", "error");
+        });
+}
+
+// Gắn sự kiện
+document.querySelector('.search-input').addEventListener('input', debounce(handleSearchAndFilter, 400));
+document.querySelectorAll('.filter-select').forEach(select => {
+    select.addEventListener('change', handleSearchAndFilter);
+});
+
+// Hàm debounce để giảm số lần gọi khi gõ nhanh
+function debounce(func, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+function renderProductTable(products) {
+    const tbody = document.querySelector('.product-table tbody');
+    tbody.innerHTML = '';
+
+    products.forEach(product => {
+        const sizes = product.sizes?.map(s => s.sizeLabel).join(', ') || '';
+        const row = `
+            <tr>
+                <td>
+                    <div class="product-info">
+                        <div class="product-image">
+                            <img src="/products/image/${product.id}" 
+                                 class="img-thumbnail" 
+                                 style="width:70px;height:70px;" 
+                                 onerror="this.onerror=null;this.src='/images/default.png';">
+                        </div>
+                        <div class="product-details">
+                            <h4>${product.productName}</h4>
+                            <div class="product-sku">Size: ${sizes}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${product.id}</td>
+                <td>${product.category?.categoryName || ''}</td>
+                <td>${product.subcategory?.subcategoryName || ''}</td>
+                <td>${product.brand?.brandName || ''}</td>
+                <td class="price">${formatCurrencyInput(product.price)}đ</td>
+                <td><span class="stock-level">${product.stockQuantity ?? 0}</span></td>
+                <td>
+                    <span class="status-badge ${product.status === 'Active' ? 'status-active' : 'status-inactive'}">
+                        ${product.status}
+                    </span>
+                </td>
+                <td>${new Date(product.createdAt).toLocaleString('vi-VN')}</td>
+                <td>
+                    <div class="actions">
+                        <button class="action-btn action-view" data-product-id="${product.id}" title="Hide">👁️</button>
+                        <button class="action-btn action-edit" data-product-id="${product.id}" title="Edit">✏️</button>
+                        <button class="action-btn action-delete" data-product-id="${product.id}" title="Delete">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+}
 
 
 // Search functionality

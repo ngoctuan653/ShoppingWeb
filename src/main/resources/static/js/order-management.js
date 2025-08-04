@@ -123,17 +123,17 @@ function viewOrderDetail(orderId) {
             document.getElementById('modalBody').innerHTML = `
                 <div class="order-detail">
                     <div class="detail-section">
-                        <h3 class="detail-title">Thông Tin Đơn Hàng</h3>
+                        <h3 class="detail-title">Order Information</h3>
                         <div class="detail-row">
-                            <span class="detail-label">Mã đơn hàng:</span>
+                            <span class="detail-label">ID:</span>
                             <span class="detail-value">${orderData.orderCode}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Ngày đặt:</span>
+                            <span class="detail-label">Created At:</span>
                             <span class="detail-value">${formatDate(orderData.date)}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Trạng thái:</span>
+                            <span class="detail-label">Status:</span>
                             <select class="status-selector" id="orderStatus">
                                 ${statusOptions}
                             </select>
@@ -141,13 +141,13 @@ function viewOrderDetail(orderId) {
                     </div>
 
                     <div class="detail-section">
-                        <h3 class="detail-title">Thông Tin Khách Hàng</h3>
+                        <h3 class="detail-title">Customer Information</h3>
                         <div class="detail-row">
-                            <span class="detail-label">Tên khách hàng:</span>
+                            <span class="detail-label">Customer Name:</span>
                             <span class="detail-value">${orderData.customer}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Số điện thoại:</span>
+                            <span class="detail-label">Phone Number:</span>
                             <span class="detail-value">${orderData.phone}</span>
                         </div>
                         <div class="detail-row">
@@ -155,16 +155,16 @@ function viewOrderDetail(orderId) {
                             <span class="detail-value">${orderData.email}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Địa chỉ:</span>
+                            <span class="detail-label">Address:</span>
                             <span class="detail-value">${orderData.address}</span>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <h3 class="detail-title">Sản Phẩm</h3>
+                        <h3 class="detail-title">Product</h3>
                         ${productsHtml}
                         <div class="detail-row" style="font-weight: 600; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px;">
-                            <span class="detail-label">Tổng cộng:</span>
+                            <span class="detail-label">Total Amount:</span>
                             <span class="detail-value">${formatCurrency(orderData.total)}</span>
                         </div>
                     </div>
@@ -533,14 +533,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('cancelModalBtn').addEventListener('click', () => {
         hideModal('orderDetailModal');
-    });
-
-    document.getElementById('closeBulkModal').addEventListener('click', () => {
-        hideModal('bulkActionModal');
-    });
-
-    document.getElementById('cancelBulkBtn').addEventListener('click', () => {
-        hideModal('bulkActionModal');
     });
 
     // Modal overlay clicks

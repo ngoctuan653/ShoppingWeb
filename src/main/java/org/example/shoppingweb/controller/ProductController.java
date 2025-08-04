@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -192,14 +193,29 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<byte[]> getProductImage(@PathVariable("id") Integer id) {
         Product product = productService.getProductById(id);
-        if (product == null || product.getImage() == null) {
-            return ResponseEntity.notFound().build();
-        }
 
+        byte[] imageBytes;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
+
+        if (product == null || product.getImage() == null) {
+            try {
+                InputStream is = getClass().getResourceAsStream("/static/images/default.png");
+                if (is == null) {
+                    return ResponseEntity.notFound().build(); // fallback vẫn failed
+                }
+                imageBytes = is.readAllBytes();
+                headers.setContentType(MediaType.IMAGE_PNG); // đúng định dạng default
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            imageBytes = product.getImage(); // ảnh thực
+        }
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
+
 
     @PostMapping("/products/hide/{id}")
     @ResponseBody
@@ -246,5 +262,37 @@ public class ProductController {
         return ResponseEntity.ok(productRequest);
     }
 
+    @GetMapping("/admin/products/search")
+    @ResponseBody
+    public ResponseEntity<List<Product>> searchAdminProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer brand,
+            @RequestParam(required = false) Integer category,
+            @RequestParam(required = false) Integer subcategory,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String stockLevel // low / medium / high
+    ) {
+        List<Product> all = productService.getAllProduct();
+
+        List<Product> filtered = all.stream()
+                .filter(p -> keyword == null || p.getProductName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(p -> brand == null || (p.getBrand() != null && p.getBrand().getId().equals(brand)))
+                .filter(p -> category == null || (p.getCategory() != null && p.getCategory().getId().equals(category)))
+                .filter(p -> subcategory == null || (p.getSubcategory() != null && p.getSubcategory().getId().equals(subcategory)))
+                .filter(p -> status == null || p.getStatus().equalsIgnoreCase(status))
+                .filter(p -> {
+                    if (stockLevel == null) return true;
+                    int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
+                    return switch (stockLevel) {
+                        case "low" -> qty < 10;
+                        case "medium" -> qty >= 10 && qty <= 50;
+                        case "high" -> qty > 50;
+                        default -> true;
+                    };
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filtered);
+    }
 
 }

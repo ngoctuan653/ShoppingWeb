@@ -21,7 +21,7 @@
         <header class="header">
             <div class="header-left">
                 <button class="sidebar-toggle" id="sidebarToggle">☰</button>
-                <h1 class="header-title">Quản Lý Người Dùng</h1>
+                <h1 class="header-title">User Management</h1>
             </div>
             <div class="header-user">
                 <span>Xin chào, Admin</span>
@@ -37,16 +37,7 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">👥</div>
                 </div>
                 <div class="stat-value">8,547</div>
-                <div class="stat-change positive">+5.2% so với tháng trước</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Người Dùng Hoạt Động</div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">✅</div>
-                </div>
-                <div class="stat-value">7,132</div>
-                <div class="stat-change positive">+8.7% so với tuần trước</div>
+<!--                <div class="stat-change positive">+5.2% so với tháng trước</div>-->
             </div>
 
             <div class="stat-card">
@@ -55,7 +46,7 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">🆕</div>
                 </div>
                 <div class="stat-value">47</div>
-                <div class="stat-change positive">+12.3% so với hôm qua</div>
+<!--                <div class="stat-change positive">+12.3% so với hôm qua</div>-->
             </div>
 
             <div class="stat-card">
@@ -64,7 +55,7 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">🔒</div>
                 </div>
                 <div class="stat-value">23</div>
-                <div class="stat-change negative">-18.5% so với tuần trước</div>
+<!--                <div class="stat-change negative">-18.5% so với tuần trước</div>-->
             </div>
         </div>
 
@@ -76,16 +67,14 @@
                     <button class="search-btn">🔍</button>
                 </div>
                 <select class="filter-select" id="statusFilter">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="active">Hoạt động</option>
-                    <option value="inactive">Không hoạt động</option>
-                    <option value="blocked">Bị khóa</option>
+                    <option value="">Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                 </select>
                 <select class="filter-select" id="roleFilter">
-                    <option value="">Tất cả vai trò</option>
-                    <option value="user">Người dùng</option>
-                    <option value="admin">Quản trị viên</option>
-                    <option value="moderator">Điều hành viên</option>
+                    <option value="">All Role</option>
+                    <option th:each="role : ${roles}" th:value="${role.id}"  th:text="${role.roleName}">Người dùng</option>
+
                 </select>
             </div>
 <!--            <div class="filter-right">-->
@@ -103,15 +92,15 @@
         <!-- Users Table -->
         <div class="users-table-container">
             <div class="table-header">
-                <h3 class="table-title">Danh Sách Người Dùng</h3>
-                <div class="table-actions">
-                    <select class="table-per-page" id="perPageSelect">
-                        <option value="10">10 / trang</option>
-                        <option value="25" selected>25 / trang</option>
-                        <option value="50">50 / trang</option>
-                        <option value="100">100 / trang</option>
-                    </select>
-                </div>
+                <h3 class="table-title">List all Users</h3>
+<!--                <div class="table-actions">-->
+<!--                    <select class="table-per-page" id="perPageSelect">-->
+<!--                        <option value="10">10 / trang</option>-->
+<!--                        <option value="25" selected>25 / trang</option>-->
+<!--                        <option value="50">50 / trang</option>-->
+<!--                        <option value="100">100 / trang</option>-->
+<!--                    </select>-->
+<!--                </div>-->
             </div>
 
             <div class="table-wrapper">

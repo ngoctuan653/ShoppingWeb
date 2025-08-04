@@ -22,7 +22,7 @@
             <header class="header">
                 <div class="header-left">
                     <button class="sidebar-toggle" id="sidebarToggle">☰</button>
-                    <h1 class="header-title">Dashboard Tổng Quan</h1>
+                    <h1 class="header-title">Dashboard</h1>
                 </div>
                 <div class="header-user">
                     <span>Xin chào, Admin</span>
@@ -34,7 +34,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">Tổng Doanh Thu</div>
+                        <div class="stat-title">Total Revenue</div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">💰
                         </div>
                     </div>
@@ -46,7 +46,7 @@
 
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">Đơn Hàng Mới</div>
+                        <div class="stat-title">New Order</div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">📦
                         </div>
                     </div>
@@ -56,53 +56,56 @@
 
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">Khách Hàng Mới</div>
+                        <div class="stat-title">New Customer</div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">👥
                         </div>
                     </div>
                     <div class="stat-value" th:text="${totalCustomers}">832</div>
-                    <div class="stat-change positive">+15.8% so với tháng trước</div>
+                    <!--                    <div class="stat-change positive">+15.8% so với tháng trước</div>-->
                 </div>
 
-                <!--                <div class="stat-card">-->
-                <!--                    <div class="stat-header">-->
-                <!--                        <div class="stat-title">Sản Phẩm Bán Chạy</div>-->
-                <!--                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">👕</div>-->
-                <!--                    </div>-->
-                <!--                    <div class="stat-value">2,847</div>-->
-                <!--                    <div class="stat-change negative">-2.1% so với tuần trước</div>-->
-                <!--                </div>-->
+                <!--                                <div class="stat-card">-->
+                <!--                                    <div class="stat-header">-->
+                <!--                                        <div class="stat-title">Sản Phẩm Bán Chạy</div>-->
+                <!--                                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">👕</div>-->
+                <!--                                    </div>-->
+                <!--                                    <div class="stat-value">2,847</div>-->
+                <!--                                    <div class="stat-change negative">-2.1% so với tuần trước</div>-->
+                <!--                                </div>-->
             </div>
 
             <!-- Charts Section -->
-            <!--            <div class="charts-section">-->
-            <!--                <div class="chart-card">-->
-            <!--                    <div class="chart-header">-->
-            <!--                        <h3 class="chart-title">Doanh Thu Theo Tháng</h3>-->
-            <!--                        <select class="chart-period">-->
-            <!--                            <option>6 tháng qua</option>-->
-            <!--                            <option>12 tháng qua</option>-->
-            <!--                        </select>-->
-            <!--                    </div>-->
-            <!--                    <div class="chart-placeholder">-->
-            <!--                        Biểu đồ doanh thu sẽ được hiển thị tại đây-->
-            <!--                    </div>-->
-            <!--                </div>-->
+            <div class="charts-section">
+                <!-- Line Chart: Doanh thu -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Statistics</h3>
+                        <select class="chart-period" disabled>
+                            <option selected>6 months</option>
+                            <!-- Mở rộng sau nếu cần -->
+                        </select>
+                    </div>
+                    <div class="chart-placeholder">
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
+                </div>
 
-            <!--                <div class="chart-card">-->
-            <!--                    <div class="chart-header">-->
-            <!--                        <h3 class="chart-title">Danh Mục Bán Chạy</h3>-->
-            <!--                    </div>-->
-            <!--                    <div class="chart-placeholder">-->
-            <!--                        Biểu đồ tròn danh mục sản phẩm-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
+                <!-- Pie Chart: Top 3 bán chạy -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Top 3 Best Selling</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <canvas id="topProductsChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+
 
             <!--sản phẩm bán chạy-->
             <div class="recent-orders">
                 <div class="table-header">
-                    <h3 class="table-title">Sản phẩm bán chạy</h3>
+                    <h3 class="table-title">Best selling products</h3>
                 </div>
                 <table class="orders-table">
                     <thead>
@@ -140,16 +143,16 @@
             <!-- Recent Orders -->
             <div class="recent-orders">
                 <div class="table-header">
-                    <h3 class="table-title">Đơn Hàng Gần Đây</h3>
+                    <h3 class="table-title">Recent Orders</h3>
                 </div>
                 <table class="orders-table">
                     <thead>
                     <tr>
-                        <th>Mã Đơn</th>
-                        <th>Khách Hàng</th>
-                        <th>Tổng Tiền</th>
-                        <th>Trạng Thái</th>
-                        <th>Ngày Đặt</th>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -160,7 +163,7 @@
                         <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
                             ₫450,000
                         </td>
-                        <td><span class="status-badge status-completed">Hoàn thành</span></td>
+                        <td><span th:text="${order.status.statusName}" th:classappend="${order.status.cssClass}" class="status-badge status-completed">Hoàn thành</span></td>
                         <td th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy ''at'' HH:mm')}">30/07/2025</td>
                         <td>
                             <a th:href="@{order-manage}" class="btn btn-sm btn-outline-dark">
@@ -174,123 +177,70 @@
         </div>
     </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/admin-dashboard.js"></script>
+<script th:inline="javascript">
+    const months = /*[[${months}]]*/ [];
+    const revenues = /*[[${revenues}]]*/ [];
+    const productNames = /*[[${productNames}]]*/ [];
+    const quantities = /*[[${quantities}]]*/ [];
 
-<script>
-    // Fixed JavaScript cho dashboard
-    document.addEventListener('DOMContentLoaded', function () {
-        // Global variables
-        const sidebar = document.getElementById('sidebar') || document.querySelector('.sidebar');
-        const mainContent = document.getElementById('mainContent') || document.querySelector('.main-content');
-        const sidebarOverlay = document.getElementById('sidebarOverlay') || document.querySelector('.sidebar-overlay');
-        const sidebarToggle = document.getElementById('sidebarToggle') || document.querySelector('.sidebar-toggle');
-
-        // Kiểm tra xem các element có tồn tại không
-        if (!sidebar || !mainContent || !sidebarOverlay || !sidebarToggle) {
-            console.error('Không tìm thấy một hoặc nhiều element cần thiết cho sidebar');
-            return;
-        }
-
-        let isMobile = window.innerWidth <= 768;
-        let sidebarCollapsed = false;
-
-        // Initialize sidebar state
-        function initializeSidebar() {
-            isMobile = window.innerWidth <= 768;
-
-            if (isMobile) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-                sidebarCollapsed = true;
-            } else {
-                sidebar.classList.remove('collapsed', 'mobile-open');
-                mainContent.classList.remove('expanded');
-                sidebarOverlay.classList.remove('show');
-                sidebarCollapsed = false;
-            }
-        }
-
-        // Toggle sidebar function
-        function toggleSidebar() {
-            if (isMobile) {
-                if (sidebar.classList.contains('mobile-open')) {
-                    closeMobileSidebar();
-                } else {
-                    openMobileSidebar();
+    // Biểu đồ Line: Revenue theo tháng
+    const ctx1 = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue (VNĐ)',
+                data: revenues,
+                fill: true,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true
                 }
-            } else {
-                if (sidebarCollapsed) {
-                    sidebar.classList.remove('collapsed');
-                    mainContent.classList.remove('expanded');
-                    sidebarCollapsed = false;
-                } else {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
-                    sidebarCollapsed = true;
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return value.toLocaleString('vi-VN') + ' ₫';
+                        }
+                    }
                 }
             }
-            updateToggleIcon();
         }
+    });
 
-        // Open mobile sidebar
-        function openMobileSidebar() {
-            sidebar.classList.add('mobile-open');
-            sidebarOverlay.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Close mobile sidebar
-        function closeMobileSidebar() {
-            sidebar.classList.remove('mobile-open');
-            sidebarOverlay.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Update toggle icon
-        function updateToggleIcon() {
-            if (sidebarToggle) {
-                sidebarToggle.innerHTML = sidebarCollapsed || sidebar.classList.contains('mobile-open') ? '☰' : '✕';
+    // Biểu đồ Pie: Top 3 sản phẩm
+    const ctx2 = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: productNames,
+            datasets: [{
+                data: quantities,
+                backgroundColor: ['#4facfe', '#00f2fe', '#a29bfe'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
         }
-
-        // Sidebar toggle click event
-        sidebarToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleSidebar();
-        });
-
-        // Overlay click to close sidebar
-        sidebarOverlay.addEventListener('click', function() {
-            if (isMobile) {
-                closeMobileSidebar();
-            }
-        });
-
-        // Window resize handler
-        window.addEventListener('resize', function() {
-            const wasMobile = isMobile;
-            isMobile = window.innerWidth <= 768;
-
-            if (wasMobile !== isMobile) {
-                initializeSidebar();
-                updateToggleIcon();
-            }
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'b') {
-                e.preventDefault();
-                toggleSidebar();
-            }
-
-            if (e.key === 'Escape' && isMobile && sidebar.classList.contains('mobile-open')) {
-                closeMobileSidebar();
-            }
-        });
-
-        // Initialize on page load
-        initializeSidebar();
-        updateToggleIcon();
     });
 </script>
 </body>

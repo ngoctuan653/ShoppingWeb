@@ -19,5 +19,6 @@ public interface OrderDetailRepository extends JpaRepository<Orderdetail, Intege
     boolean existsById(Integer id);
 
     Optional<Orderdetail> findById(Integer id);
+//    List<Orderdetail> findAll();
 
 }

@@ -42,12 +42,13 @@ public class OrderController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String orderManagePage(Model model) {
         List<Order> orders = orderRepository.findAll();
+        List<Orderstatus> allStatuses = orderStatusRepository.findAll();
         Map<Integer, List<Orderdetail>> orderDetailsMap = new HashMap<>();
         for (Order order : orders) {
             List<Orderdetail> details = orderDetailRepository.findByOrder(order);
             orderDetailsMap.put(order.getId(), details);
         }
-
+        model.addAttribute("orderStatus", allStatuses);
         model.addAttribute("orders", orders);
         model.addAttribute("orderDetailsMap", orderDetailsMap);
         model.addAttribute("activePage", "orders");
@@ -144,7 +145,6 @@ public class OrderController {
     }
 
 
-
     @GetMapping("/admin/order/{orderId}/detail")
     @ResponseBody
     public ResponseEntity<?> getOrderDetail(@PathVariable Integer orderId) {
@@ -180,7 +180,6 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Order not found"));
         }
     }
-
 
 
 }

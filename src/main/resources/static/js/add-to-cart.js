@@ -2,6 +2,12 @@ function addToCart(button) {
     const productId = button.getAttribute("data-id");
     const selectedSize = document.getElementById("sizeSelect").value;
 
+    if (!productId) {
+        console.error("❌ Product ID bị thiếu! Có thể do nút không chứa data-id.");
+        showToast("Lỗi: Sản phẩm không xác định. Vui lòng tải lại trang!", "danger");
+        return;
+    }
+
     if (!selectedSize) {
         showToast("Please choose a size!", "warning");
         return;

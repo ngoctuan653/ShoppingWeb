@@ -251,13 +251,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('statusFilter').addEventListener('change', filterByStatus);
     document.getElementById('roleFilter').addEventListener('change', filterByRole);
 
-    // Select all checkbox
-    document.getElementById('selectAll').addEventListener('change', handleSelectAll);
-
     // Button events
-    document.getElementById('addUserBtn').addEventListener('click', addUser);
-    document.getElementById('exportBtn').addEventListener('click', exportToExcel);
-    document.getElementById('refreshBtn').addEventListener('click', refreshData);
+    // document.getElementById('addUserBtn').addEventListener('click', addUser);
+    // document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+    // document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
     // Modal events
     document.getElementById('closeAddModal').addEventListener('click', () => hideModal('addUserModal'));

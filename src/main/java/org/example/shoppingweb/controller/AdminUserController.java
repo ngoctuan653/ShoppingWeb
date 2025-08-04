@@ -32,15 +32,11 @@ public class AdminUserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public String listUsers(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
-        List<User> users;
-        if (keyword != null && !keyword.isEmpty()) {
-            users = userService.searchUsersByKeyword(keyword);
-            model.addAttribute("keyword", keyword);
-        } else {
-            users = userService.getAllUsers();
-        }
+    public String listUsers(Model model) {
+        List<User> users = userService.getAllUsers();
+        List<Role> roles = roleRepository.findAll();
         model.addAttribute("users", users);
+        model.addAttribute("roles", roles);
         model.addAttribute("activePage", "users");
         return "user-management";
     }
