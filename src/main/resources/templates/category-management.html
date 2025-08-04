@@ -62,7 +62,7 @@
                         <td ><span th:text="${category.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editCategory(' + ${category.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" onclick="deleteCategory(1)">Xóa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteCategory(' + ${category.id} + ')'">Xóa</button>
                         </td>
                     </tr>
                     </tbody>
@@ -98,7 +98,7 @@
                         <td><span th:text="${subCategory.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editSubcategory(' + ${subCategory.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" onclick="deleteSubcategory(1)">Xóa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteSubcategory(' + ${subCategory.id} + ')'">Xóa</button>
                         </td>
                     </tr>
                     </tbody>
@@ -132,7 +132,7 @@
                         <td><span th:text="${brand.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editBrand(' + ${brand.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" onclick="deleteBrand(1)">Xóa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteBrand(' + ${brand.id} + ')'">Xóa</button>
                         </td>
                     </tr>
                     </tbody>
@@ -192,6 +192,14 @@
                     <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.categoryName}"></option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Brand</label>
+                <select id="subcategoryBrand" required>
+                    <option value="">Chọn Brand</option>
+                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.brandName}"></option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Description</label>
                 <textarea id="subcategoryDescription" rows="3"></textarea>

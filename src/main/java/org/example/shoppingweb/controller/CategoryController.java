@@ -6,13 +6,14 @@ import org.example.shoppingweb.entity.Subcategory;
 import org.example.shoppingweb.repository.BrandRepository;
 import org.example.shoppingweb.repository.CategoryRepository;
 import org.example.shoppingweb.repository.SubCategoryRepository;
+import org.example.shoppingweb.service.BrandService;
+import org.example.shoppingweb.service.CategoryService;
+import org.example.shoppingweb.service.SubCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class CategoryController {
     private CategoryRepository categoryRepository;
     @Autowired
     private BrandRepository brandRepository;
+    @Autowired
+    private CategoryService categoryService;
 
 
     @GetMapping("/admin/category-manage")
@@ -47,21 +50,29 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/admin/subcategory/{id}")
+    @PostMapping("/admin/category")
     @ResponseBody
-    public ResponseEntity<Subcategory> getSubCategoryById(@PathVariable Integer id) {
-        return subCategoryRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
+        Category saved = categoryService.save(category);
+        return ResponseEntity.ok(saved);
     }
 
-    @GetMapping("/admin/brand/{id}")
-    @ResponseBody
-    public ResponseEntity<Brand> getBrandById(@PathVariable Integer id) {
-        return brandRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @DeleteMapping("/admin/category/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
+        categoryService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/admin/category/{id}")
+    @ResponseBody
+    public ResponseEntity<Category> updateCategory(@PathVariable Integer id, @RequestBody Category updatedCategory) {
+        return categoryRepository.findById(id).map(existing -> {
+            existing.setCategoryName(updatedCategory.getCategoryName());
+            existing.setDescription(updatedCategory.getDescription());
+            existing.setStatus(updatedCategory.getStatus());
+            Category saved = categoryRepository.save(existing);
+            return ResponseEntity.ok(saved);
+        }).orElse(ResponseEntity.notFound().build());
+    }
 
 }

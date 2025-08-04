@@ -165,12 +165,16 @@ function editSubcategory(id) {
         .then(res => res.json())
         .then(data => {
             document.getElementById('subcategoryModalTitle').textContent = 'Edit SubCategory';
+
             document.getElementById('subcategoryName').value = data.subcategoryName || '';
             document.getElementById('subcategoryDescription').value = data.description || '';
             document.getElementById('subcategoryStatus').value = (data.status || '').toLowerCase();
 
-            // ⚠️ đảm bảo là chuỗi
+            // 👇 Gán category id
             document.getElementById('subcategoryCategory').value = String(data.category?.id || '');
+
+            // 👇 Gán brand id
+            document.getElementById('subcategoryBrand').value = String(data.brand?.id || '');
 
             openModal('subcategoryModal');
         })
@@ -178,6 +182,7 @@ function editSubcategory(id) {
             showToast('Không thể tải subcategory', 'error');
         });
 }
+
 
 function editBrand(id) {
     editingId = id;
@@ -197,78 +202,171 @@ function editBrand(id) {
         });
 }
 
-
-
 function deleteCategory(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa category này?')) {
-        showToast('Đã xóa category thành công!', 'success');
-        // Remove row from table (mock)
-        // In real app, make API call here
+    if (confirm("Bạn có chắc chắn muốn xóa category này?")) {
+        fetch(`/admin/category/${id}`, {
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.ok) {
+                    showToast('Xóa category thành công', 'success');
+                    removeRowById('category', id);
+                } else {
+                    throw new Error();
+                }
+            })
+            .catch(() => showToast('Không thể xóa category', 'error'));
     }
 }
 
 function deleteSubcategory(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa subcategory này?')) {
-        showToast('Đã xóa subcategory thành công!', 'success');
+    if (confirm("Bạn có chắc chắn muốn xóa subcategory này?")) {
+        fetch(`/admin/subcategory/${id}`, {
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.ok) {
+                    showToast('Xóa subcategory thành công', 'success');
+                    removeRowById('subcategory', id);
+                } else {
+                    throw new Error();
+                }
+            })
+            .catch(() => showToast('Không thể xóa subcategory', 'error'));
     }
 }
 
 function deleteBrand(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa brand này?')) {
-        showToast('Đã xóa brand thành công!', 'success');
+    if (confirm("Bạn có chắc chắn muốn xóa brand này?")) {
+        fetch(`/admin/brand/${id}`, {
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (res.ok) {
+                    showToast('Xóa brand thành công', 'success');
+                    removeRowById('brand', id);
+                } else {
+                    throw new Error();
+                }
+            })
+            .catch(() => showToast('Không thể xóa brand', 'error'));
     }
 }
 
+
 // Form submissions
-document.getElementById('categoryForm').addEventListener('submit', function(e) {
+document.getElementById('categoryForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const name = document.getElementById('categoryName').value;
     const description = document.getElementById('categoryDescription').value;
     const status = document.getElementById('categoryStatus').value;
 
-    if (editingId && editingType === 'category') {
-        showToast('Đã cập nhật category thành công!', 'success');
-    } else {
-        showToast('Đã thêm category thành công!', 'success');
-    }
+    const payload = {
+        categoryName: name,
+        description: description,
+        status: status
+    };
 
-    closeModal('categoryModal');
+    const isEditing = editingId !== null;
+    const url = isEditing ? `/admin/category/${editingId}` : '/admin/category';
+    const method = isEditing ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(res => {
+            if (!res.ok) throw new Error(); // handle HTTP errors
+            return res.json();
+        })
+        .then(data => {
+            showToast(isEditing ? 'Cập nhật category thành công' : 'Thêm category thành công', 'success');
+            closeModal('categoryModal');
+
+            location.reload();
+
+
+            editingId = null;
+            editingType = null;
+        })
+        .catch(() => showToast('Lỗi khi lưu category', 'error'));
 });
 
-document.getElementById('subcategoryForm').addEventListener('submit', function(e) {
+
+
+document.getElementById('subcategoryForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const name = document.getElementById('subcategoryName').value;
-    const category = document.getElementById('subcategoryCategory').value;
     const description = document.getElementById('subcategoryDescription').value;
+    const categoryId = document.getElementById('subcategoryCategory').value;
+    const brandId = document.getElementById('subcategoryBrand').value;
     const status = document.getElementById('subcategoryStatus').value;
 
-    if (editingId && editingType === 'subcategory') {
-        showToast('Đã cập nhật subcategory thành công!', 'success');
-    } else {
-        showToast('Đã thêm subcategory thành công!', 'success');
-    }
+    const payload = {
+        subcategoryName: name,
+        description: description,
+        status: status,
+        category: { id: categoryId },
+        brand: { id: brandId } // 👈 THÊM DÒNG NÀY
+    };
 
-    closeModal('subcategoryModal');
+    const url = editingId ? `/admin/subcategory/${editingId}` : '/admin/subcategory';
+    const method = editingId ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(res => res.json())
+        .then(data => {
+            showToast(editingId ? 'Cập nhật subcategory thành công' : 'Thêm subcategory thành công', 'success');
+            closeModal('subcategoryModal');
+            location.reload();
+        })
+        .catch(() => showToast('Lỗi khi lưu subcategory', 'error'));
 });
 
-document.getElementById('brandForm').addEventListener('submit', function(e) {
+
+document.getElementById('brandForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const name = document.getElementById('brandName').value;
-    const logo = document.getElementById('brandLogo').value;
     const description = document.getElementById('brandDescription').value;
     const status = document.getElementById('brandStatus').value;
 
-    if (editingId && editingType === 'brand') {
-        showToast('Đã cập nhật brand thành công!', 'success');
-    } else {
-        showToast('Đã thêm brand thành công!', 'success');
-    }
+    const payload = {
+        brandName: name,
+        description: description,
+        status: status
+    };
 
-    closeModal('brandModal');
+    const url = editingId ? `/admin/brand/${editingId}` : '/admin/brand';
+    const method = editingId ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(res => res.json())
+        .then(data => {
+            showToast(editingId ? 'Cập nhật brand thành công' : 'Thêm brand thành công', 'success');
+            closeModal('brandModal');
+            location.reload();
+        })
+        .catch(() => showToast('Lỗi khi lưu brand', 'error'));
 });
+
 
 // Event listeners
 document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
@@ -310,3 +408,26 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSidebar();
     updateToggleIcon();
 });
+
+function removeRowById(type, id) {
+    const tableId = {
+        category: 'categoriesTable',
+        subcategory: 'subcategoriesTable',
+        brand: 'brandsTable'
+    }[type];
+
+    if (!tableId) return;
+
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        const cell = row.querySelector('td');
+        if (cell && parseInt(cell.textContent) === id) {
+            row.remove();
+        }
+    });
+}
+
+
