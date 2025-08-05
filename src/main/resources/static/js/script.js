@@ -23,8 +23,11 @@ function showToast(message, type) {
 }
 
 function formatCurrency(amount) {
-    return "$" + Number(amount).toFixed(2);
+    const number = Number(amount);
+    if (isNaN(number)) return "0 VNĐ";
+    return number.toLocaleString('vi-VN') + " VNĐ";
 }
+
 
 function loadCart() {
     const cartContainer = document.querySelector("#cartOffcanvas .offcanvas-body");
@@ -98,10 +101,8 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
             </div>
             <div class="text-end">
                 <p class="fw-bold mb-1">${formatCurrency(itemTotal)}</p>
-                ${isOutOfStock
-            ? ''
-            : `<button class="btn btn-sm btn-outline-danger btn-remove"
-                            data-id="${item.productId}" data-size="${item.sizeLabel}">x</button>`}
+                ${isOutOfStock ? '' : `<button class="btn btn-sm btn-outline-danger btn-remove" 
+                    data-id="${item.productId}" data-size="${item.sizeLabel}">x</button>`}
             </div>
         `;
 

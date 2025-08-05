@@ -172,7 +172,7 @@
                             </a>
                             <p class="card-text text-muted" th:text="${product.subcategory.subcategoryName}"></p>
                             <p class="card-text text-muted" th:text="${product.category.categoryName}"></p>
-                            <p class="fw-bold" th:text="'$' + ${product.price}">$0.00</p>
+                            <p class="fw-bold" th:text="${product.formatPrice(product.price)} +' VNĐ'">$0.00</p>
                         </div>
                     </div>
                 </div>
@@ -185,7 +185,10 @@
         </div>
     </div>
 </div>
-
+<!--Chat-->
+<div th:if="${currentUser != null and roleId == 2}">
+    <div th:replace="fragments/chat :: chatWidget"></div>
+</div>
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
@@ -200,5 +203,8 @@
 </body>
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
 <!-- Custom JS -->
 </html>

@@ -66,7 +66,6 @@
                     <select class="form-select" id="paymentMethod" name="paymentMethod" required>
                         <option value="COD">Cash on Delivery</option>
                         <option value="VNPAY">VNPay</option>
-                        <option value="MOMO">Momo</option>
                     </select>
                 </div>
 
@@ -78,22 +77,26 @@
                     <input type="hidden" id="cartTotalValue" value="0">
                 </div>
 
-                <!-- Discount Code -->
-                <div class="mb-3">
-                    <label for="discountCode" class="form-label">Discount Code</label>
-                    <div class="input-group">
-                        <input type="text" id="discountCode" class="form-control" placeholder="Enter discount code">
-                        <button class="btn btn-outline-secondary" type="button" id="applyDiscount">Apply</button>
-                    </div>
-                    <div id="discountFeedback" class="form-text text-success"></div>
-                </div>
+				<!-- Discount Code -->
+				<div class="mb-3">
+				    <label for="discountCode" class="form-label d-flex justify-content-between">
+				        <span>Discount Code</span>
+				        <a href="#" class="small text-primary" data-bs-toggle="modal" data-bs-target="#couponModal">View Available Coupons</a>
+				    </label>
+				    <div class="input-group">
+				        <input type="text" id="discountCode" class="form-control" placeholder="Enter discount code">
+				        <button class="btn btn-outline-secondary" type="button" id="applyDiscount">Apply</button>
+				    </div>
+				    <div id="discountFeedback" class="form-text text-success"></div>
+				</div>
+
 
                 <!-- Discount Amount and New Total -->
                 <div class="d-flex justify-content-between mb-2 align-items-center" id="discountRow"
                      style="display: none;">
                     <span>Discount:</span>
                     <span>
-                        <span id="discountAmount">- $0.00</span>
+                        <span id="discountAmount">- 0.00 VNĐ</span>
                         <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeDiscount"
                                 title="Remove discount">
                             <i class="bi bi-x-circle"></i>
@@ -102,8 +105,8 @@
                 </div>
 
                 <div class="d-flex justify-content-between mb-4" id="finalTotalRow" style="display: none;">
-                    <span>New Total:</span>
-                    <span id="finalTotal">$0.00</span>
+                    <h5 >New Total:</h5>
+                    <h5 id="finalTotal">0 VNĐ</h5>
                 </div>
 
                 <button type="submit" class="btn btn-dark w-100">Complete Purchase</button>
@@ -123,6 +126,31 @@
     </div>
 </div>
 
+<!-- Discount Coupon Modal -->
+<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="couponModalLabel">Available Discount</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>SUMMER10</strong> – 10% off Summer Sale
+                    </li>
+                    <li class="list-group-item">
+                        <strong>NEWUSER20</strong> – 20% off for new users
+                    </li>
+                    <li class="list-group-item">
+                        <strong>FLASH15</strong> – 15% off flash sale
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 <div th:replace="fragments/cart :: cart"></div>
@@ -131,67 +159,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/script.js"></script>
 <script src="/js/checkout.js"></script>
+<script src="/js/apply-discount.js"></script>
 <script>
-    document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
 
-        const shippingAddress = document.getElementById("shippingAddress").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const discountCode = document.getElementById("discountCode").value.trim();
-        const paymentMethod = document.getElementById("paymentMethod").value.trim();
-        const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
-
-        // Gọi lại giỏ hàng để lấy đúng quantity
-        const res = await fetch("/cart/json", {credentials: "include"});
-        const cartData = await res.json();
-
-        const items = cartData
-            .filter(item => selectedMap[`${item.productId}_${item.sizeLabel}`])
-            .map(item => ({
-                productId: item.productId,
-                sizeLabel: item.sizeLabel,
-                quantity: item.quantity
-            }));
-
-        if (items.length === 0) {
-            alert("Bạn chưa chọn sản phẩm nào.");
-            return;
-        }
-
-        const requestBody = {
-            shippingAddress,
-            phone,
-            discountCode,
-            paymentMethod,
-            items
-        };
-
-        const response = await fetch("/cart/checkout-ajax", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            credentials: "include",
-            body: JSON.stringify(requestBody)
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.redirect) {
-                window.location.href = data.redirect; // Redirect đến cổng thanh toán
-            } else if (data.success) {
-                localStorage.removeItem("selectedCartItems");
-                window.location.href = `/order/success?id=${data.orderId}`;
-            } else {
-                alert("Lỗi: " + data.message);
-            }
-        }
-        else {
-            const text = await response.text();
-            alert("Lỗi: " + text);
-        }
-    });
 </script>
-
-
 </body>
 
 </html>

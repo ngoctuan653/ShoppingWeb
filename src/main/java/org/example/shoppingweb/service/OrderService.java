@@ -39,93 +39,24 @@ public class OrderService {
     private SizeRepository sizeRepository;
     @Autowired
     private DiscountRepository discountRepository;
+    @Autowired
+    private UserDiscountRepository userDiscountRepository;
+
+    public Order findById(Integer orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+
+    public int countAll() {
+        return orderRepository.countBy();
+    }
+
+    public int countByStatus(String statusName) {
+        return orderRepository.countByStatus_StatusName(statusName);
+    }
+
 
     public Order findByIdAndUser(Integer orderId, User user) {
         return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
-    }
-
-    @Transactional
-    public Order createOrder(User user, String shippingAddress, String phone, Discount discount) {
-        // Lấy giỏ hàng
-        List<Cart> cartItems = cartRepository.findByUser(user);
-        if (cartItems == null || cartItems.isEmpty()) {
-            return null;
-        }
-        ZonedDateTime nowInVietnam = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-
-        // Tạo order
-        Order order = new Order();
-        order.setUser(user);
-        order.setOrderDate(Instant.now());
-        order.setShippingAddress(shippingAddress);
-        order.setPhoneNumber(phone);
-        order.setCreatedAt(nowInVietnam.toInstant());
-        order.setUpdatedAt(Instant.now());
-
-        // Lấy trạng thái mặc định
-        Orderstatus defaultStatus = orderStatusRepository.findByStatusName("Pending").orElseThrow(() -> new RuntimeException("Order status 'Pending' not found"));
-        order.setStatus(defaultStatus);
-
-        // Tính tổng tiền
-        BigDecimal total = BigDecimal.ZERO;
-        List<Orderdetail> orderDetails = new ArrayList<>();
-
-        for (Cart item : cartItems) {
-            Product product = item.getProduct();
-            Size size = item.getSize();
-            int quantity = item.getQuantity();
-
-            // Tìm Productsize
-            Productsize productSize = productSizeRepository.findByProductAndSize(product, size).orElseThrow(() -> new RuntimeException("Size not found for product: " + product.getProductName()));
-
-            // Kiểm tra tồn kho
-            if (productSize.getStockQuantity() < quantity) {
-                throw new RuntimeException("Not enough stock for product: " + product.getProductName() +
-                        " (Size: " + size.getSizeLabel() + ")");
-            }
-
-            // Trừ tồn kho
-            productSize.setStockQuantity(productSize.getStockQuantity() - quantity);
-            productSize.setUpdatedAt(Instant.now());
-            productSizeRepository.save(productSize);
-
-            List<Productsize> remainingSizes = productSizeRepository.findByProduct(product);
-            int totalStock = remainingSizes.stream().mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0).sum();
-            product.setStockQuantity(totalStock);
-            product.setUpdatedAt(Instant.now());
-            productRepository.save(product);
-
-            // Tạo Orderdetail
-            Orderdetail detail = new Orderdetail();
-            detail.setOrder(order);
-            detail.setProduct(product);
-            detail.setSize(size);
-            detail.setQuantity(quantity);
-            detail.setUnitPrice(product.getPrice());
-
-            orderDetails.add(detail);
-            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
-        }
-
-        order.setTotalAmountBeforeDiscount(total);
-
-        if (discount != null) {
-            if (discount.getDiscountPercentage() != null) {
-                BigDecimal discountPercent = discount.getDiscountPercentage()
-                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-                BigDecimal discountAmount = total.multiply(discountPercent);
-                total = total.subtract(discountAmount);
-            }
-            order.setDiscount(discount);
-        }
-
-        order.setTotalAmount(total);
-
-        order = orderRepository.save(order);
-        orderDetailRepository.saveAll(orderDetails);
-        cartRepository.deleteAll(cartItems);
-        emailService.sendOrderConfirmation(user, order, orderDetails, shippingAddress, phone);
-        return order;
     }
 
     @Transactional
@@ -143,6 +74,13 @@ public class OrderService {
             if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
                     (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
                 throw new RuntimeException("Mã giảm giá đã hết hạn hoặc chưa có hiệu lực.");
+            }
+
+            if(discount.getAvailableQuantity() <= 0){
+                throw new RuntimeException("Mã giảm giá đã hết lượt sử dụng.");
+            }
+            if (userDiscountRepository.existsByUserAndDiscount(user, discount)) {
+                throw new RuntimeException("Bạn đã sử dụng mã giảm giá này rồi.");
             }
         }
 
@@ -222,6 +160,18 @@ public class OrderService {
 
         // Lưu đơn hàng và chi tiết
         order = orderRepository.save(order);
+        if (discount != null) {
+            Userdiscount userDiscount = new Userdiscount();
+            userDiscount.setUser(user);
+            userDiscount.setDiscount(discount);
+            userDiscount.setUsedAt(Instant.now());
+            userDiscountRepository.save(userDiscount);
+
+            discount.setAvailableQuantity(discount.getAvailableQuantity() - 1);
+            discount.setUpdatedAt(Instant.now());
+            discountRepository.save(discount);
+        }
+
         orderDetailRepository.saveAll(orderDetails);
 
         // Xóa các cart đã mua
@@ -233,6 +183,33 @@ public class OrderService {
         return order;
     }
 
+    public BigDecimal calculateTotalBeforeDiscount(List<OrderItemRequestDTO> items) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItemRequestDTO item : items) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm ID: " + item.getProductId()));
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        }
+        return total;
+    }
+
+    public BigDecimal calculateFinalTotal(BigDecimal totalBeforeDiscount, String discountCode) {
+        if (discountCode == null || discountCode.trim().isEmpty()) {
+            return totalBeforeDiscount;
+        }
+
+        Discount discount = discountRepository.findByCodeIgnoreCase(discountCode.trim())
+                .orElseThrow(() -> new RuntimeException("Mã giảm giá không hợp lệ"));
+
+        Instant now = Instant.now();
+        if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
+                (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
+            throw new RuntimeException("Mã giảm giá đã hết hạn hoặc chưa có hiệu lực.");
+        }
+
+        BigDecimal discountPercent = discount.getDiscountPercentage().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        return totalBeforeDiscount.subtract(totalBeforeDiscount.multiply(discountPercent));
+    }
 
 
     @Transactional
@@ -311,6 +288,30 @@ public class OrderService {
         emailService.sendOrderConfirmedNotification(order.getUser(), order);
 
     }
+
+    @Transactional
+    public void markAsPaid(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        order.setPaymentStatus("PAID");
+        order.setUpdatedAt(Instant.now());
+
+        orderRepository.save(order);
+    }
+
+    public void updateOrderStatusById(Integer orderId, Integer statusId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        Orderstatus status = orderStatusRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("Trạng thái không hợp lệ"));
+
+        order.setStatus(status);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
+
 
 }
 

@@ -36,4 +36,16 @@ public class Orderstatus {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Transient
+    public String getCssClass() {
+        return switch (statusName) {
+            case "Pending" -> "status-pending";
+            case "Confirmed" -> "status-processing";
+            case "Delivered" -> "status-shipping";
+            case "Shipped" -> "status-completed";
+            case "Cancelled" -> "status-cancelled";
+            default -> "";
+        };
+    }
+
 }

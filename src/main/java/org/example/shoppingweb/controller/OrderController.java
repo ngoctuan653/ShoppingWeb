@@ -3,14 +3,17 @@ package org.example.shoppingweb.controller;
 import org.example.shoppingweb.DTO.OrderDTO;
 import org.example.shoppingweb.entity.Order;
 import org.example.shoppingweb.entity.Orderdetail;
+import org.example.shoppingweb.entity.Orderstatus;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.OrderDetailRepository;
 import org.example.shoppingweb.repository.OrderRepository;
+import org.example.shoppingweb.repository.OrderStatusRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,13 +35,37 @@ public class OrderController {
     private OrderDetailRepository orderDetailRepository;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private OrderStatusRepository orderStatusRepository;
 
-    @GetMapping("/order-manage")
-    public String orderManagePage(Model model){
+    @GetMapping("/admin/order-manage")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String orderManagePage(Model model) {
         List<Order> orders = orderRepository.findAll();
+        List<Orderstatus> allStatuses = orderStatusRepository.findAll();
+        Map<Integer, List<Orderdetail>> orderDetailsMap = new HashMap<>();
+        for (Order order : orders) {
+            List<Orderdetail> details = orderDetailRepository.findByOrder(order);
+            orderDetailsMap.put(order.getId(), details);
+        }
+        model.addAttribute("orderStatus", allStatuses);
         model.addAttribute("orders", orders);
+        model.addAttribute("orderDetailsMap", orderDetailsMap);
+        model.addAttribute("activePage", "orders");
         return "order-managements";
     }
+
+    @GetMapping("/admin/dashboard-stats")
+    @ResponseBody
+    public Map<String, Integer> getDashboardStats() {
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("totalOrders", orderService.countAll());
+        stats.put("pendingOrders", orderService.countByStatus("Pending"));
+        stats.put("shippingOrders", orderService.countByStatus("Shipping"));
+        stats.put("cancelledOrders", orderService.countByStatus("Cancelled"));
+        return stats;
+    }
+
 
     @GetMapping("/order/success")
     public String orderSuccess(@RequestParam("id") Integer orderId, Model model) {
@@ -80,6 +107,7 @@ public class OrderController {
         }
     }
 
+
     @PostMapping("/order/{orderId}/confirm")
     @ResponseBody
     public ResponseEntity<?> confirmOrder(@PathVariable Integer orderId) {
@@ -95,8 +123,63 @@ public class OrderController {
     @PostMapping("/order/{orderId}/status")
     @ResponseBody
     public ResponseEntity<?> updateStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> body) {
-        String newStatus = body.get("status");
-        orderService.updateOrderStatus(orderId, newStatus);
-        return ResponseEntity.ok(Map.of("message", "Status updated successfully"));
+        try {
+            String statusIdStr = body.get("statusId");
+
+            if (statusIdStr == null || statusIdStr.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Thiếu statusId!"));
+            }
+
+            Integer statusId = Integer.parseInt(statusIdStr);
+
+            orderService.updateOrderStatusById(orderId, statusId);
+
+            return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái thành công"));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "statusId không hợp lệ!"));
+        } catch (Exception e) {
+            e.printStackTrace(); // In ra log để debug
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Đã xảy ra lỗi khi cập nhật trạng thái"));
+        }
     }
+
+
+    @GetMapping("/admin/order/{orderId}/detail")
+    @ResponseBody
+    public ResponseEntity<?> getOrderDetail(@PathVariable Integer orderId) {
+        try {
+            Order order = orderRepository.findById(orderId).orElseThrow();
+            List<Orderdetail> details = orderDetailRepository.findByOrder(order);
+            List<Orderstatus> allStatuses = orderStatusRepository.findAll();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("orderCode", order.getDisplayCode());
+            response.put("customer", order.getUser().getFullName());
+            response.put("phone", order.getPhoneNumber());
+            response.put("email", order.getUser().getEmail());
+            response.put("address", order.getShippingAddress());
+            response.put("status", order.getStatus().getStatusName());
+            response.put("statusOptions", allStatuses.stream()
+                    .map(s -> Map.of("id", s.getId(), "name", s.getStatusName()))
+                    .collect(Collectors.toList()));
+            response.put("date", order.getOrderDate());
+            response.put("total", order.getTotalAmount());
+
+            List<Map<String, Object>> productList = details.stream().map(detail -> {
+                Map<String, Object> p = new HashMap<>();
+                p.put("name", detail.getProduct().getProductName());
+                p.put("quantity", detail.getQuantity());
+                p.put("price", detail.getUnitPrice());
+                return p;
+            }).collect(Collectors.toList());
+
+            response.put("products", productList);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Order not found"));
+        }
+    }
+
+
 }

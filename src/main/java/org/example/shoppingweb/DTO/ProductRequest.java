@@ -17,6 +17,4 @@ public class ProductRequest {
     private Integer brandId;
     private String status;
     private List<ProductSizeRequest> sizes;
-
-//    private byte[] image;
 }

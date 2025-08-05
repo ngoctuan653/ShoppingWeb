@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleLegacy - Quản lý Danh mục</title>
+    <link rel="stylesheet" href="/css/category-management.css">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
+
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                <h1 class="header-title">Category Management</h1>
+            </div>
+            <div class="header-user">
+                <span>Xin chào, Admin</span>
+                <div class="user-avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="categories">Categories</button>
+            <button class="tab-btn" data-tab="subcategories">SubCategories</button>
+            <button class="tab-btn" data-tab="brands">Brands</button>
+        </div>
+
+        <!-- Categories Tab -->
+        <div id="categories" class="tab-content active">
+            <div class="content-header">
+                <h2>Categories Management</h2>
+                <button class="btn btn-primary" onclick="openModal('categoryModal')">+ Add new Category</button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="categoriesTable">
+                    <tr th:each="category : ${categories}">
+                        <td th:text="${category.id}">1</td>
+                        <td th:text="${category.categoryName}">Áo Nam</td>
+                        <td th:text="${category.description}">Tất cả loại áo dành cho nam</td>
+                        <td ><span th:text="${category.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td>
+                            <button class="btn-small btn-edit" th:onclick="'editCategory(' + ${category.id} + ')'">Sửa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteCategory(' + ${category.id} + ')'">Xóa</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SubCategories Tab -->
+        <div id="subcategories" class="tab-content">
+            <div class="content-header">
+                <h2>SubCategories Management</h2>
+                <button class="btn btn-primary" onclick="openModal('subcategoryModal')">+ Add new SubCategory</button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>SubCategory</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="subcategoriesTable">
+                    <tr  th:each="subCategory : ${subCategories}">
+                        <td th:text="${subCategory.id}">1</td>
+                        <td th:text="${subCategory.subcategoryName}">Áo Thun</td>
+                        <td th:text="${subCategory.category.categoryName}">Áo Nam</td>
+                        <td  th:text="${subCategory.description}">Áo thun nam các loại</td>
+                        <td><span th:text="${subCategory.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td>
+                            <button class="btn-small btn-edit" th:onclick="'editSubcategory(' + ${subCategory.id} + ')'">Sửa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteSubcategory(' + ${subCategory.id} + ')'">Xóa</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Brands Tab -->
+        <div id="brands" class="tab-content">
+            <div class="content-header">
+                <h2>Brands Management</h2>
+                <button class="btn btn-primary" onclick="openModal('brandModal')">+ Add new Brand</button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Brand</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="brandsTable">
+                    <tr th:each="brand : ${brands}">
+                        <td th:text="${brand.id}">1</td>
+                        <td th:text="${brand.brandName}">Nike</td>
+                        <td th:text="${brand.description}">Thương hiệu thể thao nổi tiếng</td>
+                        <td><span th:text="${brand.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td>
+                            <button class="btn-small btn-edit" th:onclick="'editBrand(' + ${brand.id} + ')'">Sửa</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteBrand(' + ${brand.id} + ')'">Xóa</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="categoryModalTitle">Add new Category</h3>
+            <span class="close" onclick="closeModal('categoryModal')">&times;</span>
+        </div>
+        <form id="categoryForm">
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="categoryName" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="categoryDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="categoryStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SubCategory Modal -->
+<div id="subcategoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="subcategoryModalTitle">Add new SubCategory</h3>
+            <span class="close" onclick="closeModal('subcategoryModal')">&times;</span>
+        </div>
+        <form id="subcategoryForm">
+            <div class="form-group">
+                <label>SubCategory</label>
+                <input type="text" id="subcategoryName" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="subcategoryCategory" required>
+                    <option value="">Chọn Category</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.categoryName}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Brand</label>
+                <select id="subcategoryBrand" required>
+                    <option value="">Chọn Brand</option>
+                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.brandName}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="subcategoryDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="subcategoryStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('subcategoryModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Brand Modal -->
+<div id="brandModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="brandModalTitle">Add new Brand</h3>
+            <span class="close" onclick="closeModal('brandModal')">&times;</span>
+        </div>
+        <form id="brandForm">
+            <div class="form-group">
+                <label>Brand</label>
+                <input type="text" id="brandName" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="brandDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="brandStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('brandModal')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="/js/category-management.js"></script>
+</body>
+</html>

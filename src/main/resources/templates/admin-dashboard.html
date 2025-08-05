@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleLegacy - Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <h1 class="header-title">Dashboard</h1>
+                </div>
+                <div class="header-user">
+                    <span>Xin chào, Admin</span>
+                    <div class="user-avatar">A</div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Revenue</div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">💰
+                        </div>
+                    </div>
+                    <div class="stat-value"
+                         th:text="${#numbers.formatDecimal(totalRevenue, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">₫45,320,000
+                    </div>
+                    <!--                    <div class="stat-change positive">+12.5% so với tháng trước</div>-->
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">New Order</div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">📦
+                        </div>
+                    </div>
+                    <div class="stat-value" th:text="${totalOrders}">1,429</div>
+                    <!--                    <div class="stat-change positive">+8.3% so với tuần trước</div>-->
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">New Customer</div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">👥
+                        </div>
+                    </div>
+                    <div class="stat-value" th:text="${totalCustomers}">832</div>
+                    <!--                    <div class="stat-change positive">+15.8% so với tháng trước</div>-->
+                </div>
+
+                <!--                                <div class="stat-card">-->
+                <!--                                    <div class="stat-header">-->
+                <!--                                        <div class="stat-title">Sản Phẩm Bán Chạy</div>-->
+                <!--                                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">👕</div>-->
+                <!--                                    </div>-->
+                <!--                                    <div class="stat-value">2,847</div>-->
+                <!--                                    <div class="stat-change negative">-2.1% so với tuần trước</div>-->
+                <!--                                </div>-->
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Line Chart: Doanh thu -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Statistics</h3>
+                        <select class="chart-period" disabled>
+                            <option selected>6 months</option>
+                            <!-- Mở rộng sau nếu cần -->
+                        </select>
+                    </div>
+                    <div class="chart-placeholder">
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pie Chart: Top 3 bán chạy -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Top 3 Best Selling</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <canvas id="topProductsChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--sản phẩm bán chạy-->
+            <div class="recent-orders">
+                <div class="table-header">
+                    <h3 class="table-title">Best selling products</h3>
+                </div>
+                <table class="orders-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Total Quantity</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${topProducts}">
+                        <td th:text="${product.id}">#ORD001</td>
+                        <td>
+                            <img th:src="@{/products/image/{id}(id=${product.id})}"
+                                 alt="Product Image"
+                                 class="img-thumbnail"
+                                 style="width: 70px; height: 70px;">
+                        </td>
+                        <td th:text="${product.productName}">Áo Thun Nam Basic</td>
+                        <td th:text="${#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+                            ₫450,000
+                        </td>
+                        <td><span
+                                th:classappend="'status-badge ' + (${product.status == 'Active'} ? 'status-completed' : 'status-cancelled')"
+                                th:text="${product.status == 'Active' ? 'Active' : 'Inactive'}">Trạng thái</span></td>
+                        <td th:text="${product.stockQuantity}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="recent-orders">
+                <div class="table-header">
+                    <h3 class="table-title">Recent Orders</h3>
+                </div>
+                <table class="orders-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${recentOrders}">
+                        <td th:text="${order.id}">#ORD001</td>
+                        <td th:text="${order.user.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+                            ₫450,000
+                        </td>
+                        <td><span th:text="${order.status.statusName}" th:classappend="${order.status.cssClass}" class="status-badge status-completed">Hoàn thành</span></td>
+                        <td th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy ''at'' HH:mm')}">30/07/2025</td>
+                        <td>
+                            <a th:href="@{order-manage}" class="btn btn-sm btn-outline-dark">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/admin-dashboard.js"></script>
+<script th:inline="javascript">
+    const months = /*[[${months}]]*/ [];
+    const revenues = /*[[${revenues}]]*/ [];
+    const productNames = /*[[${productNames}]]*/ [];
+    const quantities = /*[[${quantities}]]*/ [];
+
+    // Biểu đồ Line: Revenue theo tháng
+    const ctx1 = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue (VNĐ)',
+                data: revenues,
+                fill: true,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return value.toLocaleString('vi-VN') + ' ₫';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Biểu đồ Pie: Top 3 sản phẩm
+    const ctx2 = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: productNames,
+            datasets: [{
+                data: quantities,
+                backgroundColor: ['#4facfe', '#00f2fe', '#a29bfe'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

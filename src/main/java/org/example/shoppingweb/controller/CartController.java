@@ -8,6 +8,7 @@ import org.example.shoppingweb.entity.*;
 import org.example.shoppingweb.repository.*;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderService;
+import org.example.shoppingweb.service.VnpayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
@@ -48,6 +49,10 @@ public class CartController {
     private ProductSizeRepository productSizeRepository;
     @Autowired
     private DiscountRepository discountRepository;
+    @Autowired
+    private VnpayService vnpayService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @PostMapping("/add/{productId}")
     @ResponseBody
@@ -262,52 +267,9 @@ public class CartController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/checkout")
-    public String checkout(@RequestParam String shippingAddress,
-                           @RequestParam String phone,
-                           @RequestParam(required = false) String discountCode,
-                           RedirectAttributes redirectAttributes) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/login?needLogin=true";
-        }
-
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        User user = userDetails.getUser();
-
-        Discount discount = null;
-        if (discountCode != null && !discountCode.isEmpty()) {
-            Optional<Discount> optionalDiscount = discountRepository.findByCodeIgnoreCase(discountCode.trim());
-
-            if (optionalDiscount.isPresent()) {
-                discount = optionalDiscount.get();
-                Instant now = Instant.now();
-
-                if ((discount.getStartDate() != null && now.isBefore(discount.getStartDate())) ||
-                        (discount.getEndDate() != null && now.isAfter(discount.getEndDate()))) {
-
-                    redirectAttributes.addFlashAttribute("error", "Discount code has expired or is not yet valid.");
-                    return "redirect:/checkout";
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Invalid discount code.");
-                return "redirect:/checkout";
-            }
-        }
-
-        Order order = orderService.createOrder(user, shippingAddress, phone, discount);
-        if (order == null) {
-            redirectAttributes.addFlashAttribute("error", "Your cart is empty!");
-            return "redirect:/checkout";
-        }
-
-        return "redirect:/order/success?id=" + order.getId();
-    }
-
     @PostMapping("/checkout-ajax")
     @ResponseBody
-    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request) {
+    public ResponseEntity<?> checkoutViaAjax(@RequestBody CheckoutRequestDTO request, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
@@ -323,19 +285,31 @@ public class CartController {
         }
 
         try {
-            Order order = orderService.createOrderWithItems(
-                    user,
-                    request.getShippingAddress(),
-                    request.getPhone(),
-                    request.getDiscountCode(),
-                    items,
-                    request.getPaymentMethod()
-            );
-            String paymentMethod = request.getPaymentMethod();
-            if ("COD".equalsIgnoreCase(paymentMethod)) {
+            if ("COD".equalsIgnoreCase(request.getPaymentMethod())) {
+                // Tạo đơn hàng luôn
+                Order order = orderService.createOrderWithItems(
+                        user,
+                        request.getShippingAddress(),
+                        request.getPhone(),
+                        request.getDiscountCode(),
+                        items,
+                        "COD"
+                );
+                order.setPaymentStatus("UNPAID");
+                orderRepository.save(order);
                 return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+            } else if ("VNPAY".equalsIgnoreCase(request.getPaymentMethod())) {
+                session.setAttribute("checkoutRequest", request);
+                session.setAttribute("userId", user.getId());
+
+                BigDecimal totalBeforeDiscount = orderService.calculateTotalBeforeDiscount(items);
+                BigDecimal finalTotal = orderService.calculateFinalTotal(totalBeforeDiscount, request.getDiscountCode());
+
+                String redirectUrl = vnpayService.createRedirectUrl(finalTotal);
+                return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
             }
-            return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phương thức thanh toán không hợp lệ"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }

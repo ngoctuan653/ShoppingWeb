@@ -6,11 +6,13 @@ import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.RoleRepository;
 import org.example.shoppingweb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -44,6 +46,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -64,7 +70,6 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-
     public void updateUser(User user) {
         User existing = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -73,6 +78,14 @@ public class UserService {
         existing.setEmail(user.getEmail());
         existing.setPhoneNumber(user.getPhoneNumber());
         existing.setAddress(user.getAddress());
+
+        if (user.getRole() != null) {
+            existing.setRole(user.getRole());
+        }
+
+        if (user.getStatus() != null) {
+            existing.setStatus(user.getStatus());
+        }
 
         if (user.getAvatar() != null && user.getAvatar().length > 0) {
             existing.setAvatar(user.getAvatar());

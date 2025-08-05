@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 "/products/**", "/search", "/images/**", "/{productId}/sizes",
                                 "/verify-reset-code", "/reset-password", "/resend-code","/api/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -44,6 +45,7 @@ public class SecurityConfig {
                                 response.sendRedirect("/login");
                             }
                         })
+                        .accessDeniedPage("/403")
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")

@@ -65,7 +65,7 @@
 				<p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
 				<p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
 				<p class="mb-4 fs-5" th:utext="${product.description}">Product description</p>
-				<div class="price-tag mb-4" th:text="'$' + ${product.price}">$0.00</div>
+				<div class="price-tag mb-4" th:text="${product.formatPrice(product.price)} +' VNĐ'">$0.00</div>
 
 
 				<div th:if="${product.stockQuantity != 0}" class="mb-4">
@@ -99,7 +99,33 @@
 		</div>
 	</div>
 
-	<!-- Footer -->
+    <div class="container mb-5">
+        <h3 class="mb-4">Customer Feedback</h3>
+
+        <!-- Rating filter -->
+        <div class="mb-3">
+            <label for="ratingFilter" class="form-label fw-semibold">Filter by Rating:</label>
+            <select id="ratingFilter" class="form-select" style="max-width: 200px;">
+                <option value="">All</option>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
+            </select>
+        </div>
+
+        <!-- Feedback List -->
+        <div id="feedbackList"></div>
+
+        <!-- Pagination -->
+        <nav>
+            <ul id="feedbackPagination" class="pagination mt-4"></ul>
+        </nav>
+    </div>
+
+
+    <!-- Footer -->
 	<div th:replace="fragments/footer :: footer"></div>
 
 	<!-- JS -->
@@ -110,6 +136,92 @@
 
 	<div th:replace="fragments/cart :: cart"></div>
 	<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+
+    <script>
+        const productId = [[${product.id}]];
+        const pageSize = 5;
+        let currentPage = 0;
+        let currentRating = '';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadFeedbacks();
+
+            document.getElementById("ratingFilter").addEventListener("change", function () {
+                currentRating = this.value;
+                currentPage = 0;
+                loadFeedbacks();
+            });
+        });
+
+        function loadFeedbacks() {
+            const url = `/api/reviews?productId=${productId}&page=${currentPage}&size=${pageSize}` + (currentRating ? `&rating=${currentRating}` : '');
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    renderFeedbackList(data.content);
+                    renderPagination(data.totalPages);
+                });
+        }
+
+        function renderFeedbackList(reviews) {
+            const container = document.getElementById("feedbackList");
+            container.innerHTML = "";
+
+            if (reviews.length === 0) {
+                container.innerHTML = '<p class="text-muted">No feedback for this filter.</p>';
+                return;
+            }
+
+            reviews.forEach(review => {
+                const stars = Array.from({ length: 5 }, (_, i) =>
+                    `<i class="bi bi-star-fill ${i < review.rating ? 'text-warning' : 'text-secondary'}"></i>`
+                ).join('');
+
+                const html = `
+                    <div class="border rounded p-3 mb-3 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>${review.username}</strong>
+                            <small class="text-muted">${formatVietnameseDateTime(review.createdAt)}</small>
+                        </div>
+                        <div class="mb-2">${stars}</div>
+                        <p>${review.comment}</p>
+                    </div>
+                    `;
+                container.innerHTML += html;
+            });
+        }
+
+        function formatVietnameseDateTime(isoString) {
+            const dateObj = new Date(isoString);
+
+            const datePart = dateObj.toLocaleDateString('vi-VN'); // "31/07/2025"
+            const timePart = dateObj.toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }); // "13:47"
+
+            return `${datePart} at ${timePart}`;
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById("feedbackPagination");
+            container.innerHTML = "";
+
+            for (let i = 0; i < totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
+                li.addEventListener("click", e => {
+                    e.preventDefault();
+                    currentPage = i;
+                    loadFeedbacks();
+                });
+                container.appendChild(li);
+            }
+        }
+    </script>
+
 </body>
 
 </html>

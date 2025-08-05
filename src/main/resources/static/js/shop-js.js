@@ -54,7 +54,7 @@ const loadMoreProducts = () => {
                             <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
                             <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
                             <div class="mt-auto">
-                                <p class="fw-bold">$${product.price}</p>
+                                <p class="fw-bold">${formatVND(product.price)}</p>
                             </div>
                         </div>
                     </div>
@@ -88,6 +88,27 @@ const minPriceInput = document.getElementById("minPrice");
 const maxPriceInput = document.getElementById("maxPrice");
 let debounceTimeout = null;
 
+function formatNumberInput(value) {
+    const number = value.replace(/\D/g, ""); // chỉ lấy số
+    return Number(number || 0).toLocaleString("vi-VN"); // thêm dấu chấm
+}
+
+function unformatNumber(value) {
+    return value.replace(/\./g, ""); // bỏ dấu chấm
+}
+
+[minPriceInput, maxPriceInput].forEach(input => {
+    input.addEventListener("input", () => {
+        const raw = unformatNumber(input.value);
+        input.value = formatNumberInput(raw);
+        input.setSelectionRange(input.value.length, input.value.length);
+
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(handleSearch, 300);
+    });
+});
+
+
 const showLoading = () => {
     productGrid.innerHTML = `
         <div class="col-12 text-center py-4">
@@ -100,10 +121,16 @@ function getCheckedValues(selector) {
     return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
 }
 
+function formatVND(amount) {
+    if (isNaN(amount)) return "";
+    return parseInt(amount).toLocaleString("vi-VN") + " VNĐ";
+}
+
+
 const handleSearch = () => {
     const keyword = searchInput.value.trim();
-    const minPrice = minPriceInput.value;
-    const maxPrice = maxPriceInput.value;
+    const minPrice = unformatNumber(minPriceInput.value);
+    const maxPrice = unformatNumber(maxPriceInput.value);
     const selectedCategories = getCheckedValues(".category-filter");
     const selectedSubcategories = getCheckedValues(".subcategory-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
@@ -164,7 +191,7 @@ const handleSearch = () => {
                                 <p class="card-text text-muted">${product.subcategory?.subcategoryName || ''}</p>
                                 <p class="card-text text-muted">${product.category?.categoryName || ''}</p>
                                 <div class="mt-auto">
-                                    <p class="fw-bold">$${product.price}</p>
+                                    <p class="fw-bold">${formatVND(product.price)}</p>
                                 </div>
                             </div>
                         </div>

@@ -1,0 +1,55 @@
+/* admin.css */
+.sidebar {
+    position: fixed;
+    top: 60px; /* Đủ chỗ cho navbar cao ~56px */
+    left: 0;
+    bottom: 0;
+    width: 256px;
+    transition: all 0.3s ease;
+    z-index: 1020; /* Dưới navbar (z-index: 1030) */
+}
+.sidebar.collapsed {
+    width: 80px;
+}
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+.sidebar.collapsed .logo-text {
+    display: none;
+}
+.sidebar.collapsed .toggle-btn {
+    justify-content: center;
+}
+.main-content {
+    margin-left: 280px; /* Đủ chỗ cho sidebar (256px + margin) */
+    padding-top: 80px; /* Đủ chỗ cho navbar */
+    transition: all 0.3s ease;
+}
+.main-content.expanded {
+    margin-left: 80px;
+}
+.text-dark {
+    color: #1f2937;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 60px;
+    }
+    .main-content.expanded {
+        margin-left: 0 !important;
+    }
+}
+/* Navbar */
+#mainNavbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+    transition: transform 0.3s ease-in-out;
+}

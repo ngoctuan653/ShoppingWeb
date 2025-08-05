@@ -2,6 +2,7 @@ package org.example.shoppingweb.security;
 
 import org.example.shoppingweb.entity.Role;
 import org.example.shoppingweb.entity.User;
+import org.example.shoppingweb.repository.RoleRepository;
 import org.example.shoppingweb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,28 +21,32 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository; // Thêm dòng này
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // Lấy thông tin user từ provider (Google, Facebook,...)
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findWithRoleByEmail(email);
         User user;
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
         } else {
-            Role role = new Role();
-            role.setId(2);
+            // 🔥 Lấy role từ DB để có cả roleName
+            Role role = roleRepository.findById(2)
+                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy role có ID 2"));
+
             user = new User();
             user.setEmail(email);
             user.setFullName(name);
             user.setUsername(email);
-            user.setPassword("");
-            user.setRole(role);
+            user.setPassword(""); // OAuth2 không dùng mật khẩu
+            user.setRole(role);   // Đảm bảo roleName không null
             user.setCreatedAt(Instant.now());
             user.setUpdatedAt(Instant.now());
             user.setStatus("Active");

@@ -8,6 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -31,15 +34,19 @@ public class UserController {
     private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     @GetMapping("/profile")
-    public String viewUserProfile(HttpSession session, Model model) {
-        User currentUser = (User) session.getAttribute("currentUser");
-        if (currentUser == null) {
+    public String viewUserProfile(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
             return "redirect:/login";
         }
 
-        model.addAttribute("user", currentUser);
+        model.addAttribute("user", user);
         return "profile";
     }
+
 
     @PostMapping("/update_profile")
     public String updateUserProfile(@RequestParam("full_name") String fullName,
@@ -90,6 +97,45 @@ public class UserController {
                     return new ResponseEntity<>(image, headers, HttpStatus.OK);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/change_password")
+    public String changePassword(@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 HttpSession session,
+                                 Model model) {
+
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
+            model.addAttribute("error", "Current password is incorrect.");
+            model.addAttribute("user", currentUser);
+            return "profile";
+        }
+
+        // Kiểm tra xác nhận mật khẩu mới
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "New passwords do not match.");
+            model.addAttribute("user", currentUser);
+            return "profile";
+        }
+
+        // Cập nhật mật khẩu mới sau khi mã hóa
+        currentUser.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(currentUser);
+        session.setAttribute("currentUser", currentUser);
+
+        model.addAttribute("user", currentUser);
+        model.addAttribute("success", "Password changed successfully!");
+        return "profile";
     }
 
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="chatWidget">
+    <!-- Chat Icon -->
+    <div id="chatIcon" onclick="toggleChatBox()"
+         style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; cursor: pointer; background-color: #007bff; color: white; border-radius: 50%; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center;">
+        <i class="bi bi-chat-dots fs-4"></i>
+    </div>
+
+    <!-- Chat Box -->
+    <div id="chatContainer"
+         style="position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; border-radius: 10px; display: none; flex-direction: column; z-index: 1000; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+        <div style="background: #007bff; color: white; padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+            Chat with Admin
+            <span style="float:right; cursor:pointer;" onclick="toggleChatBox()">&times;</span>
+        </div>
+        <div id="chatBox" style="flex: 1; padding: 10px; overflow-y: scroll;"></div>
+        <div style="padding: 10px; border-top: 1px solid #ccc;">
+            <input type="text" id="chatInput" placeholder="Message..." class="form-control form-control-sm"
+                   onkeydown="if(event.key === 'Enter') sendMessage();">
+        </div>
+    </div>
+
+    <!-- Chat Scripts -->
+    <script>
+        window.currentUserId = [[${currentUserId}]];
+        window.receiverId = [[${receiverId}]];
+    </script>
+    <script src="/js/chat.js"></script>
+</div>
+</body>
+</html>

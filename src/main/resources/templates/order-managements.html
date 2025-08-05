@@ -1,208 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Order Managements</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleLegacy - Quản Lý Đơn Hàng</title>
+    <link rel="stylesheet" href="/css/orders-management.css">
 </head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<body style="padding-top: 50px;">
-<!-- Navbar -->
-<div th:replace="fragments/admin-header-navbar :: navbar"></div>
+    <!-- Sidebar -->
+    <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
 
-<div class="container mt-5">
-    <div>
-        <h2 class="fw-bold mb-0">Order Management</h2>
-        <p class="text-muted">Manage your store's orders</p>
-    </div>
 
-    <table class="table table-bordered table-hover align-middle text-center">
-        <thead class="table-dark">
-        <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.displayCode}">#1024</td>
-            <td th:text="${order.user.fullName}">John Doe</td>
-            <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">2025-07-20</td>
-            <td>
-    <span th:switch="${order.status.statusName}">
-        <span th:case="'Pending'" class="badge bg-warning text-dark">Pending</span>
-        <span th:case="'Confirmed'" class="badge bg-info text-dark">Confirmed</span>
-        <span th:case="'Shipped'" class="badge bg-secondary text-white">Shipped</span>
-        <span th:case="'Delivered'" class="badge bg-success">Delivered</span>
-        <span th:case="'Cancelled'" class="badge bg-danger">Cancelled</span>
-        <span th:case="*"
-              class="badge bg-dark text-white"
-              th:text="${order.status.statusName}">Unknown</span>
-    </span>
-            </td>
-
-            <td>
-                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#confirmModal"
-                        th:attr="onclick=|loadOrderDetails(${order.id})|">
-                    <i class="bi bi-pencil"></i>
-                </button>
-
-            </td>
-        </tr>
-        <!-- Add more rows here -->
-        </tbody>
-    </table>
-</div>
-
-<!-- Confirm Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Order</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                <h1 class="header-title">Order Management</h1>
             </div>
-            <div class="modal-body">
-                <!-- Order details go here -->
-                <p><strong>Order ID:</strong> <span id="orderId">...</span></p>
-                <p><strong>Customer:</strong> <span id="customerName">...</span></p>
-                <p><strong>Shipping Address:</strong> <span id="shippingAddress">...</span></p>
-                <p><strong>Phone Number:</strong> <span id="phoneNumber">...</span></p>
-                <p><strong>Items:</strong></p>
-                <ul id="orderItemsList"></ul>
-                <p id="discountRow" style="display: none;">
-                    <strong>Discount:</strong> <span id="discount">...</span>
-                </p>
-                <p><strong>Total:</strong> $<span id="orderTotal">...</span></p>
-                <p><strong>Status:</strong>
-                    <select id="orderStatusSelect" class="form-select form-select-sm w-auto d-inline-block ms-2">
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                </p>
-
+            <div class="header-user">
+                <span>Xin chào, Admin</span>
+                <div class="user-avatar">A</div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-success" id="confirmOrderBtn">Save</button>
+        </header>
+
+        <!-- Order Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Order</div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">📦</div>
+                </div>
+                <div class="stat-value" id="stat-total-orders">0</div>
+                <!--                <div class="stat-change positive">+2 đơn hôm nay</div>-->
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Pending</div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">⏳</div>
+                </div>
+                <div class="stat-value" id="stat-pending-orders">0</div>
+                <!--                <div class="stat-change positive">+1 so với hôm qua</div>-->
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Đang Giao</div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">🚚</div>
+                </div>
+                <div class="stat-value" id="stat-shipping-orders">0</div>
+                <!--                <div class="stat-change positive">Không đổi</div>-->
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Cancelled</div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)">❌</div>
+                </div>
+                <div class="stat-value" id="stat-cancelled-orders">0</div>
+                <!--<div class="stat-change negative">+1 so với hôm qua</div>-->
             </div>
         </div>
+
+        <!-- Filters and Search -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <input type="text" class="search-input" placeholder="Search......"
+                       id="searchInput">
+                <button class="search-btn" id="searchBtn">🔍</button>
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All</option>
+                    <option th:each="status : ${orderStatus}" th:value="${status.id}" th:text="${status.statusName}">Chờ
+                        xử lý
+                    </option>
+                </select>
+                <select class="filter-select" id="dateFilter">
+                    <option value="">Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-container">
+            <div class="table-header">
+                <h3 class="table-title">List all Order</h3>
+                <div class="table-actions">
+                    <button class="action-btn bulk-action" id="bulkActionBtn" style="display: none;">
+                        Thao tác với <span id="selectedCount">0</span> đơn hàng
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="orders-table" id="ordersTable">
+                    <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" class="checkbox" hidden="">
+                        </th>
+                        <th class="sortable" data-sort="orderCode">
+                            ID <span class="sort-icon">↕️</span>
+                        </th>
+                        <th class="sortable" data-sort="customer">
+                            Customer <span class="sort-icon">↕️</span>
+                        </th>
+                        <th>Product</th>
+                        <th class="sortable" data-sort="total">
+                            Total Amount <span class="sort-icon">↕️</span>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                            Status <span class="sort-icon">↕️</span>
+                        </th>
+                        <th class="sortable" data-sort="date">
+                            Created At <span class="sort-icon">↕️</span>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                    <tr th:each="order : ${orders}">
+                        <td>
+                            <input type="checkbox" class="checkbox order-checkbox" th:attr="data-order-id=${order.id}"
+                                   hidden="">
+                        </td>
+                        <td th:text="${order.displayCode}">ORD001</td>
+                        <td th:text="${order.user.fullName}">Nguyễn Văn A</td>
+                        <td>
+                            <div class="product-list">
+                                <div th:each="detail : ${orderDetailsMap[order.id]}" class="product-item">
+                                    <span th:text="${detail.product.productName}"></span>
+                                    x
+                                    <span th:text="${detail.quantity}"></span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+                            ₫850,000
+                        </td>
+                        <td>
+                            <span th:text="${order.status.statusName}"
+                                  th:classappend="${order.status.cssClass}"
+                                  class="status-badge">Pending
+                            </span>
+                        </td>
+                        <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">30/07/2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-primary"
+                                        th:onclick="'viewOrderDetail(' + ${order.id} + ')'">View
+                                </button>
+
+                                <button class="btn-sm btn-success"
+                                        th:if="${order.status.statusName == 'Pending'}"
+                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'confirmed')|"
+                                        th:attrappend="data-action='confirmed-' + ${order.id}">
+                                    Handle
+                                </button>
+
+                                <button class="btn-sm btn-danger"
+                                        th:if="${order.status.statusName == 'Pending' or order.status.statusName == 'Confirmed'}"
+                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'cancelled')|"
+                                        th:attrappend="data-action='cancelled-' + ${order.id}">
+                                    Cancel
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <!--                    Hiển thị <span id="showingStart">1</span>-<span id="showingEnd">5</span>-->
+                    <!--                    trong tổng số <span id="totalOrders">5</span> đơn hàng-->
+                </div>
+                <div class="pagination">
+                    <button class="pagination-btn" id="prevPage" disabled>‹</button>
+                    <div class="pagination-numbers" id="paginationNumbers">
+                        <button class="pagination-number active">1</button>
+                    </div>
+                    <button class="pagination-btn" id="nextPage" disabled>›</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Detail Modal -->
+        <div class="modal-overlay" id="orderDetailModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Order Details</h2>
+                    <button class="modal-close" id="closeModal">✕</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Order details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancelModalBtn">Close</button>
+                    <button class="btn-primary" id="updateOrderBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Success/Error Messages -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message">Thao tác thành công!</span>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    let selectedOrderId = null;
 
-    async function loadOrderDetails(orderId) {
-        selectedOrderId = orderId;
-
-        try {
-            const response = await fetch(`/api/order/${orderId}/details`);
-            if (!response.ok) throw new Error("Order not found");
-            const data = await response.json();
-
-            // Gán dữ liệu cơ bản
-            document.getElementById("orderId").textContent = data.orderId;
-            document.getElementById("customerName").textContent = data.customer;
-            document.getElementById("shippingAddress").textContent = data.shippingAddress;
-            document.getElementById("phoneNumber").textContent = data.phoneNumber;
-            document.getElementById("orderTotal").textContent = data.total.toFixed(2);
-
-            if (data.discount) {
-                document.getElementById("discountRow").style.display = "block";
-                document.getElementById("discount").textContent = data.discount;
-            } else {
-                document.getElementById("discountRow").style.display = "none";
-                document.getElementById("discount").textContent = "";
-            }
-
-            // Danh sách sản phẩm
-            const itemsList = document.getElementById("orderItemsList");
-            itemsList.innerHTML = "";
-            data.items.forEach(item => {
-                const li = document.createElement("li");
-                li.textContent = `${item.productName} (Size: ${item.size}) x${item.quantity} - $${item.unitPrice.toFixed(2)}`;
-                itemsList.appendChild(li);
-            });
-
-            // Lấy và render dropdown trạng thái
-            // Lấy và render dropdown trạng thái
-            const statusSelect = document.getElementById("orderStatusSelect");
-            const statusResponse = await fetch("/order/statuses");
-            const statuses = await statusResponse.json();
-
-            statusSelect.innerHTML = "";
-            statuses.forEach(status => {
-                const option = document.createElement("option");
-                option.value = status;
-                option.textContent = status;
-
-                if (status.toLowerCase() === data.status?.toLowerCase()) {
-                    option.selected = true;
-                }
-
-                statusSelect.appendChild(option);
-            });
-
-
-        } catch (err) {
-            console.error("Failed to load order details:", err);
-            showAlert("error", "Could not load order details.");
-        }
-    }
-
-</script>
-
-<script>
-    document.getElementById("confirmOrderBtn").addEventListener("click", async () => {
-        if (!selectedOrderId) return;
-        const newStatus = document.getElementById("orderStatusSelect").value;
-
-        try {
-            const response = await fetch(`/order/${selectedOrderId}/status`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                showAlert('success', result.message);
-                const modalEl = document.getElementById("confirmModal");
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                modal.hide();
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showAlert('error', result.message);
-            }
-
-        } catch (err) {
-            console.error("Error confirming order:", err);
-            alert("Something went wrong!");
-        }
-    });
-
-
-    function showAlert(type, message) {
-        Swal.fire({
-            icon: type,
-            title: message,
-            showConfirmButton: false,
-            timer: 3000,
-            toast: true,
-            position: 'top'
-        });
-    }
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/order-management.js"></script>
 </body>
-
 </html>

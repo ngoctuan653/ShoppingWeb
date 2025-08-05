@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhắn Tin - Fashion Store Admin</title>
+    <link rel="stylesheet" href="/css/chat-styles.css">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                <h1 class="header-title">Message</h1>
+            </div>
+            <div class="header-user">
+                <span>Xin chào, Admin</span>
+                <div class="user-avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <!-- Conversations Panel -->
+            <div class="conversations-panel">
+                <div class="conversations-header">
+                    <h2 class="conversations-title">All message</h2>
+                </div>
+
+                <div class="conversations-list">
+<!--                    <div class="conversation-item active">-->
+<!--                        <div class="conversation-avatar">N</div>-->
+<!--                        <div class="conversation-info">-->
+<!--                            <div class="conversation-name">-->
+<!--                                Nguyễn Văn Nam-->
+<!--                                <span class="status-indicator status-online"></span>-->
+<!--                            </div>-->
+<!--                            <div class="conversation-preview">Chào admin, tôi muốn hỏi về sản phẩm...</div>-->
+<!--                        </div>-->
+<!--                        <div class="conversation-meta">-->
+<!--                            <div class="conversation-time">2 phút</div>-->
+<!--                            <div class="unread-badge">3</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-user-info">
+<!--                        <div class="chat-user-avatar">N</div>-->
+                        <div class="chat-user-details">
+                            <h3></h3>
+<!--                            <div class="chat-user-status">-->
+<!--                                <span class="status-indicator status-online"></span>-->
+<!--                                Đang hoạt động-->
+<!--                            </div>-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <!--Chat-->
+                </div>
+
+                <div class="chat-input">
+                    <div class="input-container">
+                        <textarea class="message-input" id="messageInput" placeholder="Nhập tin nhắn..." rows="1"></textarea>
+                        <button class="send-btn" id="sendBtn" disabled>➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- SockJS + STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    let stompClient = null;
+    const adminId = 1;
+    let currentChatUserId = null;
+    let currentChatUsername = "";
+
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatMessages = document.getElementById('chatMessages');
+
+    // Kết nối WebSocket
+    function connectWebSocket() {
+        const socket = new SockJS("/ws-chat");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            console.log("WebSocket connected (Admin)");
+
+            // Đăng ký nhận tin nhắn gửi đến admin (id = 1)
+            stompClient.subscribe(`/topic/messages/${adminId}`, (msg) => {
+                const message = JSON.parse(msg.body);
+
+                // Nếu đang mở đúng cuộc trò chuyện thì hiển thị luôn
+                if (message.senderId === currentChatUserId) {
+                    displayMessage(message, false);
+                } else {
+                    // TODO: hiển thị thông báo chưa đọc
+                    console.log("Tin nhắn mới từ user khác");
+                }
+            });
+        });
+    }
+
+    // Gửi tin nhắn
+    function sendMessage() {
+        const content = messageInput.value.trim();
+        if (!content || !currentChatUserId) return;
+
+        const message = {
+            senderId: adminId,
+            receiverId: currentChatUserId,
+            content: content
+        };
+
+        // Gửi qua WebSocket
+        stompClient.send("/app/chat/send", {}, JSON.stringify(message));
+
+        // Hiển thị tin nhắn phía admin
+        displayMessage(message, true);
+
+        messageInput.value = '';
+        sendBtn.disabled = true;
+    }
+
+    // Hiển thị tin nhắn
+    function displayMessage(message, isOwn) {
+        const div = document.createElement("div");
+        div.className = "message" + (isOwn ? " own" : "");
+
+        div.innerHTML = `
+            <div class="message-avatar">
+                ${isOwn ? "A" : currentChatUsername.charAt(0)}
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">${message.content}</div>
+                <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Load lịch sử tin nhắn giữa admin và user
+    function loadChatHistory(userId, username) {
+        currentChatUserId = userId;
+        currentChatUsername = username;
+
+        fetch(`/api/chat/history/${userId}`)
+            .then(res => res.json())
+            .then(messages => {
+                console.log("Got messages:", messages); // THÊM
+                chatMessages.innerHTML = "";
+                messages.forEach(msg => {
+                    const isOwn = msg.senderId === adminId;
+                    displayMessage(msg, isOwn);
+                });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                document.querySelector(".chat-user-details h3").textContent = username;
+            });
+    }
+
+    // Khởi tạo khi DOM sẵn sàng
+    document.addEventListener("DOMContentLoaded", () => {
+        connectWebSocket();
+
+        fetch("/api/chat/users")
+            .then(res => res.json())
+            .then(users => {
+                const listContainer = document.querySelector(".conversations-list");
+                listContainer.innerHTML = "";
+
+                users.forEach(user => {
+                    const item = document.createElement("div");
+                    item.className = "conversation-item";
+                    item.dataset.userId = user.id;
+
+                    item.innerHTML = `
+                        <div class="conversation-avatar">
+                            ${user.username.charAt(0)}
+                        </div>
+                        <div class="conversation-info">
+                            <div class="conversation-name">
+                                ${user.username}
+                                <span class="status-indicator status-online"></span>
+                            </div>
+                            <div class="conversation-preview">...</div>
+                        </div>
+                        <div class="conversation-meta">
+                            <div class="conversation-time"></div>
+                            <div class="unread-badge" style="display: none;">0</div>
+                        </div>
+                    `;
+
+                    item.addEventListener("click", () => {
+                        console.log("Clicked on user:", user.id, user.username); // THÊM
+                        document.querySelectorAll(".conversation-item").forEach(el => el.classList.remove("active"));
+                        item.classList.add("active");
+                        loadChatHistory(user.id, user.username);
+                    });
+
+
+                    listContainer.appendChild(item);
+                });
+            });
+    });
+
+    // Input xử lý gửi
+    messageInput.addEventListener('input', () => {
+        sendBtn.disabled = !messageInput.value.trim();
+    });
+
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Sidebar toggle (giữ nguyên)
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    sidebarToggle.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('mobile-open');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('mobile-open');
+        }
+    });
+</script>
+</body>
+</html>
