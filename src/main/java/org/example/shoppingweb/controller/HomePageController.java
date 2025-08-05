@@ -63,6 +63,10 @@ public class HomePageController {
         return "admin-chat";
     }
 
+    @GetMapping("/403")
+    public String error403() {
+        return "403"; // Thymeleaf sẽ tìm 403.html trong templates
+    }
 
 }
 

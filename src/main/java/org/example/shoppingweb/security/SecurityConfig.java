@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 response.sendRedirect("/login");
                             }
                         })
+                        .accessDeniedPage("/403")
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
