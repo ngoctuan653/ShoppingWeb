@@ -61,8 +61,8 @@
                         <td th:text="${category.description}">Tất cả loại áo dành cho nam</td>
                         <td ><span th:text="${category.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
-                            <button class="btn-small btn-edit" th:onclick="'editCategory(' + ${category.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" th:onclick="'deleteCategory(' + ${category.id} + ')'">Xóa</button>
+                            <button class="btn-small btn-edit" th:onclick="'editCategory(' + ${category.id} + ')'">Edit</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteCategory(' + ${category.id} + ')'">Delete</button>
                         </td>
                     </tr>
                     </tbody>
@@ -97,8 +97,8 @@
                         <td  th:text="${subCategory.description}">Áo thun nam các loại</td>
                         <td><span th:text="${subCategory.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
-                            <button class="btn-small btn-edit" th:onclick="'editSubcategory(' + ${subCategory.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" th:onclick="'deleteSubcategory(' + ${subCategory.id} + ')'">Xóa</button>
+                            <button class="btn-small btn-edit" th:onclick="'editSubcategory(' + ${subCategory.id} + ')'">Edit</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteSubcategory(' + ${subCategory.id} + ')'">Delete</button>
                         </td>
                     </tr>
                     </tbody>
@@ -131,8 +131,8 @@
                         <td th:text="${brand.description}">Thương hiệu thể thao nổi tiếng</td>
                         <td><span th:text="${brand.status}" class="status-badge status-active">Hoạt động</span></td>
                         <td>
-                            <button class="btn-small btn-edit" th:onclick="'editBrand(' + ${brand.id} + ')'">Sửa</button>
-                            <button class="btn-small btn-delete" th:onclick="'deleteBrand(' + ${brand.id} + ')'">Xóa</button>
+                            <button class="btn-small btn-edit" th:onclick="'editBrand(' + ${brand.id} + ')'">Edit</button>
+                            <button class="btn-small btn-delete" th:onclick="'deleteBrand(' + ${brand.id} + ')'">Delete</button>
                         </td>
                     </tr>
                     </tbody>
