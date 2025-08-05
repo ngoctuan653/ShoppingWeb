@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 "/products/**", "/search", "/images/**", "/{productId}/sizes",
                                 "/verify-reset-code", "/reset-password", "/resend-code","/api/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

@@ -19,40 +19,17 @@ import java.util.UUID;
 @Controller
 public class OAuth2Controller {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-
     @GetMapping("/oauth2/success")
     public String oauth2Success(OAuth2AuthenticationToken authentication, HttpSession session) {
         OAuth2User oauthUser = authentication.getPrincipal();
         User user = ((CustomUserDetails) oauthUser).getUser();
         session.setAttribute("userId", user.getId());
         session.setAttribute("currentUser", user);
-        return "redirect:/";
+        String roleName = user.getRole().getRoleName();
+        if("ROLE_ADMIN".equalsIgnoreCase(roleName)){
+            return "redirect:/admin/dashboard";
+        }else{
+            return "redirect:/";
+        }
     }
-
-
-    private String generateRandomPassword() {
-        return UUID.randomUUID().toString();
-    }
-
-    private String generateUniqueUsername() {
-        return "user_" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
-    }
-
-    private String generateNonDuplicateUsername() {
-        String username;
-        do {
-            username = generateUniqueUsername();
-        } while (userRepository.findByUsername(username).isPresent());
-        return username;
-    }
-
 }
