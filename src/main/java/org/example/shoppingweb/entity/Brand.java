@@ -38,4 +38,9 @@ public class Brand {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Size(max = 50)
+    @ColumnDefault("'Active'")
+    @Column(name = "status", length = 50)
+    private String status;
+
 }

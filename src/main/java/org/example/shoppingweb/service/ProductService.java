@@ -126,23 +126,6 @@ public class ProductService {
         return product != null ? product.getBrand() : null;
     }
 
-    public void updateProduct(Product updatedProduct) {
-        Product existing = getProductById(updatedProduct.getId());
-
-        existing.setProductName(updatedProduct.getProductName());
-        existing.setPrice(updatedProduct.getPrice());
-        existing.setDescription(updatedProduct.getDescription());
-        existing.setStockQuantity(updatedProduct.getStockQuantity());
-        existing.setCategory(updatedProduct.getCategory());
-        existing.setSubcategory(updatedProduct.getSubcategory());
-        existing.setBrand(updatedProduct.getBrand());
-        existing.setStatus(updatedProduct.getStatus());
-        existing.setImage(updatedProduct.getImage());
-
-        productRepository.save(existing);
-    }
-
-
     public void updateStatus(Integer id, String status) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
@@ -169,9 +152,14 @@ public class ProductService {
 
 
     public Product createProduct(ProductRequest req, MultipartFile imageFile) {
-        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId()).orElseThrow(() -> new RuntimeException("SubCategory not found"));
-        Category category = categoryRepository.findById(req.getCategoryId()).orElseThrow(() -> new RuntimeException("Category not found"));
-        Brand brand = brandRepository.findById(req.getBrandId()).orElseThrow(() -> new RuntimeException("Brand not found"));
+        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("SubCategory not found"));
+
+        Category category = categoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        Brand brand = brandRepository.findById(req.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("Brand not found"));
 
         Product product = new Product();
         product.setProductName(req.getProductName());
@@ -184,11 +172,12 @@ public class ProductService {
         product.setCreatedAt(Instant.now());
         product.setUpdatedAt(Instant.now());
         product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
+
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
                 product.setImage(imageFile.getBytes());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error reading image file", e);
             }
         }
 
@@ -198,10 +187,10 @@ public class ProductService {
 
         if (req.getSizes() != null) {
             for (ProductSizeRequest sizeReq : req.getSizes()) {
-                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel())
+                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel().trim())
                         .orElseGet(() -> {
                             Size newSize = new Size();
-                            newSize.setSizeLabel(sizeReq.getSizeLabel());
+                            newSize.setSizeLabel(sizeReq.getSizeLabel().trim());
                             newSize.setDescription("");
                             return sizeRepository.save(newSize);
                         });
@@ -212,8 +201,8 @@ public class ProductService {
                 ps.setStockQuantity(sizeReq.getStockQuantity());
                 ps.setCreatedAt(Instant.now());
                 ps.setUpdatedAt(Instant.now());
-                productSizeRepository.save(ps);
 
+                productSizeRepository.save(ps);
                 totalStock += sizeReq.getStockQuantity();
             }
         }
@@ -223,6 +212,7 @@ public class ProductService {
 
         return savedProduct;
     }
+
 
     @Transactional
     public Product updateProduct(Integer id, ProductRequest productRequest, MultipartFile image) throws IOException {
@@ -297,15 +287,12 @@ public class ProductService {
             }
         }
 
-
-        // Xoá các size không còn
         for (Productsize ps : existingSizeMap.values()) {
             productSizeRepository.delete(ps);
         }
 
         productSizeRepository.saveAll(updatedSizes);
 
-        // --- Tính lại stock tổng ---
         int totalStock = updatedSizes.stream()
                 .mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0)
                 .sum();
@@ -313,5 +300,47 @@ public class ProductService {
 
         return productRepository.save(product);
     }
-    
+
+    public ProductRequest getProductRequestById(Integer id) {
+        Product product = getProductById(id);
+        if (product == null) return null;
+
+        ProductRequest request = new ProductRequest();
+        request.setId(product.getId());
+        request.setProductName(product.getProductName());
+        request.setDescription(product.getDescription());
+        request.setPrice(product.getPrice());
+        request.setStockQuantity(product.getStockQuantity() != null ? product.getStockQuantity() : 0);
+
+        if (product.getCategory() != null) {
+            request.setCategoryId(product.getCategory().getId());
+        }
+
+        if (product.getSubcategory() != null) {
+            request.setSubCategoryId(product.getSubcategory().getId());
+        }
+
+        if (product.getBrand() != null) {
+            request.setBrandId(product.getBrand().getId());
+        }
+
+        request.setStatus(product.getStatus());
+
+        List<ProductSizeRequest> sizeRequests = product.getProductSizes().stream()
+                .map(ps -> {
+                    ProductSizeRequest psr = new ProductSizeRequest();
+                    psr.setId(ps.getId());
+                    psr.setSizeLabel(ps.getSize().getSizeLabel());
+                    psr.setStockQuantity(ps.getStockQuantity());
+                    return psr;
+                })
+                .toList();
+
+        request.setSizes(sizeRequests);
+
+        return request;
+    }
+
+
+
 }

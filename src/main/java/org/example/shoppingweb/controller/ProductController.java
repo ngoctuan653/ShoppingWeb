@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class ProductController {
     private ReviewRepository reviewRepository;
 
     @GetMapping("/shop")
-    public String showProduct(Model model) {
+    public String showProduct(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Product> allProducts = productRepository.findAll();
         List<Product> availableProducts = allProducts.stream()
                 .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStatus().equals("Active"))
@@ -56,6 +57,10 @@ public class ProductController {
         model.addAttribute("subcategories", subcategories);
         model.addAttribute("products", availableProducts);
         model.addAttribute("brands", brands);
+        if (userDetails != null) {
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
+        }
         return "shop";
     }
 
@@ -111,14 +116,29 @@ public class ProductController {
     }
 
 
-    @GetMapping("/product-manage")
+    @GetMapping("/admin/product-manage")
     public String showProducts(Model model) {
-        model.addAttribute("products", productService.getAllProduct());
+        List<Product> allProducts = productService.getAllProduct();
+
+        long totalProducts = allProducts.size();
+        long activeProducts = allProducts.stream()
+                .filter(p -> "Active".equalsIgnoreCase(p.getStatus()))
+                .count();
+        long lowStockProducts = allProducts.stream()
+                .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() <= 5)
+                .count();
+
+        model.addAttribute("products", allProducts);
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("brands", productService.getAllBrands());
-        model.addAttribute("subcategories", productService.getAllSubcategories()); // <- thêm dòng này
+        model.addAttribute("subcategories", productService.getAllSubcategories());
         model.addAttribute("sizes", sizeRepository.findAll());
+        model.addAttribute("activePage", "products");
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("activeProducts", activeProducts);
+        model.addAttribute("lowStockProducts", lowStockProducts);
 
+        // Dùng cho form Thymeleaf nếu cần
         Product p = new Product();
         p.setSubcategory(new Subcategory());
         p.getSubcategory().setCategory(new Category());
@@ -128,43 +148,17 @@ public class ProductController {
         return "product-managements";
     }
 
-    @PostMapping("/products/save")
-    public String saveProduct(@ModelAttribute Product product,
-                              @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        if (!imageFile.isEmpty()) {
-            product.setImage(imageFile.getBytes());
-        }
-        productService.saveProduct(product);
-        return "redirect:/product-manage";
-    }
-
-    @GetMapping("/products/edit/{id}")
-    public String editProduct(@PathVariable("id") Integer id, Model model) {
-        Product product = productService.getProductById(id);
-        model.addAttribute("product", product);
-        model.addAttribute("products", productService.getAllProduct());
-        return "product-managements";
-    }
 
     @PostMapping("/products/delete/{id}")
-    public String deleteProduct(@PathVariable("id") Integer id) {
-        productService.deleteProduct(id);
-        return "redirect:/product-manage";
-    }
-
-    @PostMapping("/products/update")
-    public String updateProduct(@ModelAttribute Product product,
-                                @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        Product existing = productService.getProductById(product.getId());
-
-        if (!imageFile.isEmpty()) {
-            product.setImage(imageFile.getBytes());
-        } else {
-            product.setImage(existing.getImage());
+    @ResponseBody
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Integer id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok("Sản phẩm đã được xóa thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi xóa sản phẩm: " + e.getMessage());
         }
-
-        productService.updateProduct(product);
-        return "redirect:/product-manage";
     }
 
     @PostMapping("/products/add")
@@ -199,20 +193,42 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<byte[]> getProductImage(@PathVariable("id") Integer id) {
         Product product = productService.getProductById(id);
-        if (product == null || product.getImage() == null) {
-            return ResponseEntity.notFound().build();
-        }
 
+        byte[] imageBytes;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
+
+        if (product == null || product.getImage() == null) {
+            try {
+                InputStream is = getClass().getResourceAsStream("/static/images/default.png");
+                if (is == null) {
+                    return ResponseEntity.notFound().build(); // fallback vẫn failed
+                }
+                imageBytes = is.readAllBytes();
+                headers.setContentType(MediaType.IMAGE_PNG); // đúng định dạng default
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            imageBytes = product.getImage(); // ảnh thực
+        }
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
+
     @PostMapping("/products/hide/{id}")
-    public String softDeleteProduct(@PathVariable("id") Integer id) {
-        productService.updateStatus(id, "Inactive");
-        return "redirect:/product-manage";
+    @ResponseBody
+    public ResponseEntity<String> softDeleteProduct(@PathVariable("id") Integer id) {
+        try {
+            productService.updateStatus(id, "Inactive");
+            return ResponseEntity.ok("Sản phẩm đã được ẩn thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi ẩn sản phẩm: " + e.getMessage());
+        }
     }
+
 
     @GetMapping("/products/{id}")
     public String getProductDetail(@PathVariable Integer id,
@@ -237,6 +253,46 @@ public class ProductController {
     public ResponseEntity<List<SizeDTO>> getProductSizes(@PathVariable Integer id) {
         List<SizeDTO> sizes = productService.getSizesByProductId(id);
         return ResponseEntity.ok(sizes);
+    }
+
+    @GetMapping("/api/products/{id}")
+    @ResponseBody
+    public ResponseEntity<ProductRequest> getProductForEdit(@PathVariable Integer id) {
+        ProductRequest productRequest = productService.getProductRequestById(id); // convert từ entity
+        return ResponseEntity.ok(productRequest);
+    }
+
+    @GetMapping("/admin/products/search")
+    @ResponseBody
+    public ResponseEntity<List<Product>> searchAdminProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer brand,
+            @RequestParam(required = false) Integer category,
+            @RequestParam(required = false) Integer subcategory,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String stockLevel // low / medium / high
+    ) {
+        List<Product> all = productService.getAllProduct();
+
+        List<Product> filtered = all.stream()
+                .filter(p -> keyword == null || p.getProductName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(p -> brand == null || (p.getBrand() != null && p.getBrand().getId().equals(brand)))
+                .filter(p -> category == null || (p.getCategory() != null && p.getCategory().getId().equals(category)))
+                .filter(p -> subcategory == null || (p.getSubcategory() != null && p.getSubcategory().getId().equals(subcategory)))
+                .filter(p -> status == null || p.getStatus().equalsIgnoreCase(status))
+                .filter(p -> {
+                    if (stockLevel == null) return true;
+                    int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
+                    return switch (stockLevel) {
+                        case "low" -> qty < 10;
+                        case "medium" -> qty >= 10 && qty <= 50;
+                        case "high" -> qty > 50;
+                        default -> true;
+                    };
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filtered);
     }
 
 }

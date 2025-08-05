@@ -1,0 +1,77 @@
+<!-- Cập nhật sidebar fragment (admin-sidebar2.html) -->
+<nav class="sidebar" id="sidebar" th:fragment="sidebar">
+    <div class="sidebar-brand">
+        <a href="#" class="brand-logo">StyleLegacy</a>
+        <div class="brand-subtitle">Admin Dashboard</div>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a th:href="@{/home}"
+               class="menu-link">
+                <span class="menu-icon">🛍️</span>
+                <span>Back to Shop</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/dashboard}"
+               class="menu-link"
+               th:classappend="${activePage == 'dashboard'} ? ' active'">
+                <span class="menu-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/chat}"
+               class="menu-link"
+               th:classappend="${activePage == 'chat'} ? ' active'">
+                <span class="menu-icon">💬</span>
+                <span>Message</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/category-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'categories'} ? ' active'">
+                <span class="menu-icon">📋</span>
+                <span>Category</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/product-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'products'} ? ' active'">
+                <span class="menu-icon">👕</span>
+                <span>Product Management</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/order-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'orders'} ? ' active'">
+                <span class="menu-icon">📦</span>
+                <span>Order Management</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/users}"
+               class="menu-link"
+               th:classappend="${activePage == 'users'} ? ' active'">
+                <span class="menu-icon">👥</span>
+                <span>User</span>
+            </a>
+        </li>
+<!--        <li class="menu-item">-->
+<!--            <a href="#" class="menu-link">-->
+<!--                <span class="menu-icon">🏪</span>-->
+<!--                <span>Kho hàng</span>-->
+<!--            </a>-->
+<!--        </li>-->
+<!--        <li class="menu-item">-->
+<!--            <a href="#" class="menu-link">-->
+<!--                <span class="menu-icon">💰</span>-->
+<!--                <span>Tài chính</span>-->
+<!--            </a>-->
+<!--        </li>-->
+    </ul>
+</nav>

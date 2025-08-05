@@ -7,16 +7,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUser(User user);
     Optional<Order> findByIdAndUser(Integer id, User user);
- // Lấy 5 đơn hàng gần đây nhất
     List<Order> findTop5ByOrderByOrderDateDesc();
 
-    // Tính tổng doanh thu
     @Query("SELECT SUM(o.totalAmount) FROM Order o")
     BigDecimal findTotalRevenue();
+
+    int countBy();
+    int countByStatus_StatusName(String statusName);
+    List<Order> findByOrderDateAfter(Instant instant);
+
 }

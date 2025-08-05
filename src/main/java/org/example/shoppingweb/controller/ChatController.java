@@ -55,12 +55,12 @@ public class ChatController {
 
         if (userDetails != null &&
                 userDetails.getUser().getRole() != null &&
-                "ADMIN".equalsIgnoreCase(userDetails.getUser().getRole().getRoleName())) {
+                "ROLE_ADMIN".equalsIgnoreCase(userDetails.getUser().getRole().getRoleName())) {
             currentUserId = 1;
         } else if (userDetails != null) {
             currentUserId = userDetails.getUser().getId();
         } else {
-            currentUserId = 1; // fallback nếu không login
+            currentUserId = 1;
         }
 
         return messageRepository.findBySenderIdAndReceiverIdOrSenderIdAndReceiverIdOrderByCreatedAtAsc(

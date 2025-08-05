@@ -46,6 +46,14 @@ public class OrderService {
         return orderRepository.findById(orderId).orElse(null);
     }
 
+    public int countAll() {
+        return orderRepository.countBy();
+    }
+
+    public int countByStatus(String statusName) {
+        return orderRepository.countByStatus_StatusName(statusName);
+    }
+
 
     public Order findByIdAndUser(Integer orderId, User user) {
         return orderRepository.findByIdAndUser(orderId, user).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng hoặc bạn không có quyền."));
@@ -292,6 +300,17 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    public void updateOrderStatusById(Integer orderId, Integer statusId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        Orderstatus status = orderStatusRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("Trạng thái không hợp lệ"));
+
+        order.setStatus(status);
+        order.setUpdatedAt(Instant.now());
+        orderRepository.save(order);
+    }
 
 
 }

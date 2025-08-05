@@ -28,7 +28,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         session.setAttribute("userId", user.getId());
         session.setAttribute("roleId", user.getRole().getId());
 
-        // Chuyển hướng sau khi login
-        response.sendRedirect("/");
+        String roleName = user.getRole().getRoleName(); // Ví dụ: "ADMIN" hoặc "USER"
+        System.out.println("ROLE: " + user.getRole().getRoleName());
+
+        if ("ROLE_ADMIN".equalsIgnoreCase(roleName)) {
+            response.sendRedirect("/admin/dashboard");
+        } else {
+            response.sendRedirect("/");
+        }
     }
 }
