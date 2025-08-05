@@ -257,18 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
     // Modal events
-    document.getElementById('closeAddModal').addEventListener('click', () => hideModal('addUserModal'));
     document.getElementById('closeEditModal').addEventListener('click', () => hideModal('editUserModal'));
-    document.getElementById('cancelAddBtn').addEventListener('click', () => hideModal('addUserModal'));
     document.getElementById('cancelEditBtn').addEventListener('click', () => hideModal('editUserModal'));
-
-    // Form submissions
-    document.getElementById('addUserForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        showNotification('Đã thêm người dùng mới thành công!', 'success');
-        hideModal('addUserModal');
-        e.target.reset();
-    });
 
     document.getElementById('editUserForm').addEventListener('submit', function (e) {
         e.preventDefault();
@@ -283,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.text();
             })
             .then(() => {
-                showNotification('Cập nhật thành công!', 'success');
+                showNotification('Updated successfully!', 'success');
                 hideModal('editUserModal');
 
                 // Cập nhật bảng
@@ -309,17 +299,10 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 console.error(err);
-                showNotification('Cập nhật thất bại', 'error');
+                showNotification('Updated Failed', 'error');
             });
     });
 
-
-    // Close modals when clicking outside
-    addUserModal.addEventListener('click', (e) => {
-        if (e.target === addUserModal) {
-            hideModal('addUserModal');
-        }
-    });
 
     editUserModal.addEventListener('click', (e) => {
         if (e.target === editUserModal) {

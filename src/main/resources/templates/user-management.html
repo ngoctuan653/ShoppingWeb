@@ -24,7 +24,7 @@
                 <h1 class="header-title">User Management</h1>
             </div>
             <div class="header-user">
-                <span>Xin chào, Admin</span>
+                <span>Hello, Admin</span>
                 <div class="user-avatar">A</div>
             </div>
         </header>
@@ -74,19 +74,8 @@
                 <select class="filter-select" id="roleFilter">
                     <option value="">All Role</option>
                     <option th:each="role : ${roles}" th:value="${role.id}"  th:text="${role.roleName}">Người dùng</option>
-
                 </select>
             </div>
-<!--            <div class="filter-right">-->
-<!--                <button class="btn btn-primary" id="addUserBtn">-->
-<!--                    <span class="btn-icon">➕</span>-->
-<!--                    Thêm Người Dùng-->
-<!--                </button>-->
-<!--                <button class="btn btn-secondary" id="exportBtn">-->
-<!--                    <span class="btn-icon">📊</span>-->
-<!--                    Xuất Excel-->
-<!--                </button>-->
-<!--            </div>-->
         </div>
 
         <!-- Users Table -->
@@ -110,11 +99,11 @@
                         <th>
                         </th>
                         <th>Avatar</th>
-                        <th>Tên & Email</th>
-                        <th>Vai Trò</th>
-                        <th>Trạng Thái</th>
-                        <th>Ngày Tạo</th>
-                        <th>Hành Động</th>
+                        <th>Name & Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody id="usersTableBody">
@@ -137,8 +126,9 @@
                         </td>
                         <td>
                             <span class="user-role role-badge"
-                                  th:classappend="' role-' + ${user.role.roleName.toLowerCase()}"
-                                  th:text="${user.role.roleName}">Vai trò</span>
+                                  th:classappend="' role-' + ${#strings.replace(user.role.roleName.toLowerCase(), 'role_', '')}"
+                                  th:text="${#strings.replace(user.role.roleName, 'ROLE_', '')}">Vai trò
+                            </span>
                         </td>
                         <td>
                             <span class="user-status status-badge"
@@ -175,60 +165,6 @@
             </div>
         </div>
     </main>
-</div>
-
-<!-- Add User Modal -->
-<div class="modal-overlay" id="addUserModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>Thêm Người Dùng Mới</h3>
-            <button class="modal-close" id="closeAddModal">✕</button>
-        </div>
-        <div class="modal-body">
-            <form id="addUserForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstName">Họ</label>
-                        <input type="text" id="firstName" name="firstName" required/>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Tên</label>
-                        <input type="text" id="lastName" name="lastName" required/>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required/>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="role">Vai Trò</label>
-                        <select id="role" name="role" required>
-                            <option value="">Chọn vai trò</option>
-                            <option value="user">Người dùng</option>
-                            <option value="admin">Quản trị viên</option>
-                            <option value="moderator">Điều hành viên</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Trạng Thái</label>
-                        <select id="status" name="status" required>
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Số Điện Thoại</label>
-                    <input type="tel" id="phone" name="phone"/>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="cancelAddBtn">Hủy</button>
-            <button type="submit" form="addUserForm" class="btn btn-primary">Thêm Người Dùng</button>
-        </div>
-    </div>
 </div>
 
 <!-- Edit User Modal -->

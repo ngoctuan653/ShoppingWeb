@@ -3,9 +3,14 @@ package org.example.shoppingweb.controller;
 import org.example.shoppingweb.entity.Discount;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.DiscountRepository;
+import org.example.shoppingweb.repository.OrderRepository;
 import org.example.shoppingweb.repository.UserDiscountRepository;
 import org.example.shoppingweb.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,18 +32,59 @@ public class DiscountController {
     private DiscountRepository discountRepository;
     @Autowired
     private UserDiscountRepository userDiscountRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
+    @GetMapping("/admin/discount-manage")
+    public String discountManagePage(Model model) {
+        model.addAttribute("activePage", "discounts");
+        return "discount-managements";
+    }
 
-    @GetMapping("/api/discounts/all")
+    @GetMapping("/api/discounts")
     @ResponseBody
-    public ResponseEntity<?> getAllDiscounts() {
-        try {
-            List<Discount> discounts = discountRepository.findAll();
-            return ResponseEntity.ok(discounts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to load discounts: " + e.getMessage()));
+    public ResponseEntity<?> getDiscounts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startDate").descending());
+
+        Page<Discount> discountPage;
+
+        boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean hasStatus = status != null && !status.trim().isEmpty();
+
+        if (hasSearch && hasStatus) {
+            discountPage = discountRepository
+                    .findByCodeContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIgnoreCase(
+                            search.trim(), search.trim(), status.trim(), pageable);
+        } else if (hasSearch) {
+            discountPage = discountRepository
+                    .findByCodeContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                            search.trim(), search.trim(), pageable);
+        } else if (hasStatus) {
+            discountPage = discountRepository.findByStatusIgnoreCase(status.trim(), pageable);
+        } else {
+            discountPage = discountRepository.findAll(pageable);
         }
+
+        return ResponseEntity.ok(discountPage);
+    }
+
+    @GetMapping("/api/discounts/stats")
+    public ResponseEntity<?> getDiscountStats() {
+        long total = discountRepository.count();
+        long active = discountRepository.countByStatus("Active");
+        long used = orderRepository.sumUsedDiscountCount(); // Tuỳ logic của bạn
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", total);
+        stats.put("active", active);
+        stats.put("used", used);
+
+        return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/api/discounts/available")
