@@ -165,6 +165,104 @@ function loadRoles(selectedRoleId) {
         });
 }
 
+function fetchUsers(page = 0) {
+    const keyword = document.getElementById("searchInput").value;
+    const roleId = document.getElementById("roleFilter").value;
+    const status = document.getElementById("statusFilter").value;
+
+    const url = `/admin/users/api?keyword=${encodeURIComponent(keyword)}&roleId=${roleId}&status=${status}&page=${page}`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            renderUsersTable(data.content);
+            renderPagination(data.totalPages, data.number);
+        })
+        .catch(err => {
+            console.error(err);
+            showNotification("Lỗi tải danh sách người dùng", "error");
+        });
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById("usersTableBody");
+    tbody.innerHTML = "";
+
+    users.forEach(user => {
+        const row = document.createElement("tr");
+        row.id = `userRow-${user.id}`;
+        row.setAttribute("data-user-id", user.id);
+
+        row.innerHTML = `
+            <td></td>
+            <td>
+                <div class="user-avatar-table">
+                    <img src="/avatar/${user.id}" onerror="this.src='/images/default.png'" alt="Avatar" />
+                </div>
+            </td>
+            <td>
+                <div class="user-info">
+                    <div class="user-details">
+                        <h4 class="user-fullname">${user.fullName}</h4>
+                        <p class="user-email">${user.email}</p>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="user-role role-badge role-${user.roleName.toLowerCase().replace('role_', '')}">
+                    ${user.roleName.replace('ROLE_', '')}
+                </span>
+            </td>
+            <td>
+                <span class="user-status status-badge ${user.status.toLowerCase() === 'active' ? 'status-active' : 'status-blocked'}">
+                    ${user.status}
+                </span>
+            </td>
+            <td>${formatDateTime(user.createdAt)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn btn-success" onclick="editUser(${user.id})" title="Chỉnh sửa">✏️</button>
+                </div>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+function renderPagination(totalPages, currentPage) {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "page-btn";
+    prevBtn.textContent = "‹";
+    prevBtn.disabled = currentPage === 0;
+    prevBtn.onclick = () => fetchUsers(currentPage - 1);
+    pagination.appendChild(prevBtn);
+
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.className = "page-btn" + (i === currentPage ? " active" : "");
+        btn.textContent = i + 1;
+        btn.onclick = () => fetchUsers(i);
+        pagination.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "page-btn";
+    nextBtn.textContent = "›";
+    nextBtn.disabled = currentPage === totalPages - 1;
+    nextBtn.onclick = () => fetchUsers(currentPage + 1);
+    pagination.appendChild(nextBtn);
+}
+
+function formatDateTime(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
+}
+
+
 // Delete user - placeholder function
 function deleteUser(userId) {
     if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
@@ -203,7 +301,7 @@ function searchUsers() {
     const searchTerm = searchInput.value;
 
     if (searchTerm) {
-        showNotification(`Đang tìm kiếm: "${searchTerm}"`, 'info');
+        showNotification(`Searching: "${searchTerm}"`, 'info');
     }
 }
 
@@ -231,7 +329,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     initializeSidebar();
     updateToggleIcon();
+    fetchUsers();
 
+    document.getElementById("searchInput").addEventListener("input", () => fetchUsers());
+    document.getElementById("statusFilter").addEventListener("change", () => fetchUsers());
+    document.getElementById("roleFilter").addEventListener("change", () => fetchUsers());
     // Sidebar events
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('sidebar-toggle')) {

@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,4 +17,6 @@ public class UserDTO {
     private String phoneNumber;
     private String status;
     private Integer roleId;
+    private String roleName;
+    private Instant createdAt;
 }

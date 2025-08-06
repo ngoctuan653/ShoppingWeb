@@ -7,7 +7,8 @@ import org.example.shoppingweb.repository.RoleRepository;
 import org.example.shoppingweb.repository.UserRepository;
 import org.example.shoppingweb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -29,6 +29,7 @@ public class AdminUserController {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
@@ -86,4 +87,18 @@ public class AdminUserController {
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/api")
+    @ResponseBody
+    public Page<UserDTO> getFilteredUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer roleId,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return userService.searchAndFilterUsers(keyword, roleId, status, page, size);
+    }
+
 }
