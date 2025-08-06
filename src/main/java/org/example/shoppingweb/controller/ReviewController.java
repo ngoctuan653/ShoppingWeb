@@ -6,12 +6,14 @@ import org.example.shoppingweb.entity.Orderdetail;
 import org.example.shoppingweb.entity.Review;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.ReviewRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
 import org.example.shoppingweb.service.OrderDetailService;
 import org.example.shoppingweb.service.ProductService;
 import org.example.shoppingweb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
@@ -39,8 +41,9 @@ public class ReviewController {
 
 
     @GetMapping("/api/order/{orderId}/feedback-items")
-    public ResponseEntity<?> getFeedbackItems(@PathVariable Integer orderId, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<?> getFeedbackItems(@PathVariable Integer orderId,
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
         List<Orderdetail> details = orderDetailService.findByOrderIdAndUserId(orderId, user.getId());
 
         List<Map<String, Object>> result = details.stream()
@@ -57,9 +60,12 @@ public class ReviewController {
         return ResponseEntity.ok(result);
     }
 
+
     @PostMapping("/api/reviews/submit")
-    public ResponseEntity<?> submitFeedback(@RequestBody List<ReviewRequest> reviews, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<?> submitFeedback(@RequestBody List<ReviewRequest> reviews,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+
         for (ReviewRequest req : reviews) {
             Review review = new Review();
             review.setUser(user);
@@ -73,6 +79,7 @@ public class ReviewController {
 
         return ResponseEntity.ok(Map.of("message", "Feedback submitted successfully!"));
     }
+
 
 
     @GetMapping("/api/reviews")
