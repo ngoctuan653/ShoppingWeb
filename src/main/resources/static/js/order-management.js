@@ -201,11 +201,11 @@ function updateOrderFromModal(orderId) {
             const data = await res.json();
 
             if (!res.ok) {
-                showToast(data.message || "Cập nhật thất bại!", 'error');
+                showToast(data.message || "Updated Failed!", 'error');
                 throw new Error(data.message);
             }
 
-            showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            showToast(data.message || "Updated Successfully!", 'success');
             updateStats();
             hideModal('orderDetailModal');
 
@@ -241,8 +241,6 @@ function updateOrderFromModal(orderId) {
             showToast("Cập nhật thất bại!", 'error');
         });
 }
-
-
 
 // Update order status directly
 function updateOrderStatus(orderId, newStatus) {

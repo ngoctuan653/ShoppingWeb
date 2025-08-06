@@ -51,7 +51,7 @@
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Đang Giao</div>
+                    <div class="stat-title">Shipped</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">🚚</div>
                 </div>
                 <div class="stat-value" id="stat-shipping-orders">0</div>
@@ -69,27 +69,27 @@
         </div>
 
         <!-- Filters and Search -->
-        <div class="filter-section">
-            <div class="filter-group">
-                <input type="text" class="search-input" placeholder="Search......"
-                       id="searchInput">
-                <button class="search-btn" id="searchBtn">🔍</button>
-            </div>
-            <div class="filter-group">
-                <select class="filter-select" id="statusFilter">
-                    <option value="">All</option>
-                    <option th:each="status : ${orderStatus}" th:value="${status.id}" th:text="${status.statusName}">Chờ
-                        xử lý
-                    </option>
-                </select>
-                <select class="filter-select" id="dateFilter">
-                    <option value="">Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                </select>
-            </div>
-        </div>
+<!--        <div class="filter-section">-->
+<!--            <div class="filter-group">-->
+<!--                <input type="text" class="search-input" placeholder="Search......"-->
+<!--                       id="searchInput">-->
+<!--                <button class="search-btn" id="searchBtn">🔍</button>-->
+<!--            </div>-->
+<!--            <div class="filter-group">-->
+<!--                <select class="filter-select" id="statusFilter">-->
+<!--                    <option value="">All</option>-->
+<!--                    <option th:each="status : ${orderStatus}" th:value="${status.id}" th:text="${status.statusName}">Chờ-->
+<!--                        xử lý-->
+<!--                    </option>-->
+<!--                </select>-->
+<!--                <select class="filter-select" id="dateFilter">-->
+<!--                    <option value="">Time</option>-->
+<!--                    <option value="today">Today</option>-->
+<!--                    <option value="week">This Week</option>-->
+<!--                    <option value="month">This Month</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!-- Orders Table -->
         <div class="orders-container">
@@ -183,19 +183,19 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    <!--                    Hiển thị <span id="showingStart">1</span>-<span id="showingEnd">5</span>-->
-                    <!--                    trong tổng số <span id="totalOrders">5</span> đơn hàng-->
-                </div>
-                <div class="pagination">
-                    <button class="pagination-btn" id="prevPage" disabled>‹</button>
-                    <div class="pagination-numbers" id="paginationNumbers">
-                        <button class="pagination-number active">1</button>
-                    </div>
-                    <button class="pagination-btn" id="nextPage" disabled>›</button>
-                </div>
-            </div>
+<!--            <div class="pagination-container">-->
+<!--                <div class="pagination-info">-->
+<!--                    &lt;!&ndash;                    Hiển thị <span id="showingStart">1</span>-<span id="showingEnd">5</span>&ndash;&gt;-->
+<!--                    &lt;!&ndash;                    trong tổng số <span id="totalOrders">5</span> đơn hàng&ndash;&gt;-->
+<!--                </div>-->
+<!--                <div class="pagination">-->
+<!--                    <button class="pagination-btn" id="prevPage" disabled>‹</button>-->
+<!--                    <div class="pagination-numbers" id="paginationNumbers">-->
+<!--                        <button class="pagination-number active">1</button>-->
+<!--                    </div>-->
+<!--                    <button class="pagination-btn" id="nextPage" disabled>›</button>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
 
         <!-- Order Detail Modal -->
