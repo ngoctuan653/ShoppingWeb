@@ -61,7 +61,7 @@ public class OrderController {
         Map<String, Integer> stats = new HashMap<>();
         stats.put("totalOrders", orderService.countAll());
         stats.put("pendingOrders", orderService.countByStatus("Pending"));
-        stats.put("shippingOrders", orderService.countByStatus("Shipping"));
+        stats.put("shippingOrders", orderService.countByStatus("Shipped"));
         stats.put("cancelledOrders", orderService.countByStatus("Cancelled"));
         return stats;
     }

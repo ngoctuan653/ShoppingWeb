@@ -22,7 +22,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository; // Thêm dòng này
+    private RoleRepository roleRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,16 +37,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if (userOptional.isPresent()) {
             user = userOptional.get();
         } else {
-            // 🔥 Lấy role từ DB để có cả roleName
             Role role = roleRepository.findById(2)
-                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy role có ID 2"));
+                    .orElseThrow(() -> new IllegalStateException("Not found role ID 2"));
 
             user = new User();
             user.setEmail(email);
             user.setFullName(name);
             user.setUsername(email);
-            user.setPassword(""); // OAuth2 không dùng mật khẩu
-            user.setRole(role);   // Đảm bảo roleName không null
+            user.setPassword("");
+            user.setRole(role);
             user.setCreatedAt(Instant.now());
             user.setUpdatedAt(Instant.now());
             user.setStatus("Active");

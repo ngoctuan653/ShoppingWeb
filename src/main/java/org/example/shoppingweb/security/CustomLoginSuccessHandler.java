@@ -22,13 +22,12 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
 
-        // Lưu vào session
         HttpSession session = request.getSession();
         session.setAttribute("currentUser", user);
         session.setAttribute("userId", user.getId());
         session.setAttribute("roleId", user.getRole().getId());
 
-        String roleName = user.getRole().getRoleName(); // Ví dụ: "ADMIN" hoặc "USER"
+        String roleName = user.getRole().getRoleName();
         System.out.println("ROLE: " + user.getRole().getRoleName());
 
         if ("ROLE_ADMIN".equalsIgnoreCase(roleName)) {

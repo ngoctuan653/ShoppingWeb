@@ -67,22 +67,19 @@ function loadAvailableDiscounts() {
         .then(res => res.json())
         .then(data => {
             const list = document.querySelector('#couponModal .list-group');
-            list.innerHTML = ""; // Xóa danh sách cũ
+            list.innerHTML = "";
 
             data.forEach(discount => {
                 const li = document.createElement('li');
                 li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-                // Nội dung bên trái
                 const label = document.createElement('span');
                 label.innerHTML = `<strong>${discount.code}</strong> – ${discount.description}`;
 
-                // Nút bên phải
                 const applyBtn = document.createElement('button');
                 applyBtn.className = "btn btn-sm";
-                applyBtn.textContent = "Dùng";
+                applyBtn.textContent = "Use";
 
-                // Kiểm tra điều kiện không thể dùng
                 const notUsable = discount.used || discount.expired || discount.inactive || discount.outOfQuantity;
 
                 if (notUsable) {
@@ -90,13 +87,13 @@ function loadAvailableDiscounts() {
                     applyBtn.disabled = true;
 
                     if (discount.used) {
-                        applyBtn.textContent = "Đã dùng";
+                        applyBtn.textContent = "Used";
                     } else if (discount.outOfQuantity) {
-                        applyBtn.textContent = "Hết lượt";
+                        applyBtn.textContent = "Exhausted";
                     } else if (discount.expired) {
-                        applyBtn.textContent = "Hết hạn";
+                        applyBtn.textContent = "Expired";
                     } else if (discount.inactive) {
-                        applyBtn.textContent = "Không hoạt động";
+                        applyBtn.textContent = "Inactive";
                     }
                 } else {
                     applyBtn.classList.add("btn-outline-success");
@@ -115,6 +112,5 @@ function loadAvailableDiscounts() {
         });
 }
 
-// Gọi khi mở modal
 document.getElementById("couponModal").addEventListener("show.bs.modal", loadAvailableDiscounts);
 

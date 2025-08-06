@@ -180,9 +180,8 @@
                             </button>
                         </div>
 
-                        <!-- Nếu đơn hàng đã Shipped thì hiện nút Feedback -->
                         <div id="feedbackButton"
-                             th:if="${order.status.statusName == 'Shipped' and !allItemsReviewed}"
+                             th:if="${order.status.statusName == 'Delivered' and !allItemsReviewed}"
                              class="d-flex align-items-center">
                             <i class="bi bi-chat-square-dots fs-4 text-success me-3"></i>
                             <div>

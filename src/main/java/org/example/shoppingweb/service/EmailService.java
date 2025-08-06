@@ -108,8 +108,8 @@ public class EmailService {
             // Tùy theo trạng thái
             if ("Confirmed".equalsIgnoreCase(status)) {
                 emailBody.append("✅ Your order at StyleLegacy has been **confirmed**.\n\n");
-            } else if ("Shipped".equalsIgnoreCase(status)) {
-                emailBody.append("🚚 Your order at StyleLegacy has been **shipped**.\n\n");
+            } else if ("Delivered".equalsIgnoreCase(status)) {
+                emailBody.append("🚚 Your order at StyleLegacy has been **Delivered**.\n\n");
             } else {
                 emailBody.append("📦 Your order at StyleLegacy has been updated to status: ")
                         .append(status).append("\n\n");

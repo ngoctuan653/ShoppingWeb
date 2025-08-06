@@ -16,7 +16,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .map(CustomUserDetails::new)
+                .map(user -> {
+                    user.getRole().getRoleName();
+                    return new CustomUserDetails(user);
+                })
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }
 }

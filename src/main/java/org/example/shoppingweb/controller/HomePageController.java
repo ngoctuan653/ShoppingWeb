@@ -19,7 +19,7 @@ public class HomePageController {
 
     @GetMapping("/login")
     public String loginForm(Model model) {
-        model.addAttribute("loginForm", new DTO_Login());
+        model.addAttribute( "loginForm", new DTO_Login());
         return "login";
     }
 

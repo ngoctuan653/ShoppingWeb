@@ -221,8 +221,8 @@ function updateOrderFromModal(orderId) {
                     const classMap = {
                         'pending': 'status-pending',
                         'confirmed': 'status-processing',
-                        'delivered': 'status-shipping',
-                        'shipped': 'status-completed',
+                        'shipped': 'status-shipping',
+                        'delivered': 'status-completed',
                         'cancelled': 'status-cancelled'
                     };
 
@@ -249,7 +249,7 @@ function updateOrderStatus(orderId, newStatus) {
     const statusMap = {
         'pending': 'Pending',
         'confirmed': 'Confirmed',
-        'shipping': 'Shipping',
+        'shipped': 'Shipping',
         'completed': 'Completed',
         'cancelled': 'Cancelled'
     };
@@ -258,7 +258,7 @@ function updateOrderStatus(orderId, newStatus) {
     const statusIdMap = {
         'pending': 1,
         'confirmed': 2,
-        'shipping': 3,
+        'shipped': 3,
         'completed': 4,
         'cancelled': 5
     };
@@ -279,11 +279,11 @@ function updateOrderStatus(orderId, newStatus) {
         .then(async res => {
             const data = await res.json();
             if (!res.ok) {
-                showToast(data.message || "Cập nhật thất bại!", 'error');
+                showToast(data.message || "Updated Failed!", 'error');
                 throw new Error(data.message);
             }
 
-            showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            showToast(data.message || "Updated Successfully!", 'success');
             updateStats();
 
             // ✅ Cập nhật giao diện
