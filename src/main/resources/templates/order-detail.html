@@ -118,8 +118,12 @@
                     </div>
                     <div class="card-body">
                         <div id="orderSummary">
-                            <p>Total: <span th:text="${#numbers.formatDecimal(order.totalAmountBeforeDiscount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
-                            <p>Total(After discount): <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
+                            <p>Total: <span
+                                    th:text="${#numbers.formatDecimal(order.totalAmountBeforeDiscount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span>
+                            </p>
+                            <p>Total(After discount): <span
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span>
+                            </p>
                             <p th:if="${order.discount != null}">Discount: <span
                                     th:text="${order.discount.discountPercentage} + '%'">10%</span></p>
                         </div>
@@ -327,14 +331,26 @@
     function openFeedbackModal(button) {
         const orderId = button.getAttribute('data-order-id');
 
-        fetch(`/api/order/${orderId}/feedback-items`)
-            .then(res => res.json())
+        fetch(`/api/order/${orderId}/feedback-items`, {
+            credentials: 'include',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => {
+                if (res.status === 401) {
+                    showToast("You must be logged in to give feedback.", "warning");
+                    throw new Error("Unauthorized");
+                }
+                return res.json(); // chỉ gọi nếu status 200
+            })
             .then(data => {
                 if (data.length === 0) {
                     showToast("You have already reviewed all items in this order.", "info");
                     document.getElementById("feedbackButton")?.remove();
                     return;
                 }
+
 
                 const body = document.getElementById("feedbackBody");
                 body.innerHTML = "";
