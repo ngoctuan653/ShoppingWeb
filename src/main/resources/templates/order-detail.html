@@ -332,7 +332,6 @@
             .then(data => {
                 if (data.length === 0) {
                     showToast("You have already reviewed all items in this order.", "info");
-                    // Ẩn nút feedback nếu tất cả sản phẩm đã được đánh giá
                     document.getElementById("feedbackButton")?.remove();
                     return;
                 }
