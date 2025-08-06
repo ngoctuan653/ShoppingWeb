@@ -7,7 +7,7 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
     const paymentMethod = document.getElementById("paymentMethod").value.trim();
     const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
 
-    // Gọi lại giỏ hàng để lấy đúng quantity
+    // Fetch cart to get correct quantity
     const res = await fetch("/cart/json", {credentials: "include"});
     const cartData = await res.json();
 
@@ -20,7 +20,7 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
         }));
 
     if (items.length === 0) {
-        alert("Bạn chưa chọn sản phẩm nào.");
+        alert("You have not chosen any product.");
         return;
     }
 
@@ -42,16 +42,16 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
     if (response.ok) {
         const data = await response.json();
         if (data.redirectUrl) {
-            window.location.href = data.redirectUrl; // Redirect đến cổng thanh toán
+            window.location.href = data.redirectUrl; // Redirect to payment gateway
         } else if (data.success) {
             localStorage.removeItem("selectedCartItems");
             window.location.href = `/order/success?id=${data.orderId}`;
         } else {
-            alert("Lỗi: " + data.message);
+            alert("Error: " + data.message);
         }
     } else {
         const text = await response.text();
-        alert("Lỗi: " + text);
+        alert("Error: " + text);
     }
 });
 
@@ -68,7 +68,7 @@ function loadCheckoutCart() {
     const cartTotal = document.querySelector("#checkout-cart-total");
 
     if (!cartContainer || !cartTotal) {
-        console.warn("⚠️ DOM phần giỏ hàng checkout chưa sẵn sàng. loadCheckoutCart() dừng.");
+        console.warn("⚠️ DOM cart checkout not ready. loadCheckoutCart() stop.");
         return;
     }
 
@@ -81,7 +81,7 @@ function loadCheckoutCart() {
         .then(res => {
             const contentType = res.headers.get("content-type");
             if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                throw new Error("Chưa đăng nhập hoặc phản hồi không hợp lệ");
+                throw new Error("Not logged in or invalid response");
             }
             return res.json();
         })
@@ -95,7 +95,7 @@ function loadCheckoutCart() {
             });
 
             if (selectedItems.length === 0) {
-                cartContainer.innerHTML = `<p class="text-muted">Không có sản phẩm nào được chọn.</p>`;
+                cartContainer.innerHTML = `<p class="text-muted">No products selected.</p>`;
                 cartTotal.textContent = "$0.00";
                 document.getElementById("cartTotalValue").value = 0;
                 return;
@@ -134,48 +134,48 @@ function loadCheckoutCart() {
             cartContainer.classList.remove("d-none");
         })
         .catch(err => {
-            console.error("Không thể tải giỏ hàng:", err);
+            console.error("Cannot load cart:", err);
         });
 }
 
 function updateCartItemCount() {
-    console.log("🔄 Bắt đầu updateCartItemCount...");
+    console.log("🔄 Starting updateCartItemCount...");
 
     fetch('/cart/json')
         .then(res => {
             const contentType = res.headers.get("content-type");
-            console.log("📥 Phản hồi nhận được từ /cart/json:", res.status, contentType);
+            console.log("📥 Response received from /cart/json:", res.status, contentType);
 
             if (!res.ok || !contentType.includes("application/json")) {
-                throw new Error("❌ Phản hồi không hợp lệ từ /cart/json");
+                throw new Error("❌ Invalid response from /cart/json");
             }
             return res.json();
         })
         .then(data => {
-            console.log("✅ Dữ liệu giỏ hàng:", data);
+            console.log("✅ Cart data:", data);
 
             if (!Array.isArray(data)) {
-                throw new Error("❌ Dữ liệu trả về không phải là danh sách");
+                throw new Error("❌ The returned data is not a list.");
             }
 
             let totalQuantity = 0;
             data.forEach(item => {
-                console.log(`🛒 ${item.productName} (size: ${item.sizeLabel}) - SL: ${item.quantity}`);
+                console.log(`🛒 ${item.productName} (size: ${item.sizeLabel}) - Quantity: ${item.quantity}`);
                 totalQuantity += item.quantity;
             });
 
             const cartCountEl = document.getElementById("cartItemCount");
             if (cartCountEl) {
                 cartCountEl.innerText = totalQuantity;
-                console.log("✅ Tổng số lượng hiển thị trong giỏ:", totalQuantity);
+                console.log("✅ Total quantity displayed in cart", totalQuantity);
                 console.log("---------------------------------------------------------------");
             } else {
-                console.warn("⚠️ Không tìm thấy phần tử #cartItemCount");
+                console.warn("⚠️ Element not found #cartItemCount");
                 console.log("---------------------------------------------------------------");
             }
         })
         .catch(err => {
-            console.error("❌ Lỗi khi cập nhật số lượng giỏ hàng:", err.message);
+            console.error("❌ Error updating cart quantity:", err.message);
         });
 
     loadCart();
@@ -183,7 +183,7 @@ function updateCartItemCount() {
 
 function changeQuantity(productId, delta, sizeLabel) {
     const url = delta > 0 ? `/cart/increase/${productId}` : `/cart/decrease/${productId}`;
-    console.log(`🛠️ Gửi yêu cầu ${delta > 0 ? "TĂNG" : "GIẢM"} số lượng: productId=${productId}, sizeLabel=${sizeLabel}, URL=${url}`);
+    console.log(`🛠️ Sending request to ${delta > 0 ? "INCREASE" : "DECREASE"} quantity: productId=${productId}, sizeLabel=${sizeLabel}, URL=${url}`);
 
     fetch(url, {
         method: "POST",
@@ -194,21 +194,21 @@ function changeQuantity(productId, delta, sizeLabel) {
         body: JSON.stringify({sizeLabel: sizeLabel})
     })
         .then(res => {
-            console.log("📥 Phản hồi từ thay đổi số lượng:", res.status);
+            console.log("📥 Response from quantity change:", res.status);
             if (!res.ok) {
                 return res.text().then(text => {
-                    throw new Error(text || "Lỗi không xác định");
+                    throw new Error(text || "Unknown error");
                 });
             }
             return res.text();
         })
         .then(msg => {
-            console.log("✅ Thay đổi số lượng thành công:", msg);
+            console.log("✅ Quantity changed successfully:", msg);
             loadCheckoutCart();
             updateCartItemCount();
         })
         .catch(err => {
-            console.error("❌ Lỗi thay đổi số lượng:", err.message);
+            console.error("❌ Error changing quantity:", err.message);
         });
 }
 

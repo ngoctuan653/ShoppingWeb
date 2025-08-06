@@ -131,15 +131,14 @@ function editUser(userId) {
             document.getElementById('editPhone').value = user.phoneNumber || '';
             document.getElementById('editStatus').value = user.status?.toLowerCase() || 'active';
 
-            loadRoles(user.roleId); // <-- Load role select và chọn đúng vai trò
+            loadRoles(user.roleId); // Load role select and select the correct role
             showModal('editUserModal');
         })
         .catch(err => {
             console.error(err);
-            showNotification("Không thể tải thông tin người dùng!", "error");
+            showNotification("Unable to load user information!", "error");
         });
 }
-
 
 function loadRoles(selectedRoleId) {
     fetch('/admin/users/roles')
@@ -161,14 +160,14 @@ function loadRoles(selectedRoleId) {
             });
         })
         .catch(err => {
-            console.error("Không thể load danh sách vai trò:", err);
+            console.error("Unable to load role list:", err);
         });
 }
 
 // Delete user - placeholder function
 function deleteUser(userId) {
-    if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
-    showNotification(`Đã xóa người dùng ID: ${userId}`, 'success');
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    showNotification(`User ID: ${userId} deleted successfully`, 'success');
 }
 
 // Handle select all checkbox
@@ -183,17 +182,17 @@ function handleSelectAll() {
 
 // Export to Excel - placeholder function
 function exportToExcel() {
-    showNotification('Đang xuất dữ liệu Excel...', 'info');
+    showNotification('Exporting data to Excel...', 'info');
     setTimeout(() => {
-        showNotification('Đã xuất Excel thành công!', 'success');
+        showNotification('Excel exported successfully!', 'success');
     }, 2000);
 }
 
 // Refresh data - placeholder function
 function refreshData() {
-    showNotification('Đang làm mới dữ liệu...', 'info');
+    showNotification('Refreshing data...', 'info');
     setTimeout(() => {
-        showNotification('Đã làm mới dữ liệu thành công!', 'success');
+        showNotification('Data refreshed successfully!', 'success');
     }, 1500);
 }
 
@@ -203,7 +202,7 @@ function searchUsers() {
     const searchTerm = searchInput.value;
 
     if (searchTerm) {
-        showNotification(`Đang tìm kiếm: "${searchTerm}"`, 'info');
+        showNotification(`Searching for: "${searchTerm}"`, 'info');
     }
 }
 
@@ -213,7 +212,7 @@ function filterByStatus() {
     const selectedStatus = statusFilter.value;
 
     if (selectedStatus) {
-        showNotification(`Đã lọc theo trạng thái: ${selectedStatus}`, 'info');
+        showNotification(`Filtered by status: ${selectedStatus}`, 'info');
     }
 }
 
@@ -222,7 +221,7 @@ function filterByRole() {
     const selectedRole = roleFilter.value;
 
     if (selectedRole) {
-        showNotification(`Đã lọc theo vai trò: ${selectedRole}`, 'info');
+        showNotification(`Filtered by role: ${selectedRole}`, 'info');
     }
 }
 
@@ -269,14 +268,14 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         })
             .then(response => {
-                if (!response.ok) throw new Error('Cập nhật thất bại');
+                if (!response.ok) throw new Error('Update failed');
                 return response.text();
             })
             .then(() => {
                 showNotification('Updated successfully!', 'success');
                 hideModal('editUserModal');
 
-                // Cập nhật bảng
+                // Update table
                 const userId = document.getElementById('editUserId').value;
                 const fullName = document.getElementById('editFullName').value;
                 const email = document.getElementById('editEmail').value;
@@ -299,10 +298,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 console.error(err);
-                showNotification('Updated Failed', 'error');
+                showNotification('Update failed', 'error');
             });
     });
-
 
     editUserModal.addEventListener('click', (e) => {
         if (e.target === editUserModal) {
@@ -321,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button (if it's a number)
             if (!isNaN(this.textContent)) {
                 this.classList.add('active');
-                showNotification(`Chuyển đến trang ${this.textContent}`, 'info');
+                showNotification(`Navigated to page ${this.textContent}`, 'info');
             }
         });
     });

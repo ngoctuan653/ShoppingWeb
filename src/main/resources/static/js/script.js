@@ -1,6 +1,6 @@
 console.log("✅ script.js loaded");
 
-// hiện thông báo
+// Show toast notification
 function showToast(message, type) {
     const toastEl = document.getElementById("cart-toast");
     const toastBody = document.getElementById("toast-message");
@@ -28,7 +28,6 @@ function formatCurrency(amount) {
     return number.toLocaleString('vi-VN') + " VNĐ";
 }
 
-
 function loadCart() {
     const cartContainer = document.querySelector("#cartOffcanvas .offcanvas-body");
     const cartTotalEl = document.querySelector("#cart-total-amount");
@@ -41,7 +40,7 @@ function loadCart() {
         .then(response => {
             const contentType = response.headers.get("content-type");
             if (!response.ok || !contentType || !contentType.includes("application/json")) {
-                throw new Error("Chưa đăng nhập hoặc phản hồi không hợp lệ");
+                throw new Error("Not logged in or invalid response");
             }
             return response.json();
         })
@@ -49,13 +48,13 @@ function loadCart() {
             renderCart(data, cartContainer, cartTotalEl, cartBadge);
         })
         .catch(error => {
-            console.error("Lỗi tải giỏ hàng:", error);
+            console.error("Error loading cart:", error);
             cartContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
             cartBadge.textContent = "0";
         });
 }
 
-// load cart khi mở trang
+// Load cart when opening the page
 function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
     cartContainer.innerHTML = "";
     let total = 0;
@@ -113,7 +112,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalItems;
 
-    // Gắn sự kiện cho sản phẩm còn hàng
+    // Attach events for in-stock products
     cartContainer.querySelectorAll(".btn-increase").forEach(btn => {
         btn.addEventListener("click", () => {
             const productId = btn.dataset.id;
@@ -127,7 +126,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
                 },
                 body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Tăng số lượng thành công");
+                console.log("Increased quantity successfully");
                 loadCart();
                 loadCheckoutCart();
             });
@@ -147,7 +146,7 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
                 },
                 body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Giảm số lượng thành công");
+                console.log("Decreased quantity successfully");
                 loadCart();
                 loadCheckoutCart();
             });
@@ -167,14 +166,14 @@ function renderCart(cartItems, cartContainer, cartTotalEl, cartBadge) {
                 },
                 body: JSON.stringify({ sizeLabel })
             }).then(() => {
-                console.log("Xóa sản phẩm thành công");
+                console.log("Removed product successfully");
                 loadCart();
                 loadCheckoutCart();
             });
         });
     });
 
-    // Lưu sản phẩm đã chọn vào localStorage
+    // Save selected products to localStorage
     cartContainer.querySelectorAll(".cart-item-checkbox").forEach(checkbox => {
         checkbox.addEventListener("change", () => {
             const productId = checkbox.dataset.id;
@@ -206,12 +205,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const cartBtn = document.querySelector("button[data-bs-target='#cartOffcanvas']");
     if (cartBtn) {
         cartBtn.addEventListener("click", loadCart);
-        loadCart(); // Tải giỏ hàng khi trang load
+        loadCart(); // Load cart when page loads
     } else {
         console.log("cartBtn not found");
     }
 });
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const checkoutBtn = document.getElementById("checkoutBtn");
@@ -227,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (Object.keys(selectedMap).length === 0) {
-            alert("Bạn chưa chọn sản phẩm nào!");
+            alert("You haven't selected any products!");
             return;
         }
 

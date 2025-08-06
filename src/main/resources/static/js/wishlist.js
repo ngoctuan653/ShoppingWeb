@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     .then(response => {
                         if (!response.ok) {
                             if (response.status === 401) {
-                                showToast("Vui lòng đăng nhập để thêm vào wishlist.", "warning");
+                                showToast("Please log in to add to wishlist.", "warning");
                                 window.location.href = "/login";
                             } else {
-                                showToast("Thêm vào wishlist thất bại!", "danger");
+                                showToast("Failed to add to wishlist!", "danger");
                             }
                             throw new Error("Request failed with status " + response.status);
                         }
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         wishlistBtn.innerHTML = '<i class="bi bi-heart-fill me-2"></i>Remove from Wishlist';
                     })
                     .catch(err => {
-                        console.error("Lỗi khi thêm vào wishlist:", err);
-                        showToast("Đã xảy ra lỗi!", "danger");
+                        console.error("Error adding to wishlist:", err);
+                        showToast("An error occurred!", "danger");
                     });
             } else {
                 // === Remove from wishlist ===
@@ -54,14 +54,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         return response.text();
                     })
                     .then(message => {
-                        showToast("Remove to wishlist.", "danger");
+                        showToast("Removed from wishlist.", "success");
                         wishlistBtn.classList.remove('btn-dark');
                         wishlistBtn.classList.add('btn-outline-dark');
                         wishlistBtn.innerHTML = '<i class="bi bi-heart me-2"></i>Add to Wishlist';
                     })
                     .catch(err => {
-                        console.error("Lỗi khi xóa khỏi wishlist:", err);
-                        showToast("Xóa khỏi wishlist thất bại!", "danger");
+                        console.error("Error removing from wishlist:", err);
+                        showToast("Failed to remove from wishlist!", "danger");
                     });
             }
         });

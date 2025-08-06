@@ -175,7 +175,7 @@ function viewOrderDetail(orderId) {
             showModal('orderDetailModal');
         })
         .catch(err => {
-            alert("Không thể tải thông tin đơn hàng");
+            alert("Unable to load order information");
             console.error(err);
         });
 }
@@ -186,7 +186,7 @@ function updateOrderFromModal(orderId) {
     const selectedStatusId = statusSelect?.value;
 
     if (!selectedStatusId) {
-        showToast("Vui lòng chọn trạng thái!", 'error');
+        showToast("Please select a status!", 'error');
         return;
     }
 
@@ -201,11 +201,11 @@ function updateOrderFromModal(orderId) {
             const data = await res.json();
 
             if (!res.ok) {
-                showToast(data.message || "Cập nhật thất bại!", 'error');
+                showToast(data.message || "Update failed!", 'error');
                 throw new Error(data.message);
             }
 
-            showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            showToast(data.message || "Status updated successfully!", 'success');
             updateStats();
             hideModal('orderDetailModal');
 
@@ -237,12 +237,10 @@ function updateOrderFromModal(orderId) {
             }
         })
         .catch(err => {
-            console.error("Lỗi cập nhật trạng thái:", err);
-            showToast("Cập nhật thất bại!", 'error');
+            console.error("Error updating status:", err);
+            showToast("Update failed!", 'error');
         });
 }
-
-
 
 // Update order status directly
 function updateOrderStatus(orderId, newStatus) {
@@ -254,7 +252,6 @@ function updateOrderStatus(orderId, newStatus) {
         'cancelled': 'Cancelled'
     };
 
-
     const statusIdMap = {
         'pending': 1,
         'confirmed': 2,
@@ -265,7 +262,7 @@ function updateOrderStatus(orderId, newStatus) {
 
     const statusId = statusIdMap[newStatus];
     if (!statusId) {
-        showToast("Trạng thái không hợp lệ!", 'error');
+        showToast("Invalid status!", 'error');
         return;
     }
 
@@ -274,19 +271,19 @@ function updateOrderStatus(orderId, newStatus) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({statusId}) // đúng kiểu Integer
+        body: JSON.stringify({statusId}) // correct Integer type
     })
         .then(async res => {
             const data = await res.json();
             if (!res.ok) {
-                showToast(data.message || "Cập nhật thất bại!", 'error');
+                showToast(data.message || "Update failed!", 'error');
                 throw new Error(data.message);
             }
 
-            showToast(data.message || "Cập nhật trạng thái thành công!", 'success');
+            showToast(data.message || "Status updated successfully!", 'success');
             updateStats();
 
-            // ✅ Cập nhật giao diện
+            // ✅ Update UI
             const row = document.querySelector(`.order-checkbox[data-order-id="${orderId}"]`)?.closest('tr');
             if (row) {
                 const statusSpan = row.querySelector('.status-badge');
@@ -304,13 +301,11 @@ function updateOrderStatus(orderId, newStatus) {
                     statusSpan.classList.add(classMap[newStatus]);
                 }
                 updateActionButtons(orderId, newStatus);
-
             }
-
         })
         .catch(err => {
-            console.error("Lỗi cập nhật trạng thái:", err);
-            showToast("Cập nhật thất bại!", 'error');
+            console.error("Error updating status:", err);
+            showToast("Update failed!", 'error');
         });
 }
 
@@ -321,17 +316,17 @@ function updateActionButtons(orderId, newStatus) {
     if (!actionDiv) return;
 
     let buttonsHtml = `
-        <button class="btn-sm btn-primary" onclick="viewOrderDetail(${orderId})">Xem</button>
+        <button class="btn-sm btn-primary" onclick="viewOrderDetail(${orderId})">View</button>
     `;
 
     if (newStatus === 'pending') {
         buttonsHtml += `
-            <button class="btn-sm btn-success" onclick="updateOrderStatus(${orderId}, 'confirmed')" data-action="confirmed-${orderId}">Xử lý</button>
-            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Hủy</button>
+            <button class="btn-sm btn-success" onclick="updateOrderStatus(${orderId}, 'confirmed')" data-action="confirmed-${orderId}">Process</button>
+            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Cancel</button>
         `;
     } else if (newStatus === 'confirmed') {
         buttonsHtml += `
-            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Hủy</button>
+            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Cancel</button>
         `;
     }
 
@@ -347,9 +342,8 @@ function loadDashboardStats() {
             document.getElementById('stat-shipping-orders').textContent = data.shippingOrders;
             document.getElementById('stat-cancelled-orders').textContent = data.cancelledOrders;
         })
-        .catch(err => console.error("Lỗi tải thống kê:", err));
+        .catch(err => console.error("Error loading statistics:", err));
 }
-
 
 function updateStats() {
     fetch('/admin/dashboard-stats')
@@ -363,19 +357,16 @@ function updateStats() {
             document.getElementById('stat-cancelled-orders').textContent = data.cancelledOrders;
         })
         .catch(err => {
-            console.error("Lỗi tải thống kê:", err);
+            console.error("Error loading statistics:", err);
         });
 }
-
-
-
 
 // Show bulk action modal
 function showBulkActionModal() {
     const selectedCount = document.querySelectorAll('.order-checkbox:checked').length;
 
     if (selectedCount === 0) {
-        showToast('Vui lòng chọn ít nhất 1 đơn hàng', 'error');
+        showToast('Please select at least one order', 'error');
         return;
     }
 
@@ -396,8 +387,15 @@ function executeBulkAction(action) {
         'cancelled': 'status-cancelled'
     };
 
-    showToast(`Updated ${selectedCount} orders to status "${action}"`);
+    const statusMap = {
+        'pending': 'Pending',
+        'confirmed': 'Confirmed',
+        'shipping': 'Shipping',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+    };
 
+    showToast(`Updated ${selectedCount} orders to status "${statusMap[action]}"`);
 
     // Here you would typically send an API request for bulk update
     console.log(`Bulk updating ${selectedCount} orders to status: ${action}`);
@@ -413,7 +411,6 @@ function executeBulkAction(action) {
     document.getElementById('selectAll').checked = false;
 
     hideModal('bulkActionModal');
-    showToast(`Đã cập nhật ${selectedCount} đơn hàng thành "${statusMap[action]}"`);
 }
 
 // Handle select all checkbox

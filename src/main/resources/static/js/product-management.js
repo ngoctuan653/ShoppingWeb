@@ -84,9 +84,9 @@ function populateForm(data) {
         console.log('✅ After delay, selected category:', categorySelect.value);
         console.log('✅ After delay, selected subCategory:', subCategorySelect.value);
         console.log('✅ After delay, selected brand:', brandSelect.value);
-    }, 0); // ← delay 1 tick để DOM đảm bảo render xong
+    }, 0); // ← delay 1 tick to ensure DOM is fully rendered
 
-    // Các trường còn lại vẫn xử lý bình thường
+    // Other fields are processed normally
     document.getElementById('productName').value = data.productName || '';
     document.getElementById('productDescription').value = data.description || '';
     document.getElementById('productPrice').value = formatCurrencyInput(data.price || 0);
@@ -123,7 +123,6 @@ function formatCurrencyInput(value) {
     if (isNaN(number)) return '';
     return number.toLocaleString('vi-VN');
 }
-
 
 // Event listeners for modal
 addProductBtn.addEventListener('click', () => openModal());
@@ -178,7 +177,7 @@ function handleImageFiles(files) {
             };
             reader.readAsDataURL(file);
         } else {
-            showToast('Tệp không hợp lệ. Chỉ chấp nhận hình ảnh dưới 5MB.', 'error');
+            showToast('Invalid file. Only images under 5MB are accepted.', 'error');
         }
     });
 }
@@ -187,9 +186,9 @@ function addImagePreview(imageData) {
     const previewItem = document.createElement('div');
     previewItem.className = 'preview-item';
     previewItem.innerHTML = `
-                <img src="${imageData.url}" alt="Preview" class="preview-image">
-                <button type="button" class="preview-remove" onclick="removeImage('${imageData.id}')">✕</button>
-            `;
+        <img src="${imageData.url}" alt="Preview" class="preview-image">
+        <button type="button" class="preview-remove" onclick="removeImage('${imageData.id}')">✕</button>
+    `;
     imagePreview.appendChild(previewItem);
 }
 
@@ -212,11 +211,11 @@ function addVariant() {
     variantCount++;
     const variantHtml = `
         <div class="variant-item" id="variant-${variantCount}">
-        <button type="button" class="variant-remove" onclick="removeVariant(${variantCount})">✕</button>
+            <button type="button" class="variant-remove" onclick="removeVariant(${variantCount})">✕</button>
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Size</label>
-                        <input type="text" class="form-input" placeholder="Size" name="variant_name_${variantCount}">
+                    <input type="text" class="form-input" placeholder="Size" name="variant_name_${variantCount}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Quantity</label>
@@ -224,7 +223,7 @@ function addVariant() {
                 </div>
             </div>
         </div>
-            `;
+    `;
     variantsList.insertAdjacentHTML('beforeend', variantHtml);
 }
 
@@ -238,8 +237,8 @@ function removeVariant(variantId) {
 const productPriceInput = document.getElementById('productPrice');
 
 productPriceInput.addEventListener('input', (e) => {
-    const raw = e.target.value.replace(/[^\d]/g, ''); // Chỉ giữ lại số
-    const formatted = Number(raw).toLocaleString('vi-VN'); // Format kiểu VNĐ
+    const raw = e.target.value.replace(/[^\d]/g, ''); // Keep only numbers
+    const formatted = Number(raw).toLocaleString('vi-VN'); // Format as VND
     e.target.value = formatted;
 });
 
@@ -291,19 +290,19 @@ productForm.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (response.ok) {
-            showToast(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm mới thành công!', 'success');
+            showToast(isEdit ? 'Product updated successfully!' : 'New product added successfully!', 'success');
             closeModal();
 
-            // 🔁 Reload toàn bộ trang sau 1.5s để đảm bảo dữ liệu mới
+            // 🔁 Reload the entire page after 1.5s to ensure new data
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         } else {
-            showToast(result.message || 'Đã có lỗi xảy ra!', 'error');
+            showToast(result.message || 'An error occurred!', 'error');
         }
     } catch (err) {
-        console.error("[ERROR] Lỗi fetch hoặc mạng:", err);
-        showToast('Lỗi hệ thống khi lưu sản phẩm!', 'error');
+        console.error("[ERROR] Fetch or network error:", err);
+        showToast('System error while saving product!', 'error');
     }
 });
 
@@ -324,7 +323,7 @@ document.addEventListener('click', (e) => {
         const productId = e.target.dataset.productId;
         fetch(`/api/products/${productId}`)
             .then(response => {
-                if (!response.ok) throw new Error('Không thể tải dữ liệu sản phẩm');
+                if (!response.ok) throw new Error('Unable to load product data');
                 return response.json();
             })
             .then(data => {
@@ -332,18 +331,18 @@ document.addEventListener('click', (e) => {
             })
             .catch(err => {
                 console.error(err);
-                showToast('Lỗi khi tải sản phẩm để chỉnh sửa!', 'error');
+                showToast('Error loading product for editing!', 'error');
             });
 
     } else if (e.target.classList.contains('action-delete')) {
         const productId = e.target.closest('.actions').querySelector('[data-product-id]')?.dataset.productId;
 
-        if (productId && confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        if (productId && confirm('Are you sure you want to delete this product?')) {
             fetch(`/products/delete/${productId}`, {
                 method: 'POST'
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("Xóa thất bại");
+                    if (!response.ok) throw new Error("Deletion failed");
                     return response.text();
                 })
                 .then(message => {
@@ -351,19 +350,19 @@ document.addEventListener('click', (e) => {
                     setTimeout(() => window.location.reload(), 1000);
                 })
                 .catch(err => {
-                    console.error("❌ Lỗi khi xóa sản phẩm:", err);
-                    showToast("Lỗi khi xóa sản phẩm!", 'error');
+                    console.error("❌ Error deleting product:", err);
+                    showToast("Error deleting product!", 'error');
                 });
         }
     } else if (e.target.classList.contains('action-view')) {
         const productId = e.target.dataset.productId;
 
-        if (confirm('Bạn có chắc chắn muốn ẩn sản phẩm này?')) {
+        if (confirm('Are you sure you want to hide this product?')) {
             fetch(`/products/hide/${productId}`, {
                 method: 'POST'
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("Ẩn thất bại");
+                    if (!response.ok) throw new Error("Hiding failed");
                     return response.text();
                 })
                 .then(message => {
@@ -373,12 +372,11 @@ document.addEventListener('click', (e) => {
                     }, 1000);
                 })
                 .catch(err => {
-                    console.error("❌ Lỗi khi ẩn:", err);
-                    showToast("Lỗi khi ẩn sản phẩm!", 'error');
+                    console.error("❌ Error hiding product:", err);
+                    showToast("Error hiding product!", 'error');
                 });
         }
     }
-
 });
 
 function handleSearchAndFilter() {
@@ -403,18 +401,18 @@ function handleSearchAndFilter() {
             renderProductTable(products);
         })
         .catch(err => {
-            console.error("Lỗi khi tìm kiếm:", err);
-            showToast("Lỗi khi tìm kiếm!", "error");
+            console.error("Error during search:", err);
+            showToast("Error during search!", "error");
         });
 }
 
-// Gắn sự kiện
+// Attach event listeners
 document.querySelector('.search-input').addEventListener('input', debounce(handleSearchAndFilter, 400));
 document.querySelectorAll('.filter-select').forEach(select => {
     select.addEventListener('change', handleSearchAndFilter);
 });
 
-// Hàm debounce để giảm số lần gọi khi gõ nhanh
+// Debounce function to reduce rapid calls
 function debounce(func, delay) {
     let timer;
     return function (...args) {
@@ -456,7 +454,7 @@ function renderProductTable(products) {
                         ${product.status}
                     </span>
                 </td>
-                <td>${new Date(product.createdAt).toLocaleString('vi-VN')}</td>
+                <td>${new Date(product.createdAt).toLocaleString('en-US')}</td>
                 <td>
                     <div class="actions">
                         <button class="action-btn action-view" data-product-id="${product.id}" title="Hide">👁️</button>
@@ -469,7 +467,6 @@ function renderProductTable(products) {
         tbody.insertAdjacentHTML('beforeend', row);
     });
 }
-
 
 // Search functionality
 const searchInput = document.querySelector('.search-input');

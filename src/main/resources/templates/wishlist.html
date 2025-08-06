@@ -13,7 +13,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/wishlist-styles.css">
-
 </head>
 <body>
 <!-- Navigation Bar -->
@@ -125,14 +124,13 @@
                             <p class="card-text text-muted small mb-2" th:text="${item.product.category?.categoryName}">
                                 Category</p>
                             <div class="mt-auto">
-                                <p class="fw-bold mb-1 fs-5" th:text="${item.product.formatPrice(item.product.price)} +' VNĐ'">$0.00</p>
+                                <p class="fw-bold mb-1 fs-5" th:text="${item.product.formatPrice(item.product.price)} + ' USD'">$0.00</p>
 
                                 <span class="badge bg-danger mt-2"
                                       th:if="${item.product.productSizes.?[stockQuantity > 0].isEmpty()}">
                                     Out of stock
                                 </span>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -156,13 +154,15 @@
         </div>
     </div>
 </div>
-<script src="/js/script.js"></script>
+
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 <div th:replace="fragments/cart :: cart"></div>
 <div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
 
 <script>
     // Add smooth animations on page load
@@ -191,7 +191,7 @@
                     body: `productId=${productId}`
                 })
                     .then(response => {
-                        if (!response.ok) throw new Error("Xóa thất bại");
+                        if (!response.ok) throw new Error("Failed to remove");
                         return response.text();
                     })
                     .then(() => {
@@ -201,12 +201,12 @@
                         if (document.querySelectorAll('.product-card').length === 0) {
                             setTimeout(() => {
                                 location.reload();
-                            }, 1500); // chờ để toast hiện xong
+                            }, 1500); // Wait for toast to finish
                         }
                     })
                     .catch(err => {
-                        console.error("❌ Lỗi khi xóa khỏi wishlist:", err);
-                        showToast("Xóa thất bại!", "warning");
+                        console.error("❌ Error removing from wishlist:", err);
+                        showToast("Failed to remove!", "warning");
                     });
             });
         });
@@ -223,15 +223,15 @@
                 headers: {'X-Requested-With': 'XMLHttpRequest'}
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("Lỗi khi lấy dữ liệu sắp xếp");
+                    if (!response.ok) throw new Error("Failed to fetch sorted data");
                     return response.text();
                 })
                 .then(html => {
                     document.getElementById("wishlist-items-container").innerHTML = html;
                 })
                 .catch(err => {
-                    console.error("❌ Lỗi khi sắp xếp:", err);
-                    showToast("Wishlist is empty!", "warning");
+                    console.error("❌ Error sorting:", err);
+                    showToast("Failed to sort!", "warning");
                 });
         });
     });

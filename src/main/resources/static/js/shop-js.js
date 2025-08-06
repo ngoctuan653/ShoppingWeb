@@ -19,7 +19,7 @@ const loadMoreProducts = () => {
     const selectedBrands = getCheckedValues(".brand-filter");
 
     const params = new URLSearchParams();
-    params.append("page", currentPage); // dùng đúng currentPage hiện tại
+    params.append("page", currentPage); // use the current currentPage
     params.append("size", pageSize);
     if (keyword) params.append("keyword", keyword);
     if (minPrice) params.append("minPrice", minPrice);
@@ -31,8 +31,8 @@ const loadMoreProducts = () => {
     fetch(`/search?${params.toString()}`)
         .then(res => res.json())
         .then(pageData => {
-            const products = pageData.content; // content là danh sách sản phẩm
-            const isLast = pageData.last;      // kiểm tra trang cuối
+            const products = pageData.content; // content is the list of products
+            const isLast = pageData.last;      // check if it's the last page
 
             if (!Array.isArray(products) || products.length === 0) {
                 loadMoreBtn.style.display = "none";
@@ -71,9 +71,7 @@ const loadMoreProducts = () => {
                 loadMoreBtn.textContent = "Load More Products";
             }
         });
-
 };
-
 
 loadMoreBtn?.addEventListener("click", loadMoreProducts);
 
@@ -81,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = 1;
 });
 
-//search Product by AJAX
+// Search Product by AJAX
 const searchInput = document.getElementById("searchInput");
 const productGrid = document.getElementById("productGrid");
 const minPriceInput = document.getElementById("minPrice");
@@ -89,12 +87,12 @@ const maxPriceInput = document.getElementById("maxPrice");
 let debounceTimeout = null;
 
 function formatNumberInput(value) {
-    const number = value.replace(/\D/g, ""); // chỉ lấy số
-    return Number(number || 0).toLocaleString("vi-VN"); // thêm dấu chấm
+    const number = value.replace(/\D/g, ""); // keep only numbers
+    return Number(number || 0).toLocaleString("vi-VN"); // add thousand separators
 }
 
 function unformatNumber(value) {
-    return value.replace(/\./g, ""); // bỏ dấu chấm
+    return value.replace(/\./g, ""); // remove thousand separators
 }
 
 [minPriceInput, maxPriceInput].forEach(input => {
@@ -108,7 +106,6 @@ function unformatNumber(value) {
     });
 });
 
-
 const showLoading = () => {
     productGrid.innerHTML = `
         <div class="col-12 text-center py-4">
@@ -116,7 +113,7 @@ const showLoading = () => {
         </div>`;
 };
 
-// Helper: Lấy danh sách ID từ checkbox
+// Helper: Get list of IDs from checkboxes
 function getCheckedValues(selector) {
     return Array.from(document.querySelectorAll(selector + ":checked")).map(cb => cb.value);
 }
@@ -126,7 +123,6 @@ function formatVND(amount) {
     return parseInt(amount).toLocaleString("vi-VN") + " VNĐ";
 }
 
-
 const handleSearch = () => {
     const keyword = searchInput.value.trim();
     const minPrice = unformatNumber(minPriceInput.value);
@@ -135,7 +131,7 @@ const handleSearch = () => {
     const selectedSubcategories = getCheckedValues(".subcategory-filter");
     const selectedBrands = getCheckedValues(".brand-filter");
 
-    // 👇 Reset trạng thái phân trang
+    // 👇 Reset pagination state
     currentPage = 1;
     loadMoreBtn.style.display = "block";
     loadMoreBtn.disabled = false;
@@ -144,7 +140,7 @@ const handleSearch = () => {
     showLoading();
 
     const params = new URLSearchParams();
-    params.append("page", 0); // Trang đầu tiên
+    params.append("page", 0); // First page
     params.append("size", pageSize);
     if (keyword) params.append("keyword", keyword);
     if (minPrice) params.append("minPrice", minPrice);
@@ -200,7 +196,7 @@ const handleSearch = () => {
                 productGrid.insertAdjacentHTML("beforeend", productCard);
             });
 
-            // ✅ Ẩn nút nếu là trang cuối
+            // ✅ Hide button if it's the last page
             if (isLast || products.length < pageSize) {
                 loadMoreBtn.style.display = "none";
             } else {
@@ -208,8 +204,8 @@ const handleSearch = () => {
             }
         })
         .catch(error => {
-            console.error("❌ Lỗi khi tìm kiếm sản phẩm:", error.message || error);
-            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Lỗi khi tải dữ liệu sản phẩm.</div>`;
+            console.error("❌ Error searching products:", error.message || error);
+            productGrid.innerHTML = `<div class="col-12 text-danger text-center">Error loading product data.</div>`;
         });
 };
 
@@ -243,7 +239,7 @@ if (maxPriceInput) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Gắn sự kiện change cho các checkbox category
+    // Attach change event to category checkboxes
     document.querySelectorAll(".category-filter").forEach(cb => {
         cb.addEventListener("change", () => {
             clearTimeout(debounceTimeout);
@@ -258,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Gắn sự kiện change cho các checkbox brand
+    // Attach change event to brand checkboxes
     document.querySelectorAll(".brand-filter").forEach(cb => {
         cb.addEventListener("change", () => {
             clearTimeout(debounceTimeout);
@@ -266,6 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Nếu bạn có nút tìm kiếm thì cũng gắn ở đây
+    // If you have a search button, attach it here
     document.getElementById("searchBtn")?.addEventListener("click", handleSearch);
 });
