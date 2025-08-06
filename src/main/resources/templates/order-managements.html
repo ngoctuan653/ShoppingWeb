@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StyleLegacy - Order Management</title>
+    <title>StyleLegacy - Quản Lý Đơn Hàng</title>
     <link rel="stylesheet" href="/css/orders-management.css">
 </head>
 <body>
@@ -13,6 +13,7 @@
 
     <!-- Sidebar -->
     <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
+
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -36,7 +37,7 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">📦</div>
                 </div>
                 <div class="stat-value" id="stat-total-orders">0</div>
-                <!-- <div class="stat-change positive">+2 orders today</div> -->
+                <!--                <div class="stat-change positive">+2 đơn hôm nay</div>-->
             </div>
 
             <div class="stat-card">
@@ -45,16 +46,16 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">⏳</div>
                 </div>
                 <div class="stat-value" id="stat-pending-orders">0</div>
-                <!-- <div class="stat-change positive">+1 compared to yesterday</div> -->
+                <!--                <div class="stat-change positive">+1 so với hôm qua</div>-->
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Shipping</div>
+                    <div class="stat-title">Shipped</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">🚚</div>
                 </div>
                 <div class="stat-value" id="stat-shipping-orders">0</div>
-                <!-- <div class="stat-change positive">No change</div> -->
+                <!--                <div class="stat-change positive">Không đổi</div>-->
             </div>
 
             <div class="stat-card">
@@ -63,37 +64,40 @@
                     <div class="stat-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)">❌</div>
                 </div>
                 <div class="stat-value" id="stat-cancelled-orders">0</div>
-                <!-- <div class="stat-change negative">+1 compared to yesterday</div> -->
+                <!--<div class="stat-change negative">+1 so với hôm qua</div>-->
             </div>
         </div>
 
         <!-- Filters and Search -->
-        <div class="filter-section">
-            <div class="filter-group">
-                <input type="text" class="search-input" placeholder="Search..." id="searchInput">
-                <button class="search-btn" id="searchBtn">🔍</button>
-            </div>
-            <div class="filter-group">
-                <select class="filter-select" id="statusFilter">
-                    <option value="">All</option>
-                    <option th:each="status : ${orderStatus}" th:value="${status.id}" th:text="${status.statusName}">Pending</option>
-                </select>
-                <select class="filter-select" id="dateFilter">
-                    <option value="">Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                </select>
-            </div>
-        </div>
+<!--        <div class="filter-section">-->
+<!--            <div class="filter-group">-->
+<!--                <input type="text" class="search-input" placeholder="Search......"-->
+<!--                       id="searchInput">-->
+<!--                <button class="search-btn" id="searchBtn">🔍</button>-->
+<!--            </div>-->
+<!--            <div class="filter-group">-->
+<!--                <select class="filter-select" id="statusFilter">-->
+<!--                    <option value="">All</option>-->
+<!--                    <option th:each="status : ${orderStatus}" th:value="${status.id}" th:text="${status.statusName}">Chờ-->
+<!--                        xử lý-->
+<!--                    </option>-->
+<!--                </select>-->
+<!--                <select class="filter-select" id="dateFilter">-->
+<!--                    <option value="">Time</option>-->
+<!--                    <option value="today">Today</option>-->
+<!--                    <option value="week">This Week</option>-->
+<!--                    <option value="month">This Month</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!-- Orders Table -->
         <div class="orders-container">
             <div class="table-header">
-                <h3 class="table-title">List all Orders</h3>
+                <h3 class="table-title">List all Order</h3>
                 <div class="table-actions">
                     <button class="action-btn bulk-action" id="bulkActionBtn" style="display: none;">
-                        Perform action on <span id="selectedCount">0</span> orders
+                        Thao tác với <span id="selectedCount">0</span> đơn hàng
                     </button>
                 </div>
             </div>
@@ -127,10 +131,11 @@
                     <tbody id="ordersTableBody">
                     <tr th:each="order : ${orders}">
                         <td>
-                            <input type="checkbox" class="checkbox order-checkbox" th:attr="data-order-id=${order.id}" hidden="">
+                            <input type="checkbox" class="checkbox order-checkbox" th:attr="data-order-id=${order.id}"
+                                   hidden="">
                         </td>
                         <td th:text="${order.displayCode}">ORD001</td>
-                        <td th:text="${order.user.fullName}">John Doe</td>
+                        <td th:text="${order.user.fullName}">Nguyễn Văn A</td>
                         <td>
                             <div class="product-list">
                                 <div th:each="detail : ${orderDetailsMap[order.id]}" class="product-item">
@@ -140,18 +145,34 @@
                                 </div>
                             </div>
                         </td>
-                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' USD'">$850,000</td>
-                        <td>
-                            <span th:text="${order.status.statusName}" th:classappend="${order.status.cssClass}" class="status-badge">Pending</span>
+
+                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+                            ₫850,000
                         </td>
-                        <td th:text="${#dates.format(order.orderDate, 'MM/dd/yyyy ''at'' HH:mm')}">07/30/2025</td>
+                        <td>
+                            <span th:text="${order.status.statusName}"
+                                  th:classappend="${order.status.cssClass}"
+                                  class="status-badge">Pending
+                            </span>
+                        </td>
+                        <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy ''at'' HH:mm')}">30/07/2025</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-sm btn-primary" th:onclick="'viewOrderDetail(' + ${order.id} + ')'">View</button>
-                                <button class="btn-sm btn-success" th:if="${order.status.statusName == 'Pending'}" th:attr="onclick=|updateOrderStatus(${order.id}, 'confirmed')|" th:attrappend="data-action='confirmed-' + ${order.id}">
+                                <button class="btn-sm btn-primary"
+                                        th:onclick="'viewOrderDetail(' + ${order.id} + ')'">View
+                                </button>
+
+                                <button class="btn-sm btn-success"
+                                        th:if="${order.status.statusName == 'Pending'}"
+                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'confirmed')|"
+                                        th:attrappend="data-action='confirmed-' + ${order.id}">
                                     Handle
                                 </button>
-                                <button class="btn-sm btn-danger" th:if="${order.status.statusName == 'Pending' or order.status.statusName == 'Confirmed'}" th:attr="onclick=|updateOrderStatus(${order.id}, 'cancelled')|" th:attrappend="data-action='cancelled-' + ${order.id}">
+
+                                <button class="btn-sm btn-danger"
+                                        th:if="${order.status.statusName == 'Pending' or order.status.statusName == 'Confirmed'}"
+                                        th:attr="onclick=|updateOrderStatus(${order.id}, 'cancelled')|"
+                                        th:attrappend="data-action='cancelled-' + ${order.id}">
                                     Cancel
                                 </button>
                             </div>
@@ -162,18 +183,19 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    <!-- Showing <span id="showingStart">1</span>-<span id="showingEnd">5</span> of <span id="totalOrders">5</span> orders -->
-                </div>
-                <div class="pagination">
-                    <button class="pagination-btn" id="prevPage" disabled>‹</button>
-                    <div class="pagination-numbers" id="paginationNumbers">
-                        <button class="pagination-number active">1</button>
-                    </div>
-                    <button class="pagination-btn" id="nextPage" disabled>›</button>
-                </div>
-            </div>
+<!--            <div class="pagination-container">-->
+<!--                <div class="pagination-info">-->
+<!--                    &lt;!&ndash;                    Hiển thị <span id="showingStart">1</span>-<span id="showingEnd">5</span>&ndash;&gt;-->
+<!--                    &lt;!&ndash;                    trong tổng số <span id="totalOrders">5</span> đơn hàng&ndash;&gt;-->
+<!--                </div>-->
+<!--                <div class="pagination">-->
+<!--                    <button class="pagination-btn" id="prevPage" disabled>‹</button>-->
+<!--                    <div class="pagination-numbers" id="paginationNumbers">-->
+<!--                        <button class="pagination-number active">1</button>-->
+<!--                    </div>-->
+<!--                    <button class="pagination-btn" id="nextPage" disabled>›</button>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
 
         <!-- Order Detail Modal -->
@@ -199,7 +221,7 @@
 <div class="toast" id="toast">
     <div class="toast-content">
         <span class="toast-icon">✓</span>
-        <span class="toast-message">Operation successful!</span>
+        <span class="toast-message">Thao tác thành công!</span>
     </div>
 </div>
 
