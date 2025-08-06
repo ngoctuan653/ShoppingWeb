@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
 });
 
-
 // Sidebar functions
 function initializeSidebar() {
     isMobile = window.innerWidth <= 768;
@@ -143,7 +142,7 @@ function renderPagination(data) {
 
     const prevBtn = document.createElement('button');
     prevBtn.className = 'pagination-btn';
-    prevBtn.textContent = '‹ Trước';
+    prevBtn.textContent = '‹ Previous';
     prevBtn.disabled = currentPage === 0;
     prevBtn.addEventListener('click', () => loadDiscounts(currentPage - 1, search, status));
     container.appendChild(prevBtn);
@@ -159,7 +158,7 @@ function renderPagination(data) {
 
     const nextBtn = document.createElement('button');
     nextBtn.className = 'pagination-btn';
-    nextBtn.textContent = 'Sau ›';
+    nextBtn.textContent = 'Next ›';
     nextBtn.disabled = currentPage === totalPages - 1;
     nextBtn.addEventListener('click', () => loadDiscounts(currentPage + 1, search, status));
     container.appendChild(nextBtn);
@@ -174,10 +173,9 @@ function loadStats() {
             document.getElementById('usedDiscountCount').textContent = data.used.toLocaleString('vi-VN');
         })
         .catch(err => {
-            console.error('Lỗi khi tải thống kê:', err);
+            console.error('Error loading statistics:', err);
         });
 }
-
 
 // Modal functions
 function openModal(title = 'Add new Discount') {
@@ -202,7 +200,7 @@ function closeModal() {
 function resetForm() {
     document.getElementById('discountForm').reset();
     document.getElementById('valueSuffix').textContent = '%';
-    document.getElementById('discountValue').placeholder = 'VD: 20';
+    document.getElementById('discountValue').placeholder = 'e.g., 20';
 }
 
 // Toast functions
@@ -254,33 +252,32 @@ function validateForm() {
     const endDate = document.getElementById('endDate').value;
 
     if (!code) {
-        showToast('Vui lòng nhập mã code', 'error');
+        showToast('Please enter the discount code', 'error');
         return false;
     }
 
     if (!value) {
-        showToast('Vui lòng nhập giá trị giảm giá', 'error');
+        showToast('Please enter the discount value', 'error');
         return false;
     }
 
     if (!startDate) {
-        showToast('Vui lòng chọn ngày bắt đầu', 'error');
+        showToast('Please select a start date', 'error');
         return false;
     }
 
     if (!endDate) {
-        showToast('Vui lòng chọn ngày kết thúc', 'error');
+        showToast('Please select an end date', 'error');
         return false;
     }
 
     if (new Date(startDate) >= new Date(endDate)) {
-        showToast('Ngày kết thúc phải sau ngày bắt đầu', 'error');
+        showToast('End date must be after start date', 'error');
         return false;
     }
 
     return true;
 }
-
 
 function handleFormSubmit(e) {
     e.preventDefault();
@@ -288,7 +285,7 @@ function handleFormSubmit(e) {
 
     const submitBtn = document.getElementById('saveBtn');
     const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Đang lưu...';
+    submitBtn.textContent = 'Saving...';
     submitBtn.disabled = true;
 
     const discount = {
@@ -318,23 +315,22 @@ function handleFormSubmit(e) {
         .then(res => res.json().then(data => ({ status: res.status, body: data })))
         .then(({ status, body }) => {
             if (status === 200) {
-                showToast(isEditing ? 'Cập nhật thành công!' : 'Thêm thành công!', 'success');
+                showToast(isEditing ? 'Updated successfully!' : 'Added successfully!', 'success');
                 loadDiscounts();
                 closeModal();
             } else {
-                showToast(body.error || 'Đã xảy ra lỗi', 'error');
+                showToast(body.error || 'An error occurred', 'error');
             }
         })
         .catch(err => {
             console.error(err);
-            showToast('Lỗi kết nối máy chủ', 'error');
+            showToast('Server connection error', 'error');
         })
         .finally(() => {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         });
 }
-
 
 // Discount management functions
 function editDiscount(id) {
@@ -352,18 +348,17 @@ function editDiscount(id) {
             document.getElementById('endDate').value = data.endDate;
             document.getElementById('isActive').checked = data.status === 'Active';
 
-            updateFormByType('percentage'); // Nếu có trường type thì cập nhật thêm
+            updateFormByType('percentage'); // Update if type field exists
             openModal('Edit Discount');
         })
         .catch(err => {
             console.error(err);
-            showToast('Không thể tải dữ liệu mã giảm giá', 'error');
+            showToast('Unable to load discount data', 'error');
         });
 }
 
-
 function deleteDiscount(id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) return;
+    if (!confirm('Are you sure you want to delete this discount code?')) return;
 
     fetch(`/api/discounts/${id}`, {
         method: 'DELETE'
@@ -371,18 +366,17 @@ function deleteDiscount(id) {
         .then(res => res.json().then(data => ({ status: res.status, body: data })))
         .then(({ status, body }) => {
             if (status === 200) {
-                showToast('Xóa mã giảm giá thành công!', 'success');
+                showToast('Discount code deleted successfully!', 'success');
                 loadDiscounts();
             } else {
-                showToast(body.error || 'Không thể xóa mã giảm giá', 'error');
+                showToast(body.error || 'Unable to delete discount code', 'error');
             }
         })
         .catch(err => {
             console.error(err);
-            showToast('Lỗi kết nối máy chủ', 'error');
+            showToast('Server connection error', 'error');
         });
 }
-
 
 // Update form based on discount type
 function updateFormByType(type) {
@@ -392,17 +386,17 @@ function updateFormByType(type) {
     switch(type) {
         case 'percentage':
             valueSuffix.textContent = '%';
-            valueInput.placeholder = 'VD: 20';
+            valueInput.placeholder = 'e.g., 20';
             valueInput.disabled = false;
             break;
         case 'fixed':
             valueSuffix.textContent = '₫';
-            valueInput.placeholder = 'VD: 100000';
+            valueInput.placeholder = 'e.g., 100000';
             valueInput.disabled = false;
             break;
         case 'shipping':
             valueSuffix.textContent = '';
-            valueInput.placeholder = 'Miễn phí vận chuyển';
+            valueInput.placeholder = 'Free shipping';
             valueInput.disabled = true;
             valueInput.value = '';
             break;
@@ -423,14 +417,13 @@ function getCurrentFilters() {
 
 function handleSearch() {
     const { search, status } = getCurrentFilters();
-    loadDiscounts(0, search, status); // Trang đầu tiên
+    loadDiscounts(0, search, status); // First page
 }
 
 function handleStatusFilter() {
     const { search, status } = getCurrentFilters();
-    loadDiscounts(0, search, status); // Trang đầu tiên
+    loadDiscounts(0, search, status); // First page
 }
-
 
 // Select all functionality
 function handleSelectAll() {

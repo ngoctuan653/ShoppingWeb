@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => {
                 const contentType = res.headers.get("content-type");
                 if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                    throw new Error("Không thể tải size: Phản hồi không hợp lệ hoặc chưa đăng nhập");
+                    throw new Error("Unable to load size: Invalid response or not logged in");
                 }
                 return res.json();
             })
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
 
             .catch(error => {
-                console.error("❌ Lỗi khi tải size:", error);
+                console.error("❌ Error when load size:", error);
             });
     }
 

@@ -105,7 +105,7 @@ function closeModal(modalId) {
     const title = modal.querySelector('h3');
     if (title) {
         const type = modalId.replace('Modal', '');
-        title.textContent = `Thêm ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        title.textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     }
 }
 
@@ -152,7 +152,7 @@ function editCategory(id) {
         })
         .catch(err => {
             console.error('Fetch error:', err);
-            showToast('Không thể tải thông tin category', 'error');
+            showToast('Cannot load category information', 'error');
         });
 }
 
@@ -179,7 +179,7 @@ function editSubcategory(id) {
             openModal('subcategoryModal');
         })
         .catch(() => {
-            showToast('Không thể tải subcategory', 'error');
+            showToast('Cannot load subcategory information', 'error');
         });
 }
 
@@ -191,65 +191,65 @@ function editBrand(id) {
     fetch(`/admin/brand/${id}`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById('brandModalTitle').textContent = 'Sửa Brand';
+            document.getElementById('brandModalTitle').textContent = 'Edit Brand';
             document.getElementById('brandName').value = data.brandName || '';
             document.getElementById('brandDescription').value = data.description || '';
             document.getElementById('brandStatus').value = (data.status || '').toLowerCase();
             openModal('brandModal');
         })
         .catch(() => {
-            showToast('Không thể tải brand', 'error');
+            showToast('Cannot load brand information', 'error');
         });
 }
 
 function deleteCategory(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa category này?")) {
+    if (confirm("Are you sure you want to delete this category?")) {
         fetch(`/admin/category/${id}`, {
             method: 'DELETE'
         })
             .then(res => {
                 if (res.ok) {
-                    showToast('Xóa category thành công', 'success');
+                    showToast('Delete category successfully', 'success');
                     removeRowById('category', id);
                 } else {
                     throw new Error();
                 }
             })
-            .catch(() => showToast('Không thể xóa category', 'error'));
+            .catch(() => showToast('Cannot delete category', 'error'));
     }
 }
 
 function deleteSubcategory(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa subcategory này?")) {
+    if (confirm("Are you sure you want to delete this subcategory?")) {
         fetch(`/admin/subcategory/${id}`, {
             method: 'DELETE'
         })
             .then(res => {
                 if (res.ok) {
-                    showToast('Xóa subcategory thành công', 'success');
+                    showToast('Delete subcategory successfully', 'success');
                     removeRowById('subcategory', id);
                 } else {
                     throw new Error();
                 }
             })
-            .catch(() => showToast('Không thể xóa subcategory', 'error'));
+            .catch(() => showToast('Cannot delete subcategory', 'error'));
     }
 }
 
 function deleteBrand(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa brand này?")) {
+    if (confirm("Are you sure you want to delete this brand?")) {
         fetch(`/admin/brand/${id}`, {
             method: 'DELETE'
         })
             .then(res => {
                 if (res.ok) {
-                    showToast('Xóa brand thành công', 'success');
+                    showToast('Delete brand successfully', 'success');
                     removeRowById('brand', id);
                 } else {
                     throw new Error();
                 }
             })
-            .catch(() => showToast('Không thể xóa brand', 'error'));
+            .catch(() => showToast('Cannot delete brand', 'error'));
     }
 }
 
@@ -284,7 +284,7 @@ document.getElementById('categoryForm').addEventListener('submit', function (e) 
             return res.json();
         })
         .then(data => {
-            showToast(isEditing ? 'Cập nhật category thành công' : 'Thêm category thành công', 'success');
+            showToast(isEditing ? 'Update category successfully' : 'Add category successfully', 'success');
             closeModal('categoryModal');
 
             location.reload();
@@ -293,7 +293,7 @@ document.getElementById('categoryForm').addEventListener('submit', function (e) 
             editingId = null;
             editingType = null;
         })
-        .catch(() => showToast('Lỗi khi lưu category', 'error'));
+        .catch(() => showToast('Error when save category', 'error'));
 });
 
 
@@ -327,11 +327,11 @@ document.getElementById('subcategoryForm').addEventListener('submit', function (
     })
         .then(res => res.json())
         .then(data => {
-            showToast(editingId ? 'Cập nhật subcategory thành công' : 'Thêm subcategory thành công', 'success');
+            showToast(editingId ? 'Update subcategory successfully' : 'Add subcategory successfully', 'success');
             closeModal('subcategoryModal');
             location.reload();
         })
-        .catch(() => showToast('Lỗi khi lưu subcategory', 'error'));
+        .catch(() => showToast('Error when save subcategory', 'error'));
 });
 
 
@@ -360,11 +360,11 @@ document.getElementById('brandForm').addEventListener('submit', function (e) {
     })
         .then(res => res.json())
         .then(data => {
-            showToast(editingId ? 'Cập nhật brand thành công' : 'Thêm brand thành công', 'success');
+            showToast(editingId ? 'Update brand successfully' : 'Add brand successfully', 'success');
             closeModal('brandModal');
             location.reload();
         })
-        .catch(() => showToast('Lỗi khi lưu brand', 'error'));
+        .catch(() => showToast('Error when save brand', 'error'));
 });
 
 

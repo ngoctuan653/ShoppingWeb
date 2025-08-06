@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StyleLegacy - Quản Lý Người Dùng</title>
+    <title>StyleLegacy - User Management</title>
     <link rel="stylesheet" href="/css/users-management.css">
 </head>
 <body>
@@ -13,7 +13,6 @@
 
     <!-- Sidebar -->
     <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
-
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -33,29 +32,29 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Tổng Người Dùng</div>
+                    <div class="stat-title">Total Users</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">👥</div>
                 </div>
                 <div class="stat-value">8,547</div>
-<!--                <div class="stat-change positive">+5.2% so với tháng trước</div>-->
+                <!-- <div class="stat-change positive">+5.2% compared to last month</div> -->
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Người Dùng Mới Hôm Nay</div>
+                    <div class="stat-title">New Users Today</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">🆕</div>
                 </div>
                 <div class="stat-value">47</div>
-<!--                <div class="stat-change positive">+12.3% so với hôm qua</div>-->
+                <!-- <div class="stat-change positive">+12.3% compared to yesterday</div> -->
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Tài Khoản Bị Khóa</div>
+                    <div class="stat-title">Locked Accounts</div>
                     <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">🔒</div>
                 </div>
                 <div class="stat-value">23</div>
-<!--                <div class="stat-change negative">-18.5% so với tuần trước</div>-->
+                <!-- <div class="stat-change negative">-18.5% compared to last week</div> -->
             </div>
         </div>
 
@@ -63,7 +62,7 @@
         <div class="filter-section">
             <div class="filter-left">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, email hoặc ID..."/>
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or ID..."/>
                     <button class="search-btn">🔍</button>
                 </div>
                 <select class="filter-select" id="statusFilter">
@@ -72,8 +71,8 @@
                     <option value="inactive">Inactive</option>
                 </select>
                 <select class="filter-select" id="roleFilter">
-                    <option value="">All Role</option>
-                    <option th:each="role : ${roles}" th:value="${role.id}"  th:text="${role.roleName}">Người dùng</option>
+                    <option value="">All Roles</option>
+                    <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.roleName}">User</option>
                 </select>
             </div>
         </div>
@@ -82,22 +81,23 @@
         <div class="users-table-container">
             <div class="table-header">
                 <h3 class="table-title">List all Users</h3>
-<!--                <div class="table-actions">-->
-<!--                    <select class="table-per-page" id="perPageSelect">-->
-<!--                        <option value="10">10 / trang</option>-->
-<!--                        <option value="25" selected>25 / trang</option>-->
-<!--                        <option value="50">50 / trang</option>-->
-<!--                        <option value="100">100 / trang</option>-->
-<!--                    </select>-->
-<!--                </div>-->
+                <!--
+                <div class="table-actions">
+                    <select class="table-per-page" id="perPageSelect">
+                        <option value="10">10 / page</option>
+                        <option value="25" selected>25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+                -->
             </div>
 
             <div class="table-wrapper">
                 <table class="users-table" id="usersTable">
                     <thead>
                     <tr>
-                        <th>
-                        </th>
+                        <th></th>
                         <th>Avatar</th>
                         <th>Name & Email</th>
                         <th>Role</th>
@@ -108,8 +108,7 @@
                     </thead>
                     <tbody id="usersTableBody">
                     <tr th:each="user : ${users}" th:id="'userRow-' + ${user.id}" th:attr="data-user-id=${user.id}">
-                        <td>
-                        </td>
+                        <td></td>
                         <td>
                             <div class="user-avatar-table">
                                 <img th:if="${user.avatar != null}" th:src="@{'/avatar/' + ${user.id}}" alt="Avatar" />
@@ -125,23 +124,15 @@
                             </div>
                         </td>
                         <td>
-                            <span class="user-role role-badge"
-                                  th:classappend="' role-' + ${#strings.replace(user.role.roleName.toLowerCase(), 'role_', '')}"
-                                  th:text="${#strings.replace(user.role.roleName, 'ROLE_', '')}">Vai trò
-                            </span>
+                            <span class="user-role role-badge" th:classappend="' role-' + ${#strings.replace(user.role.roleName.toLowerCase(), 'role_', '')}" th:text="${#strings.replace(user.role.roleName, 'ROLE_', '')}">Role</span>
                         </td>
                         <td>
-                            <span class="user-status status-badge"
-                                  th:classappend="${user.status.toLowerCase() == 'active'} ? ' status-active' : ' status-blocked'"
-                                  th:text="${user.status}">
-                                Trạng thái
-                            </span>
+                            <span class="user-status status-badge" th:classappend="${user.status.toLowerCase() == 'active'} ? ' status-active' : ' status-blocked'" th:text="${user.status}">Status</span>
                         </td>
-                        <td th:text="${#dates.format(user.createdAt, 'dd/MM/yyyy ''at'' HH:mm')}">10/03/2024</td>
+                        <td th:text="${#dates.format(user.createdAt, 'MM/dd/yyyy ''at'' HH:mm')}">03/10/2024</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="action-btn btn-success" th:onclick="'editUser(' + ${user.id} + ')'" title="Chỉnh sửa">✏️
-                                </button>
+                                <button class="action-btn btn-success" th:onclick="'editUser(' + ${user.id} + ')'" title="Edit">✏️</button>
                             </div>
                         </td>
                     </tr>
@@ -152,8 +143,7 @@
             <!-- Pagination -->
             <div class="pagination-container">
                 <div class="pagination-info">
-                    Hiển thị <span id="showingFrom">1</span> - <span id="showingTo">10</span> của <span id="totalUsers">25</span>
-                    người dùng
+                    Showing <span id="showingFrom">1</span> - <span id="showingTo">10</span> of <span id="totalUsers">25</span> users
                 </div>
                 <div class="pagination" id="pagination">
                     <button class="page-btn" disabled>‹</button>
@@ -171,7 +161,7 @@
 <div class="modal-overlay" id="editUserModal">
     <div class="modal">
         <div class="modal-header">
-            <h3>Chỉnh Sửa Người Dùng</h3>
+            <h3>Edit User</h3>
             <button class="modal-close" id="closeEditModal">✕</button>
         </div>
         <div class="modal-body">
@@ -190,11 +180,11 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="editRole">Vai Trò</label>
+                        <label for="editRole">Role</label>
                         <select id="editRole" name="role.id" required></select>
                     </div>
                     <div class="form-group">
-                        <label for="editStatus">Trạng Thái</label>
+                        <label for="editStatus">Status</label>
                         <select id="editStatus" name="status" required>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -203,14 +193,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="editPhone">Số Điện Thoại</label>
+                    <label for="editPhone">Phone Number</label>
                     <input type="tel" id="editPhone" name="phoneNumber"/>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="cancelEditBtn">Hủy</button>
-            <button type="submit" form="editUserForm" class="btn btn-primary">Cập Nhật</button>
+            <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+            <button type="submit" form="editUserForm" class="btn btn-primary">Update</button>
         </div>
     </div>
 </div>

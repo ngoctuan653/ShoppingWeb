@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StyleLegacy - Quản lý Danh mục</title>
+    <title>StyleLegacy - Category Management</title>
     <link rel="stylesheet" href="/css/category-management.css">
 </head>
 <body>
@@ -13,7 +13,6 @@
 
     <!-- Sidebar -->
     <div th:replace="fragments/admin-sidebar2 :: sidebar"></div>
-
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
@@ -57,9 +56,9 @@
                     <tbody id="categoriesTable">
                     <tr th:each="category : ${categories}">
                         <td th:text="${category.id}">1</td>
-                        <td th:text="${category.categoryName}">Áo Nam</td>
-                        <td th:text="${category.description}">Tất cả loại áo dành cho nam</td>
-                        <td ><span th:text="${category.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td th:text="${category.categoryName}">Men's Clothing</td>
+                        <td th:text="${category.description}">All types of men's clothing</td>
+                        <td><span th:text="${category.status}" class="status-badge status-active">Active</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editCategory(' + ${category.id} + ')'">Edit</button>
                             <button class="btn-small btn-delete" th:onclick="'deleteCategory(' + ${category.id} + ')'">Delete</button>
@@ -90,12 +89,12 @@
                     </tr>
                     </thead>
                     <tbody id="subcategoriesTable">
-                    <tr  th:each="subCategory : ${subCategories}">
+                    <tr th:each="subCategory : ${subCategories}">
                         <td th:text="${subCategory.id}">1</td>
-                        <td th:text="${subCategory.subcategoryName}">Áo Thun</td>
-                        <td th:text="${subCategory.category.categoryName}">Áo Nam</td>
-                        <td  th:text="${subCategory.description}">Áo thun nam các loại</td>
-                        <td><span th:text="${subCategory.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td th:text="${subCategory.subcategoryName}">T-Shirts</td>
+                        <td th:text="${subCategory.category.categoryName}">Men's Clothing</td>
+                        <td th:text="${subCategory.description}">Various men's t-shirts</td>
+                        <td><span th:text="${subCategory.status}" class="status-badge status-active">Active</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editSubcategory(' + ${subCategory.id} + ')'">Edit</button>
                             <button class="btn-small btn-delete" th:onclick="'deleteSubcategory(' + ${subCategory.id} + ')'">Delete</button>
@@ -128,8 +127,8 @@
                     <tr th:each="brand : ${brands}">
                         <td th:text="${brand.id}">1</td>
                         <td th:text="${brand.brandName}">Nike</td>
-                        <td th:text="${brand.description}">Thương hiệu thể thao nổi tiếng</td>
-                        <td><span th:text="${brand.status}" class="status-badge status-active">Hoạt động</span></td>
+                        <td th:text="${brand.description}">Famous sports brand</td>
+                        <td><span th:text="${brand.status}" class="status-badge status-active">Active</span></td>
                         <td>
                             <button class="btn-small btn-edit" th:onclick="'editBrand(' + ${brand.id} + ')'">Edit</button>
                             <button class="btn-small btn-delete" th:onclick="'deleteBrand(' + ${brand.id} + ')'">Delete</button>
@@ -188,18 +187,17 @@
             <div class="form-group">
                 <label>Category</label>
                 <select id="subcategoryCategory" required>
-                    <option value="">Chọn Category</option>
+                    <option value="">Select Category</option>
                     <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.categoryName}"></option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Brand</label>
                 <select id="subcategoryBrand" required>
-                    <option value="">Chọn Brand</option>
+                    <option value="">Select Brand</option>
                     <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.brandName}"></option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Description</label>
                 <textarea id="subcategoryDescription" rows="3"></textarea>
@@ -212,8 +210,8 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('subcategoryModal')">Hủy</button>
-                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('subcategoryModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>
@@ -243,8 +241,8 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('brandModal')">Hủy</button>
-                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('brandModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>
