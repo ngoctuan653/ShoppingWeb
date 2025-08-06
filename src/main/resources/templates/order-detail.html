@@ -118,8 +118,12 @@
                     </div>
                     <div class="card-body">
                         <div id="orderSummary">
-                            <p>Total: <span th:text="${#numbers.formatDecimal(order.totalAmountBeforeDiscount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
-                            <p>Total(After discount): <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span></p>
+                            <p>Total: <span
+                                    th:text="${#numbers.formatDecimal(order.totalAmountBeforeDiscount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span>
+                            </p>
+                            <p>Total(After discount): <span
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">99.98 $</span>
+                            </p>
                             <p th:if="${order.discount != null}">Discount: <span
                                     th:text="${order.discount.discountPercentage} + '%'">10%</span></p>
                         </div>
@@ -327,12 +331,28 @@
     function openFeedbackModal(button) {
         const orderId = button.getAttribute('data-order-id');
 
-        fetch(`/api/order/${orderId}/feedback-items`)
-            .then(res => res.json())
+        fetch(`/api/order/${orderId}/feedback-items`, {
+            credentials: 'include',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => {
+                if (res.status === 401) {
+                    showToast("You must be logged in to give feedback.", "warning");
+                    throw new Error("Unauthorized");
+                }
+
+                if (!res.headers.get("content-type")?.includes("application/json")) {
+                    showToast("Unexpected response. Please try again later.", "danger");
+                    throw new Error("Non-JSON response");
+                }
+
+                return res.json(); // chỉ parse JSON nếu chắc chắn là JSON
+            })
             .then(data => {
                 if (data.length === 0) {
                     showToast("You have already reviewed all items in this order.", "info");
-                    // Ẩn nút feedback nếu tất cả sản phẩm đã được đánh giá
                     document.getElementById("feedbackButton")?.remove();
                     return;
                 }
@@ -342,33 +362,33 @@
 
                 data.forEach((item, index) => {
                     body.innerHTML += `
-                    <div class="border rounded p-3 mb-3">
-                        <input type="hidden" name="orderDetailIds" value="${item.orderDetailId}">
-                        <input type="hidden" name="productIds" value="${item.productId}">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/products/image/${item.productId}" alt="${item.productName}" style="width: 60px;" class="me-3">
-                            <strong>${item.productName}</strong> (Size: ${item.sizeLabel})
-                        </div>
-                        <div class="mb-2">
-                            <label>Rating:</label>
-                            <div class="star-rating" data-index="${index}">
-                                <input type="hidden" name="ratings" value="" required>
-                                <i class="bi bi-star-fill star" data-value="1"></i>
-                                <i class="bi bi-star-fill star" data-value="2"></i>
-                                <i class="bi bi-star-fill star" data-value="3"></i>
-                                <i class="bi bi-star-fill star" data-value="4"></i>
-                                <i class="bi bi-star-fill star" data-value="5"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <label>Comment:</label>
-                            <textarea name="comments" class="form-control" rows="2" placeholder="Write your review..." required></textarea>
+                <div class="border rounded p-3 mb-3">
+                    <input type="hidden" name="orderDetailIds" value="${item.orderDetailId}">
+                    <input type="hidden" name="productIds" value="${item.productId}">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/products/image/${item.productId}" alt="${item.productName}" style="width: 60px;" class="me-3">
+                        <strong>${item.productName}</strong> (Size: ${item.sizeLabel})
+                    </div>
+                    <div class="mb-2">
+                        <label>Rating:</label>
+                        <div class="star-rating" data-index="${index}">
+                            <input type="hidden" name="ratings" value="" required>
+                            <i class="bi bi-star-fill star" data-value="1"></i>
+                            <i class="bi bi-star-fill star" data-value="2"></i>
+                            <i class="bi bi-star-fill star" data-value="3"></i>
+                            <i class="bi bi-star-fill star" data-value="4"></i>
+                            <i class="bi bi-star-fill star" data-value="5"></i>
                         </div>
                     </div>
-                `;
+                    <div>
+                        <label>Comment:</label>
+                        <textarea name="comments" class="form-control" rows="2" placeholder="Write your review..." required></textarea>
+                    </div>
+                </div>
+            `;
                 });
 
-                // Gắn sự kiện click cho từng nhóm sao
+                // Gắn sự kiện cho sao
                 document.querySelectorAll('.star-rating').forEach(starGroup => {
                     const stars = starGroup.querySelectorAll('.star');
                     const hiddenInput = starGroup.querySelector('input[name="ratings"]');
@@ -394,6 +414,7 @@
             });
     }
 
+
     function submitFeedback(event) {
         event.preventDefault();
 
@@ -402,7 +423,6 @@
         const ratings = Array.from(form.querySelectorAll('input[name="ratings"]')).map(e => parseInt(e.value));
         const comments = Array.from(form.querySelectorAll('textarea[name="comments"]')).map(e => e.value);
         const orderDetailIds = Array.from(form.querySelectorAll('input[name="orderDetailIds"]')).map(e => e.value);
-
 
         for (let i = 0; i < ratings.length; i++) {
             if (isNaN(ratings[i]) || ratings[i] < 1 || ratings[i] > 5) {
@@ -418,16 +438,33 @@
             comment: comments[index]
         }));
 
-
         fetch('/api/reviews/submit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify(feedbacks)
+            body: JSON.stringify(feedbacks),
+            credentials: 'include' // thêm để chắc chắn gửi cookie xác thực nếu cần
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        showToast("You must be logged in to submit feedback.", "warning");
+                    } else {
+                        showToast("Server error: " + res.status, "danger");
+                    }
+                    throw new Error("HTTP error " + res.status);
+                }
+
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    showToast("Unexpected response from server.", "danger");
+                    throw new Error("Invalid content type");
+                }
+
+                return res.json();
+            })
             .then(data => {
                 showToast(data.message || "Feedback submitted!", "success");
 
@@ -440,9 +477,10 @@
             })
             .catch(err => {
                 console.error(err);
-                showToast("Failed to submit feedback", "danger");
+                // showToast đã được gọi bên trên nếu lỗi; không cần gọi lại ở đây
             });
     }
+
 </script>
 </body>
 </html>

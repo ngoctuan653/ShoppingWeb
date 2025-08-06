@@ -39,7 +39,7 @@ public class AdminController {
             "shipped"
     );
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin/dashboard")
     public String showDashboard(Model model) {
         long totalOrders = orderRepository.count();

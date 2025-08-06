@@ -39,7 +39,7 @@ public class OrderController {
     private OrderStatusRepository orderStatusRepository;
 
     @GetMapping("/admin/order-manage")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String orderManagePage(Model model) {
         List<Order> orders = orderRepository.findAll();
         List<Orderstatus> allStatuses = orderStatusRepository.findAll();

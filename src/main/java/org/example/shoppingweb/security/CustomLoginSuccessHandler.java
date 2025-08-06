@@ -29,6 +29,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String roleName = user.getRole().getRoleName();
         System.out.println("ROLE: " + user.getRole().getRoleName());
+        System.out.println("✅ Login thành công với user: " + authentication.getName());
 
         if ("ROLE_ADMIN".equalsIgnoreCase(roleName)) {
             response.sendRedirect("/admin/dashboard");

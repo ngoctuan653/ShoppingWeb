@@ -30,7 +30,7 @@ public class AdminUserController {
     @Autowired
     private UserRepository userRepository;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
     public String listUsers(Model model) {
         List<User> users = userService.getAllUsers();
@@ -41,13 +41,14 @@ public class AdminUserController {
         return "user-management";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id) {
         userService.deleteUserById(id);
         return "redirect:/admin/users";
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/update")
     @ResponseBody
     public ResponseEntity<String> updateUser(
@@ -61,7 +62,7 @@ public class AdminUserController {
         return ResponseEntity.ok("Cập nhật thành công");
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/get/{id}")
     @ResponseBody
     public UserDTO getUserDTO(@PathVariable("id") Integer id) {
@@ -79,7 +80,7 @@ public class AdminUserController {
         return dto;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/roles")
     @ResponseBody
     public List<Role> getAllRoles() {
