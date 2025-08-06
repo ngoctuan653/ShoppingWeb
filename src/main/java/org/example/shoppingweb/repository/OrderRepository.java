@@ -24,4 +24,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     int countByStatus_StatusName(String statusName);
     List<Order> findByOrderDateAfter(Instant instant);
 
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.discount IS NOT NULL")
+    long sumUsedDiscountCount();
 }
