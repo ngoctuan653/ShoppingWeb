@@ -48,6 +48,8 @@ public class OrderDetailController {
         List<Orderdetail> orderDetails = orderDetailRepository.findByOrder(order);
         model.addAttribute("order", order);
         model.addAttribute("orderDetails", orderDetails);
+        model.addAttribute("currentUserId", userDetails.getUser().getId());
+        model.addAttribute("receiverId", 1);
         boolean allItemsReviewed = orderDetails.stream().allMatch(detail ->
                 reviewRepository.existsByOrderDetail(detail)
         );

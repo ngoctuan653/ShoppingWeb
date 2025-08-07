@@ -89,7 +89,8 @@ public class OrderController {
             List<Orderdetail> details = orderDetailRepository.findByOrder(order);
             orderDetailsMap.put(order.getId(), details);
         }
-
+        model.addAttribute("currentUserId", userDetails.getUser().getId());
+        model.addAttribute("receiverId", 1);
         model.addAttribute("orders", formattedOrders);
         model.addAttribute("orderDetailsMap", orderDetailsMap);
         return "order-history";

@@ -36,6 +36,8 @@ public class WishlistController {
         User currentUser = null;
         if (userDetails != null) {
             currentUser = userDetails.getUser();
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
             System.out.println("User from Security: " + (currentUser != null ? currentUser.getUsername() : "null"));
         } else {
             currentUser = (User) session.getAttribute("currentUser");

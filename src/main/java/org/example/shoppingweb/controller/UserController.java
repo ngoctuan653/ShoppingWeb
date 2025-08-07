@@ -3,12 +3,14 @@ package org.example.shoppingweb.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.shoppingweb.entity.User;
 import org.example.shoppingweb.repository.UserRepository;
+import org.example.shoppingweb.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -34,11 +36,14 @@ public class UserController {
     private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     @GetMapping("/profile")
-    public String viewUserProfile(Model model) {
+    public String viewUserProfile(Model model , @AuthenticationPrincipal CustomUserDetails userDetails) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElse(null);
-
+        if (userDetails != null) {
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
+        }
         if (user == null) {
             return "redirect:/login";
         }

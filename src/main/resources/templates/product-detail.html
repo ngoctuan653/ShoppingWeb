@@ -2,183 +2,189 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<title th:text="${product.productName} + ' - StyleLegacy'">Product Detail</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-	<style>
-		.product-image {
-			width: 100%;
-			object-fit: contain;
-			border-radius: 16px;
-			background: #f8f9fa;
-			max-height: 600px;
-		}
+    <meta charset="UTF-8">
+    <title th:text="${product.productName} + ' - StyleLegacy'">Product Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .product-image {
+            width: 100%;
+            object-fit: contain;
+            border-radius: 16px;
+            background: #f8f9fa;
+            max-height: 600px;
+        }
 
-		.back-btn {
-			position: absolute;
-			top: 20px;
-			left: 20px;
-		}
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
 
-		.price-tag {
-			font-size: 1.75rem;
-			font-weight: 700;
-			color: #000;
-		}
+        .price-tag {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #000;
+        }
 
-		.product-detail-container {
-			margin-top: 4rem;
-			margin-bottom: 4rem;
-		}
+        .product-detail-container {
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+        }
 
-		@media (max-width: 768px) {
-			.product-detail-container {
-				margin-top: 2rem;
-				margin-bottom: 2rem;
-			}
-		}
-	</style>
+        @media (max-width: 768px) {
+            .product-detail-container {
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
 </head>
 
 <body style="padding-top: 50px;">
 
-	<!-- Navbar -->
-	<div th:replace="fragments/header-navbar :: navbar"></div>
+<!-- Navbar -->
+<div th:replace="fragments/header-navbar :: navbar"></div>
 
-	<!-- Product Detail -->
-	<div class="container product-detail-container">
-		<div class="row align-items-center g-5">
-			<!-- Image Section -->
-			<div class="col-lg-6 col-md-12">
-				<img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}"
-					class="img-fluid product-image shadow-sm" alt="Product Image" />
-				<img th:if="${product.image == null}" src="/images/default.png"
-					class="img-fluid product-image shadow-sm" alt="Default Product Image" />
-			</div>
-
-
-			<!-- Info Section -->
-			<div class="col-lg-6 col-md-12">
-				<h1 class="display-6 fw-bold mb-3" th:text="${product.productName}">Product Name</h1>
-				<p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
-				<p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
-				<p class="mb-4 fs-5" th:utext="${product.description}">Product description</p>
-				<div class="price-tag mb-4" th:text="${product.formatPrice(product.price)} +' VNĐ'">$0.00</div>
+<!-- Product Detail -->
+<div class="container product-detail-container">
+    <div class="row align-items-center g-5">
+        <!-- Image Section -->
+        <div class="col-lg-6 col-md-12">
+            <img th:if="${product.image != null}" th:src="@{'/products/image/' + ${product.id}}"
+                 class="img-fluid product-image shadow-sm" alt="Product Image"/>
+            <img th:if="${product.image == null}" src="/images/default.png"
+                 class="img-fluid product-image shadow-sm" alt="Default Product Image"/>
+        </div>
 
 
-				<div th:if="${product.stockQuantity != 0}" class="mb-4">
-					<label class="form-label fw-semibold">Choose size:</label>
-					<!-- Size select -->
-					<select class="form-select form-select-lg" id="sizeSelect">
-						<option value="">-- Choose size --</option>
-					</select>
+        <!-- Info Section -->
+        <div class="col-lg-6 col-md-12">
+            <h1 class="display-6 fw-bold mb-3" th:text="${product.productName}">Product Name</h1>
+            <p class="text-muted mb-2" th:text="${product.category.categoryName}">Category</p>
+            <p class="text-muted mb-2" th:text="${product.subcategory.subcategoryName}"></p>
+            <p class="mb-4 fs-5" th:utext="${product.description}">Product description</p>
+            <div class="price-tag mb-4" th:text="${product.formatPrice(product.price)} +' VNĐ'">$0.00</div>
 
-				</div>
 
-				<div class="d-grid gap-3 d-md-flex">
+            <div th:if="${product.stockQuantity != 0}" class="mb-4">
+                <label class="form-label fw-semibold">Choose size:</label>
+                <!-- Size select -->
+                <select class="form-select form-select-lg" id="sizeSelect">
+                    <option value="">-- Choose size --</option>
+                </select>
+
+            </div>
+
+            <div class="d-grid gap-3 d-md-flex">
 					<span th:if="${product.stockQuantity == 0}"
-						class="badge bg-danger fs-6 d-flex justify-content-center align-items-center"
-						style="height: 48px; min-width: 150px;">
+                          class="badge bg-danger fs-6 d-flex justify-content-center align-items-center"
+                          style="height: 48px; min-width: 150px;">
 						Out of stock
 					</span>
 
-					<button th:if="${product.stockQuantity != 0}" class="btn btn-dark btn-lg add-to-cart-btn"
-						th:attr="data-id=${product.id}">
-						<i class="bi bi-cart-plus me-2"></i>Add to Cart
-					</button>
-					<button th:class="'btn btn-lg add-to-wishlist-btn ' + (${inWishlist} ? 'btn-dark' : 'btn-outline-dark')"
-							th:attr="data-id=${product.id}">
-						<i class="bi" th:classappend="${inWishlist} ? 'bi-heart-fill me-2' : 'bi-heart me-2'"></i>
-						<span th:text="${inWishlist} ? 'Remove from Wishlist' : 'Add to Wishlist'">Add to Wishlist</span>
-					</button>
-					<a th:href="@{/shop}" class="btn btn-outline-secondary btn-lg">Back to Shop</a>
-				</div>
-			</div>
-		</div>
-	</div>
-
-    <div class="container mb-5">
-        <h3 class="mb-4">Customer Feedback</h3>
-
-        <!-- Rating filter -->
-        <div class="mb-3">
-            <label for="ratingFilter" class="form-label fw-semibold">Filter by Rating:</label>
-            <select id="ratingFilter" class="form-select" style="max-width: 200px;">
-                <option value="">All</option>
-                <option value="5">5 stars</option>
-                <option value="4">4 stars</option>
-                <option value="3">3 stars</option>
-                <option value="2">2 stars</option>
-                <option value="1">1 star</option>
-            </select>
+                <button th:if="${product.stockQuantity != 0}" class="btn btn-dark btn-lg add-to-cart-btn"
+                        th:attr="data-id=${product.id}">
+                    <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                </button>
+                <button th:class="'btn btn-lg add-to-wishlist-btn ' + (${inWishlist} ? 'btn-dark' : 'btn-outline-dark')"
+                        th:attr="data-id=${product.id}">
+                    <i class="bi" th:classappend="${inWishlist} ? 'bi-heart-fill me-2' : 'bi-heart me-2'"></i>
+                    <span th:text="${inWishlist} ? 'Remove from Wishlist' : 'Add to Wishlist'">Add to Wishlist</span>
+                </button>
+                <a th:href="@{/shop}" class="btn btn-outline-secondary btn-lg">Back to Shop</a>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Feedback List -->
-        <div id="feedbackList"></div>
+<div class="container mb-5">
+    <h3 class="mb-4">Customer Feedback</h3>
 
-        <!-- Pagination -->
-        <nav>
-            <ul id="feedbackPagination" class="pagination mt-4"></ul>
-        </nav>
+    <!-- Rating filter -->
+    <div class="mb-3">
+        <label for="ratingFilter" class="form-label fw-semibold">Filter by Rating:</label>
+        <select id="ratingFilter" class="form-select" style="max-width: 200px;">
+            <option value="">All</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
+        </select>
     </div>
 
+    <!-- Feedback List -->
+    <div id="feedbackList"></div>
 
-    <!-- Footer -->
-	<div th:replace="fragments/footer :: footer"></div>
+    <!-- Pagination -->
+    <nav>
+        <ul id="feedbackPagination" class="pagination mt-4"></ul>
+    </nav>
+</div>
 
-	<!-- JS -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="/js/script.js"></script>
-	<script src="/js/wishlist.js"></script>
-	<script src="/js/add-to-cart.js"></script>
+<!--Chat-->
+<div th:if="${currentUser != null and roleId == 2}">
+    <div th:replace="fragments/chat :: chatWidget"></div>
+</div>
 
-	<div th:replace="fragments/cart :: cart"></div>
-	<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
 
-    <script>
-        //const productId = [[${product.id}]];
-        const pageSize = 5;
-        let currentPage = 0;
-        let currentRating = '';
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="/js/script.js"></script>
+<script src="/js/wishlist.js"></script>
+<script src="/js/add-to-cart.js"></script>
 
-        document.addEventListener("DOMContentLoaded", function () {
+<div th:replace="fragments/cart :: cart"></div>
+<div th:replace="fragments/add-to-cart-notification :: add-to-cart-notification"></div>
+
+<script>
+    //const productId = [[${product.id}]];
+    const pageSize = 5;
+    let currentPage = 0;
+    let currentRating = '';
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadFeedbacks();
+
+        document.getElementById("ratingFilter").addEventListener("change", function () {
+            currentRating = this.value;
+            currentPage = 0;
             loadFeedbacks();
-
-            document.getElementById("ratingFilter").addEventListener("change", function () {
-                currentRating = this.value;
-                currentPage = 0;
-                loadFeedbacks();
-            });
         });
+    });
 
-        function loadFeedbacks() {
-            const url = `/api/reviews?productId=${productId}&page=${currentPage}&size=${pageSize}` + (currentRating ? `&rating=${currentRating}` : '');
+    function loadFeedbacks() {
+        const url = `/api/reviews?productId=${productId}&page=${currentPage}&size=${pageSize}` + (currentRating ? `&rating=${currentRating}` : '');
 
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    renderFeedbackList(data.content);
-                    renderPagination(data.totalPages);
-                });
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                renderFeedbackList(data.content);
+                renderPagination(data.totalPages);
+            });
+    }
+
+    function renderFeedbackList(reviews) {
+        const container = document.getElementById("feedbackList");
+        container.innerHTML = "";
+
+        if (reviews.length === 0) {
+            container.innerHTML = '<p class="text-muted">No feedback for this filter.</p>';
+            return;
         }
 
-        function renderFeedbackList(reviews) {
-            const container = document.getElementById("feedbackList");
-            container.innerHTML = "";
+        reviews.forEach(review => {
+            const stars = Array.from({length: 5}, (_, i) =>
+                `<i class="bi bi-star-fill ${i < review.rating ? 'text-warning' : 'text-secondary'}"></i>`
+            ).join('');
 
-            if (reviews.length === 0) {
-                container.innerHTML = '<p class="text-muted">No feedback for this filter.</p>';
-                return;
-            }
-
-            reviews.forEach(review => {
-                const stars = Array.from({ length: 5 }, (_, i) =>
-                    `<i class="bi bi-star-fill ${i < review.rating ? 'text-warning' : 'text-secondary'}"></i>`
-                ).join('');
-
-                const html = `
+            const html = `
                     <div class="border rounded p-3 mb-3 shadow-sm">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <strong>${review.username}</strong>
@@ -188,39 +194,39 @@
                         <p>${review.comment}</p>
                     </div>
                     `;
-                container.innerHTML += html;
+            container.innerHTML += html;
+        });
+    }
+
+    function formatVietnameseDateTime(isoString) {
+        const dateObj = new Date(isoString);
+
+        const datePart = dateObj.toLocaleDateString('vi-VN'); // "31/07/2025"
+        const timePart = dateObj.toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }); // "13:47"
+
+        return `${datePart} at ${timePart}`;
+    }
+
+    function renderPagination(totalPages) {
+        const container = document.getElementById("feedbackPagination");
+        container.innerHTML = "";
+
+        for (let i = 0; i < totalPages; i++) {
+            const li = document.createElement("li");
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
+            li.addEventListener("click", e => {
+                e.preventDefault();
+                currentPage = i;
+                loadFeedbacks();
             });
+            container.appendChild(li);
         }
-
-        function formatVietnameseDateTime(isoString) {
-            const dateObj = new Date(isoString);
-
-            const datePart = dateObj.toLocaleDateString('vi-VN'); // "31/07/2025"
-            const timePart = dateObj.toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-            }); // "13:47"
-
-            return `${datePart} at ${timePart}`;
-        }
-
-        function renderPagination(totalPages) {
-            const container = document.getElementById("feedbackPagination");
-            container.innerHTML = "";
-
-            for (let i = 0; i < totalPages; i++) {
-                const li = document.createElement("li");
-                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
-                li.addEventListener("click", e => {
-                    e.preventDefault();
-                    currentPage = i;
-                    loadFeedbacks();
-                });
-                container.appendChild(li);
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 
 </html>

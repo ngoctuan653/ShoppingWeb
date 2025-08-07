@@ -229,7 +229,6 @@ public class ProductController {
         }
     }
 
-
     @GetMapping("/products/{id}")
     public String getProductDetail(@PathVariable Integer id,
                                    Model model,
@@ -241,10 +240,13 @@ public class ProductController {
         if (userDetails != null) {
             User currentUser = userDetails.getUser();
             inWishlist = wishlistService.existsInWishlist(currentUser.getId(), id);
+            model.addAttribute("currentUserId", userDetails.getUser().getId());
+            model.addAttribute("receiverId", 1);
         }
-        model.addAttribute("inWishlist", inWishlist);
         List<Review> reviews = reviewRepository.findByProductIdOrderByCreatedAtDesc(id);
+        model.addAttribute("inWishlist", inWishlist);
         model.addAttribute("reviews", reviews);
+
         return "product-detail";
     }
 
