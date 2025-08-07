@@ -68,5 +68,13 @@
                 <span>Discount</span>
             </a>
         </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/review-manage}"
+               class="menu-link"
+            th:classappend="${activePage == 'reviews'} ? ' active'">
+                <span class="menu-icon">⭐</span>
+                <span>Review</span>
+            </a>
+        </li>
     </ul>
 </nav>
