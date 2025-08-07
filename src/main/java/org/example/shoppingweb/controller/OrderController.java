@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +135,7 @@ public class OrderController {
 
             orderService.updateOrderStatusById(orderId, statusId);
 
-            return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái thành công"));
+            return ResponseEntity.ok(Map.of("message", "Updated successfully!"));
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body(Map.of("message", "statusId không hợp lệ!"));
         } catch (Exception e) {
@@ -165,6 +166,15 @@ public class OrderController {
                     .collect(Collectors.toList()));
             response.put("date", order.getOrderDate());
             response.put("total", order.getTotalAmount());
+            BigDecimal discountAmount = BigDecimal.ZERO;
+            if (order.getDiscount() != null) {
+                BigDecimal totalBeforeDiscount = order.getTotalAmountBeforeDiscount();
+                discountAmount = totalBeforeDiscount
+                        .multiply(order.getDiscount().getDiscountPercentage())
+                        .divide(BigDecimal.valueOf(100));
+            }
+            response.put("discount", discountAmount);
+
 
             List<Map<String, Object>> productList = details.stream().map(detail -> {
                 Map<String, Object> p = new HashMap<>();

@@ -164,6 +164,10 @@ function viewOrderDetail(orderId) {
                         <h3 class="detail-title">Product</h3>
                         ${productsHtml}
                         <div class="detail-row" style="font-weight: 600; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px;">
+                            <span class="detail-label">Discount:</span>
+                            <span class="detail-value">${formatCurrency(orderData.discount)}</span>
+                        </div>
+                        <div class="detail-row" style="font-weight: 600; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px;">
                             <span class="detail-label">Total Amount:</span>
                             <span class="detail-value">${formatCurrency(orderData.total)}</span>
                         </div>
@@ -319,17 +323,17 @@ function updateActionButtons(orderId, newStatus) {
     if (!actionDiv) return;
 
     let buttonsHtml = `
-        <button class="btn-sm btn-primary" onclick="viewOrderDetail(${orderId})">Xem</button>
+        <button class="btn-sm btn-primary" onclick="viewOrderDetail(${orderId})">View</button>
     `;
 
     if (newStatus === 'pending') {
         buttonsHtml += `
-            <button class="btn-sm btn-success" onclick="updateOrderStatus(${orderId}, 'confirmed')" data-action="confirmed-${orderId}">Xử lý</button>
-            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Hủy</button>
+            <button class="btn-sm btn-success" onclick="updateOrderStatus(${orderId}, 'confirmed')" data-action="confirmed-${orderId}">Handle</button>
+            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Cancel</button>
         `;
     } else if (newStatus === 'confirmed') {
         buttonsHtml += `
-            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Hủy</button>
+            <button class="btn-sm btn-danger" onclick="updateOrderStatus(${orderId}, 'cancelled')" data-action="cancelled-${orderId}">Cancel</button>
         `;
     }
 
@@ -364,8 +368,6 @@ function updateStats() {
             console.error("Lỗi tải thống kê:", err);
         });
 }
-
-
 
 
 // Show bulk action modal
