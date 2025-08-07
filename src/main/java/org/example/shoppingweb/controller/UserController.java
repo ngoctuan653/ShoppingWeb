@@ -82,7 +82,7 @@ public class UserController {
         session.setAttribute("currentUser", currentUser);
 
         model.addAttribute("user", currentUser);
-        model.addAttribute("success", "Cập nhật thành công!");
+        model.addAttribute("success", "Update profile successfully!");
 
         return "profile";
     }
