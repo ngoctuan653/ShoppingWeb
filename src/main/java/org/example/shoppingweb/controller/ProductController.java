@@ -165,9 +165,15 @@ public class ProductController {
     public ResponseEntity<?> addProduct(
             @RequestPart("product") ProductRequest request,
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
-        Product product = productService.createProduct(request, imageFile);
-        return ResponseEntity.ok(product);
+        try {
+            Product product = productService.createProduct(request, imageFile);
+            return ResponseEntity.ok(product);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi xử lý file: " + e.getMessage());
+        }
     }
+
 
     @PostMapping("/products/update/{id}")
     public ResponseEntity<?> updateProduct(

@@ -48,10 +48,6 @@ public class ProductService {
         return subCategoryRepository.findAll();
     }
 
-    public List<Product> getAllActiveProducts() {
-        return productRepository.findByStatus("Active");
-    }
-
     public List<Brand> getAllBrands() {
         return brandRepository.findAll();
     }
@@ -99,32 +95,10 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    public void saveProduct(Product product) {
-        if (product.getStatus() == null || product.getStatus().isBlank()) {
-            product.setStatus("Active");
-        }
-        product.setCreatedAt(Instant.now());
-        product.setUpdatedAt(Instant.now());
-        productRepository.save(product);
-    }
-
-
     public void deleteProduct(Integer id) {
         productRepository.deleteById(id);
     }
 
-    public Category getCategoryByProductId(Integer productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        return (product != null && product.getSubcategory() != null)
-                ? product.getSubcategory().getCategory()
-                : null;
-    }
-
-
-    public Brand getBrandByProductId(Integer productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        return product != null ? product.getBrand() : null;
-    }
 
     public void updateStatus(Integer id, String status) {
         Optional<Product> optionalProduct = productRepository.findById(id);
@@ -150,68 +124,76 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-
-    public Product createProduct(ProductRequest req, MultipartFile imageFile) {
-        Subcategory subCategory = subCategoryRepository.findById(req.getSubCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("SubCategory not found"));
-
-        Category category = categoryRepository.findById(req.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
-
-        Brand brand = brandRepository.findById(req.getBrandId())
-                .orElseThrow(() -> new IllegalArgumentException("Brand not found"));
-
+    @Transactional
+    public Product createProduct(ProductRequest req, MultipartFile image) throws IOException {
         Product product = new Product();
         product.setProductName(req.getProductName());
         product.setDescription(req.getDescription());
         product.setPrice(req.getPrice());
-        product.setStockQuantity(0);
-        product.setCategory(category);
-        product.setSubcategory(subCategory);
-        product.setBrand(brand);
+        product.setStatus(req.getStatus());
         product.setCreatedAt(Instant.now());
         product.setUpdatedAt(Instant.now());
-        product.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            try {
-                product.setImage(imageFile.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException("Error reading image file", e);
-            }
+        Category category = categoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        Subcategory subcategory = subCategoryRepository.findById(req.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("Subcategory not found"));
+        Brand brand = brandRepository.findById(req.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found"));
+
+        product.setCategory(category);
+        product.setSubcategory(subcategory);
+        product.setBrand(brand);
+
+        if (image != null && !image.isEmpty()) {
+            product.setImage(image.getBytes());
         }
 
+        // Lưu trước để có ID
         Product savedProduct = productRepository.save(product);
 
-        int totalStock = 0;
-
-        if (req.getSizes() != null) {
-            for (ProductSizeRequest sizeReq : req.getSizes()) {
-                Size size = sizeRepository.findBySizeLabel(sizeReq.getSizeLabel().trim())
-                        .orElseGet(() -> {
-                            Size newSize = new Size();
-                            newSize.setSizeLabel(sizeReq.getSizeLabel().trim());
-                            newSize.setDescription("");
-                            return sizeRepository.save(newSize);
-                        });
-
-                Productsize ps = new Productsize();
-                ps.setProduct(savedProduct);
-                ps.setSize(size);
-                ps.setStockQuantity(sizeReq.getStockQuantity());
-                ps.setCreatedAt(Instant.now());
-                ps.setUpdatedAt(Instant.now());
-
-                productSizeRepository.save(ps);
-                totalStock += sizeReq.getStockQuantity();
-            }
+        // Gom các size theo label (loại bỏ khoảng trắng và chuẩn hóa về uppercase)
+        Map<String, Integer> sizeQuantityMap = new HashMap<>();
+        for (ProductSizeRequest sizeReq : req.getSizes()) {
+            String normalizedLabel = sizeReq.getSizeLabel().trim().toUpperCase();
+            sizeQuantityMap.put(normalizedLabel,
+                    sizeQuantityMap.getOrDefault(normalizedLabel, 0) + sizeReq.getStockQuantity());
         }
 
-        savedProduct.setStockQuantity(totalStock);
-        productRepository.save(savedProduct);
+        int totalStock = 0;
+        List<Productsize> productSizes = new ArrayList<>();
 
-        return savedProduct;
+        for (Map.Entry<String, Integer> entry : sizeQuantityMap.entrySet()) {
+            String sizeLabel = entry.getKey();
+            int quantity = entry.getValue();
+
+            Size size = sizeRepository.findBySizeLabel(sizeLabel)
+                    .orElseGet(() -> {
+                        Size newSize = new Size();
+                        newSize.setSizeLabel(sizeLabel);
+                        newSize.setDescription("");
+                        newSize.setCreatedAt(Instant.now());
+                        newSize.setUpdatedAt(Instant.now());
+                        return sizeRepository.save(newSize);
+                    });
+
+            Productsize ps = new Productsize();
+            ps.setProduct(savedProduct);
+            ps.setSize(size);
+            ps.setStockQuantity(quantity);
+            ps.setCreatedAt(Instant.now());
+            ps.setUpdatedAt(Instant.now());
+
+            productSizes.add(ps);
+            totalStock += quantity;
+        }
+
+        productSizeRepository.saveAll(productSizes);
+        savedProduct.setStockQuantity(totalStock);
+
+        return productRepository.save(savedProduct);
     }
+
 
 
     @Transactional
@@ -240,59 +222,64 @@ public class ProductService {
             product.setImage(image.getBytes());
         }
 
+        // Lấy danh sách size hiện có
         List<Productsize> existingSizes = productSizeRepository.findByProduct(product);
         Map<Integer, Productsize> existingSizeMap = existingSizes.stream()
                 .filter(ps -> ps.getSize() != null && ps.getSize().getId() != null)
                 .collect(Collectors.toMap(ps -> ps.getSize().getId(), ps -> ps));
 
+        // Gom nhóm theo sizeLabel (chuyển về uppercase để chuẩn hóa)
+        Map<String, Integer> mergedSizes = new HashMap<>();
+        for (ProductSizeRequest sizeDTO : productRequest.getSizes()) {
+            String normalizedLabel = sizeDTO.getSizeLabel().trim().toUpperCase();
+            mergedSizes.put(normalizedLabel,
+                    mergedSizes.getOrDefault(normalizedLabel, 0) + sizeDTO.getStockQuantity());
+        }
+
         List<Productsize> updatedSizes = new ArrayList<>();
 
-        for (ProductSizeRequest sizeDTO : productRequest.getSizes()) {
-            Size size;
+        for (Map.Entry<String, Integer> entry : mergedSizes.entrySet()) {
+            String sizeLabel = entry.getKey();
+            int stockQuantity = entry.getValue();
 
-            if (sizeDTO.getId() != null) {
-                size = sizeRepository.findById(sizeDTO.getId())
-                        .orElseGet(() -> sizeRepository.findBySizeLabel(sizeDTO.getSizeLabel())
-                                .orElseGet(() -> {
-                                    Size newSize = new Size(sizeDTO.getSizeLabel());
-                                    newSize.setCreatedAt(Instant.now());
-                                    newSize.setUpdatedAt(Instant.now());
-                                    return sizeRepository.save(newSize);
-                                }));
-            } else {
-                size = sizeRepository.findBySizeLabel(sizeDTO.getSizeLabel())
-                        .orElseGet(() -> {
-                            Size newSize = new Size(sizeDTO.getSizeLabel());
-                            newSize.setCreatedAt(Instant.now());
-                            newSize.setUpdatedAt(Instant.now());
-                            return sizeRepository.save(newSize);
-                        });
-            }
+            Size size = sizeRepository.findBySizeLabel(sizeLabel)
+                    .orElseGet(() -> {
+                        Size newSize = new Size();
+                        newSize.setSizeLabel(sizeLabel);
+                        newSize.setCreatedAt(Instant.now());
+                        newSize.setUpdatedAt(Instant.now());
+                        return sizeRepository.save(newSize);
+                    });
 
             Productsize existing = existingSizeMap.get(size.getId());
 
             if (existing != null) {
-                existing.setStockQuantity(sizeDTO.getStockQuantity());
+                // Cập nhật size đã tồn tại
+                existing.setStockQuantity(stockQuantity);
                 existing.setUpdatedAt(Instant.now());
                 updatedSizes.add(existing);
                 existingSizeMap.remove(size.getId());
             } else {
+                // Tạo size mới
                 Productsize newSize = new Productsize();
                 newSize.setProduct(product);
                 newSize.setSize(size);
-                newSize.setStockQuantity(sizeDTO.getStockQuantity());
+                newSize.setStockQuantity(stockQuantity);
                 newSize.setCreatedAt(Instant.now());
                 newSize.setUpdatedAt(Instant.now());
                 updatedSizes.add(newSize);
             }
         }
 
+        // Xoá các size không còn nữa
         for (Productsize ps : existingSizeMap.values()) {
             productSizeRepository.delete(ps);
         }
 
+        // Lưu tất cả size
         productSizeRepository.saveAll(updatedSizes);
 
+        // Tính tổng stock
         int totalStock = updatedSizes.stream()
                 .mapToInt(ps -> ps.getStockQuantity() != null ? ps.getStockQuantity() : 0)
                 .sum();
@@ -300,6 +287,7 @@ public class ProductService {
 
         return productRepository.save(product);
     }
+
 
     public ProductRequest getProductRequestById(Integer id) {
         Product product = getProductById(id);
@@ -340,7 +328,4 @@ public class ProductService {
 
         return request;
     }
-
-
-
 }
