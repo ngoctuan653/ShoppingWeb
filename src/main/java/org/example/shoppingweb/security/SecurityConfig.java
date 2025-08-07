@@ -32,10 +32,12 @@ public class SecurityConfig {
                                 "/products/**", "/search", "/images/**", "/{productId}/sizes",
                                 "/verify-reset-code", "/reset-password", "/resend-code"
                         ).permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {

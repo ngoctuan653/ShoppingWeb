@@ -12,4 +12,6 @@ public class ReviewResponse {
     private String comment;
     private int rating;
     private Instant createdAt;
+    private String adminReply;
+    private Instant repliedAt;
 }
