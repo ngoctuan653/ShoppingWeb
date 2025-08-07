@@ -252,7 +252,7 @@ function updateOrderStatus(orderId, newStatus) {
         'pending': 'Pending',
         'confirmed': 'Confirmed',
         'shipped': 'Shipping',
-        'completed': 'Completed',
+        'delivered': 'Completed',
         'cancelled': 'Cancelled'
     };
 
@@ -261,7 +261,7 @@ function updateOrderStatus(orderId, newStatus) {
         'pending': 1,
         'confirmed': 2,
         'shipped': 3,
-        'completed': 4,
+        'delivered': 4,
         'cancelled': 5
     };
 
@@ -300,7 +300,7 @@ function updateOrderStatus(orderId, newStatus) {
                         'pending': 'status-pending',
                         'confirmed': 'status-processing',
                         'shipping': 'status-shipping',
-                        'completed': 'status-completed',
+                        'delivered': 'status-completed',
                         'cancelled': 'status-cancelled'
                     };
                     statusSpan.classList.add(classMap[newStatus]);
@@ -392,7 +392,7 @@ function executeBulkAction(action) {
         'pending': 'status-pending',
         'confirmed': 'status-processing',
         'shipping': 'status-shipping',
-        'completed': 'status-completed',
+        'delivered': 'status-completed',
         'cancelled': 'status-cancelled'
     };
 

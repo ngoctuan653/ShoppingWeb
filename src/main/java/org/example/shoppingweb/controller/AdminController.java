@@ -36,7 +36,7 @@ public class AdminController {
     private OrderDetailRepository orderDetailRepository;
 
     private static final Set<String> VALID_ORDER_STATUSES = Set.of(
-            "shipped"
+            "delivered"
     );
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -59,17 +59,14 @@ public class AdminController {
                 })
                 .collect(Collectors.toList());
 
-        // Tổng doanh thu từ đơn hợp lệ
         BigDecimal totalRevenue = validOrders.stream()
                 .map(Order::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         model.addAttribute("totalRevenue", totalRevenue);
 
-        // Đơn hàng gần đây (hiển thị 5 đơn gần nhất bất kể trạng thái)
         List<Order> recentOrders = orderRepository.findTop5ByOrderByOrderDateDesc();
         model.addAttribute("recentOrders", recentOrders);
 
-        // Doanh thu 6 tháng gần nhất (từ đơn hợp lệ)
         Instant sixMonthsAgo = LocalDateTime.now().minusMonths(5).withDayOfMonth(1)
                 .atZone(ZoneId.systemDefault()).toInstant();
         Map<Integer, BigDecimal> revenueByMonth = new TreeMap<>();
@@ -89,7 +86,6 @@ public class AdminController {
         model.addAttribute("months", months);
         model.addAttribute("revenues", revenues);
 
-        // Top sản phẩm bán chạy (từ đơn hợp lệ)
         List<Orderdetail> validDetails = orderDetailRepository.findAll().stream()
                 .filter(od -> {
                     Order order = od.getOrder();
@@ -104,7 +100,6 @@ public class AdminController {
                         Collectors.summingLong(Orderdetail::getQuantity)
                 ));
 
-        // Bảng top 5 sản phẩm
         List<Product> topProducts = productSoldMap.entrySet().stream()
                 .sorted(Map.Entry.<Product, Long>comparingByValue().reversed())
                 .limit(5)
@@ -116,7 +111,6 @@ public class AdminController {
                 .collect(Collectors.toList());
         model.addAttribute("topProducts", topProducts);
 
-        // Pie chart - top 3 sản phẩm
         List<Map.Entry<Product, Long>> top3 = productSoldMap.entrySet().stream()
                 .sorted(Map.Entry.<Product, Long>comparingByValue().reversed())
                 .limit(3)

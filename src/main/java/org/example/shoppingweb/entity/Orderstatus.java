@@ -41,8 +41,8 @@ public class Orderstatus {
         return switch (statusName) {
             case "Pending" -> "status-pending";
             case "Confirmed" -> "status-processing";
-            case "Delivered" -> "status-shipping";
-            case "Shipped" -> "status-completed";
+            case "Shipped" -> "status-shipping";
+            case "Delivered" -> "status-completed";
             case "Cancelled" -> "status-cancelled";
             default -> "";
         };
