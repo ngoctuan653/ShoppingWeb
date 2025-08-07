@@ -1,65 +1,72 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Sidebar</title>
-</head>
-<body>
-<div th:fragment="sidebar" id="sidebar" class="sidebar w-64 h-screen bg-white shadow-md overflow-y-auto">
-    <div class="px-4 py-6">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-xl font-bold text-gray-800 logo-text">Dashboard</h2>
-            <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700 toggle-btn">
-                <i class="bi bi-three-dots-vertical"></i>
-            </button>
-        </div>
-        <nav>
-            <ul class="space-y-2">
-                <li>
-                    <a th:href="@{/home}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-bag mr-3 text-black"></i>
-                        <span class="nav-text">Shop</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/dashboard}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-speedometer2 mr-3 text-black"></i>
-                        <span class="nav-text">Overview</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/product-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-cart3 mr-3 text-black"></i>
-                        <span class="nav-text">Products</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/categories}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-tags mr-3 text-black"></i>
-                        <span class="nav-text">Categories</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/users}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-people mr-3 text-black"></i>
-                        <span class="nav-text">Users</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/order-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-receipt mr-3 text-black"></i>
-                        <span class="nav-text">Orders</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/discount-manage}" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
-                        <i class="bi bi-percent mr-3 text-black"></i>
-                        <span class="nav-text">Discounts</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+<nav class="sidebar" id="sidebar" th:fragment="sidebar">
+    <div class="sidebar-brand">
+        <a href="#" class="brand-logo">StyleLegacy</a>
+        <div class="brand-subtitle">Admin Dashboard</div>
     </div>
-</div>
-</body>
-</html>
+
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a th:href="@{/home}"
+               class="menu-link">
+                <span class="menu-icon">🛍️</span>
+                <span>Back to Shop</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/dashboard}"
+               class="menu-link"
+               th:classappend="${activePage == 'dashboard'} ? ' active'">
+                <span class="menu-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/chat}"
+               class="menu-link"
+               th:classappend="${activePage == 'chat'} ? ' active'">
+                <span class="menu-icon">💬</span>
+                <span>Message</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/category-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'categories'} ? ' active'">
+                <span class="menu-icon">📋</span>
+                <span>Category</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/product-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'products'} ? ' active'">
+                <span class="menu-icon">👕</span>
+                <span>Product Management</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/order-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'orders'} ? ' active'">
+                <span class="menu-icon">📦</span>
+                <span>Order Management</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/users}"
+               class="menu-link"
+               th:classappend="${activePage == 'users'} ? ' active'">
+                <span class="menu-icon">👥</span>
+                <span>User</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a th:href="@{/admin/discount-manage}"
+               class="menu-link"
+               th:classappend="${activePage == 'discounts'} ? ' active'">
+                <span class="menu-icon">🏷️</span>
+                <span>Discount</span>
+            </a>
+        </li>
+    </ul>
+</nav>
