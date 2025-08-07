@@ -54,9 +54,27 @@
             <h2 class="fw-bold mb-4">Billing Information</h2>
             <form id="checkoutForm">
                 <div class="mb-3">
-                    <label for="shippingAddress" class="form-label">Shipping Address:</label>
-                    <textarea class="form-control" name="shippingAddress" id="shippingAddress" required></textarea>
+                    <label for="province" class="form-label">Tỉnh / Thành phố</label>
+                    <select id="province" class="form-select" required></select>
                 </div>
+
+                <div class="mb-3">
+                    <label for="district" class="form-label">Quận / Huyện</label>
+                    <select id="district" class="form-select" required disabled></select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ward" class="form-label">Phường / Xã</label>
+                    <select id="ward" class="form-select" required disabled></select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="addressDetail" class="form-label">Số nhà, tên đường</label>
+                    <input type="text" id="addressDetail" class="form-control" required>
+                </div>
+
+                <input type="hidden" name="shippingAddress" id="shippingAddress">
+
                 <div class="mb-3">
                     <label for="phone" class="form-label">Phone Number:</label>
                     <input type="text" class="form-control" name="phone" id="phone" required>
@@ -161,8 +179,76 @@
 <script src="/js/checkout.js"></script>
 <script src="/js/apply-discount.js"></script>
 <script>
+    const provinceSelect = document.getElementById("province");
+    const districtSelect = document.getElementById("district");
+    const wardSelect = document.getElementById("ward");
+    const addressDetailInput = document.getElementById("addressDetail");
+    const shippingAddress = document.getElementById("shippingAddress");
 
+    // Load danh sách tỉnh
+    fetch("https://provinces.open-api.vn/api/p/")
+        .then(res => res.json())
+        .then(provinces => {
+            provinces.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p.code;
+                option.textContent = p.name;
+                provinceSelect.appendChild(option);
+            });
+        });
+
+    // Khi chọn tỉnh, load huyện
+    provinceSelect.addEventListener("change", () => {
+        const provinceCode = provinceSelect.value;
+        districtSelect.innerHTML = '<option selected disabled>Chọn quận/huyện</option>';
+        wardSelect.innerHTML = '<option selected disabled>Chọn phường/xã</option>';
+        districtSelect.disabled = true;
+        wardSelect.disabled = true;
+
+        fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+            .then(res => res.json())
+            .then(data => {
+                data.districts.forEach(d => {
+                    const option = document.createElement("option");
+                    option.value = d.code;
+                    option.textContent = d.name;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false;
+            });
+    });
+
+    // Khi chọn huyện, load xã
+    districtSelect.addEventListener("change", () => {
+        const districtCode = districtSelect.value;
+        wardSelect.innerHTML = '<option selected disabled>Chọn phường/xã</option>';
+        wardSelect.disabled = true;
+
+        fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+            .then(res => res.json())
+            .then(data => {
+                data.wards.forEach(w => {
+                    const option = document.createElement("option");
+                    option.value = w.name;
+                    option.textContent = w.name;
+                    wardSelect.appendChild(option);
+                });
+                wardSelect.disabled = false;
+            });
+    });
+
+    // Ghép địa chỉ khi submit form
+    document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+        const selectedProvince = provinceSelect.options[provinceSelect.selectedIndex].text;
+        const selectedDistrict = districtSelect.options[districtSelect.selectedIndex].text;
+        const selectedWard = wardSelect.options[wardSelect.selectedIndex].text;
+        const detail = addressDetailInput.value;
+
+        const fullAddress = `${detail}, ${selectedWard}, ${selectedDistrict}, ${selectedProvince}`;
+        shippingAddress.value = fullAddress;
+    });
 </script>
+
 </body>
 
 </html>

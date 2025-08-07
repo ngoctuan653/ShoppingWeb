@@ -1,14 +1,21 @@
 document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const shippingAddress = document.getElementById("shippingAddress").value.trim();
+    const selectedProvince = provinceSelect.options[provinceSelect.selectedIndex]?.text || "";
+    const selectedDistrict = districtSelect.options[districtSelect.selectedIndex]?.text || "";
+    const selectedWard = wardSelect.options[wardSelect.selectedIndex]?.text || "";
+    const detail = addressDetailInput.value.trim();
+
+    const fullAddress = `${detail}, ${selectedWard}, ${selectedDistrict}, ${selectedProvince}`;
+    shippingAddress.value = fullAddress;
+
+    const shippingAddressValue = shippingAddress.value.trim();
     const phone = document.getElementById("phone").value.trim();
     const discountCode = document.getElementById("discountCode").value.trim();
     const paymentMethod = document.getElementById("paymentMethod").value.trim();
     const selectedMap = JSON.parse(localStorage.getItem("selectedCartItems") || "{}");
 
-    // Fetch cart to get correct quantity
-    const res = await fetch("/cart/json", {credentials: "include"});
+    const res = await fetch("/cart/json", { credentials: "include" });
     const cartData = await res.json();
 
     const items = cartData
@@ -20,12 +27,12 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
         }));
 
     if (items.length === 0) {
-        alert("You have not chosen any product.");
+        alert("Bạn chưa chọn sản phẩm nào.");
         return;
     }
 
     const requestBody = {
-        shippingAddress,
+        shippingAddress: shippingAddressValue,
         phone,
         discountCode,
         paymentMethod,
@@ -34,7 +41,7 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
 
     const response = await fetch("/cart/checkout-ajax", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(requestBody)
     });
@@ -42,16 +49,16 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
     if (response.ok) {
         const data = await response.json();
         if (data.redirectUrl) {
-            window.location.href = data.redirectUrl; // Redirect to payment gateway
+            window.location.href = data.redirectUrl;
         } else if (data.success) {
             localStorage.removeItem("selectedCartItems");
             window.location.href = `/order/success?id=${data.orderId}`;
         } else {
-            alert("Error: " + data.message);
+            alert("Lỗi: " + data.message);
         }
     } else {
         const text = await response.text();
-        alert("Error: " + text);
+        alert("Lỗi: " + text);
     }
 });
 
