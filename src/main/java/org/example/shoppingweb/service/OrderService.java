@@ -273,33 +273,6 @@ public class OrderService {
 
     }
 
-    @Transactional
-    public void updateOrderStatus(Integer orderId, String statusName) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        Orderstatus newStatus = orderStatusRepository.findByStatusName(statusName)
-                .orElseThrow(() -> new RuntimeException("Status '" + statusName + "' not found"));
-
-        order.setStatus(newStatus);
-        order.setUpdatedAt(Instant.now());
-        orderRepository.save(order);
-
-        emailService.sendOrderConfirmedNotification(order.getUser(), order);
-
-    }
-
-    @Transactional
-    public void markAsPaid(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-
-        order.setPaymentStatus("PAID");
-        order.setUpdatedAt(Instant.now());
-
-        orderRepository.save(order);
-    }
-
     public void updateOrderStatusById(Integer orderId, Integer statusId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
@@ -310,8 +283,7 @@ public class OrderService {
         order.setStatus(status);
         order.setUpdatedAt(Instant.now());
         orderRepository.save(order);
+        emailService.sendOrderConfirmedNotification(order.getUser(), order);
     }
-
-
 }
 
