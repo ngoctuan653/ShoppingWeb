@@ -140,7 +140,7 @@
                         <td th:text="${product.category.categoryName}">T-Shirts</td>
                         <td th:text="${product.subcategory.subcategoryName}">T-Shirts</td>
                         <td th:text="${product.brand.brandName}">Generic Brand</td>
-                        <td th:text="${product.formatPrice(product.price)} + ' USD'" class="price">$299</td>
+                        <td th:text="${product.formatPrice(product.price)} + ' VNĐ'" class="price">$299</td>
                         <td><span th:text="${product.stockQuantity}" class="stock-level stock-high">156</span></td>
                         <td>
                             <span th:text="${product.status}" th:classappend="${product.status == 'Active'} ? 'status-active' : 'status-inactive'" class="status-badge"></span>

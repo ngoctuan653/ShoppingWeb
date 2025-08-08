@@ -1,6 +1,7 @@
 package org.example.shoppingweb.controller;
 
 
+import org.example.shoppingweb.DTO.ProductManageDTO;
 import org.example.shoppingweb.DTO.ProductRequest;
 import org.example.shoppingweb.DTO.SizeDTO;
 import org.example.shoppingweb.entity.*;
@@ -272,7 +273,7 @@ public class ProductController {
 
     @GetMapping("/admin/products/search")
     @ResponseBody
-    public ResponseEntity<List<Product>> searchAdminProducts(
+    public ResponseEntity<List<ProductManageDTO>> searchAdminProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer brand,
             @RequestParam(required = false) Integer category,
@@ -300,7 +301,35 @@ public class ProductController {
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(filtered);
+        // ✅ Chuyển sang DTO có chứa sizes
+        List<ProductManageDTO> dtoList = filtered.stream().map(p -> {
+            List<SizeDTO> sizeDTOs = p.getProductSizes() != null
+                    ? p.getProductSizes().stream()
+                    .map(ps -> new SizeDTO(
+                            ps.getId(),
+                            ps.getSize().getSizeLabel(),
+                            ps.getStockQuantity()
+                    ))
+                    .collect(Collectors.toList())
+                    : List.of();
+
+            return new ProductManageDTO(
+                    p.getId(),
+                    p.getProductName(),
+                    p.getPrice(),
+                    p.getStatus(),
+                    p.getStockQuantity(),
+                    p.getCreatedAt(),
+                    p.getCategory() != null ? p.getCategory().getCategoryName() : null,
+                    p.getSubcategory() != null ? p.getSubcategory().getSubcategoryName() : null,
+                    p.getBrand() != null ? p.getBrand().getBrandName() : null,
+                    sizeDTOs
+            );
+        }).collect(Collectors.toList());
+
+
+        return ResponseEntity.ok(dtoList);
     }
+
 
 }

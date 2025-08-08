@@ -444,17 +444,21 @@ function renderProductTable(products) {
                     </div>
                 </td>
                 <td>${product.id}</td>
-                <td>${product.category?.categoryName || ''}</td>
-                <td>${product.subcategory?.subcategoryName || ''}</td>
-                <td>${product.brand?.brandName || ''}</td>
-                <td class="price">${formatCurrencyInput(product.price)}đ</td>
+                <td>${product.categoryName || ''}</td>
+                <td>${product.subcategoryName || ''}</td>
+                <td>${product.brandName || ''}</td>
+                <td class="price">${formatCurrencyInput(product.price)} VNĐ</td>
                 <td><span class="stock-level">${product.stockQuantity ?? 0}</span></td>
                 <td>
                     <span class="status-badge ${product.status === 'Active' ? 'status-active' : 'status-inactive'}">
                         ${product.status}
                     </span>
                 </td>
-                <td>${new Date(product.createdAt).toLocaleString('en-US')}</td>
+                <td>
+                  ${new Date(product.createdAt).toLocaleDateString('vi-VN')} 
+                  at 
+                  ${new Date(product.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                </td>
                 <td>
                     <div class="actions">
                         <button class="action-btn action-view" data-product-id="${product.id}" title="Hide">👁️</button>
